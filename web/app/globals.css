@@ -2,6 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
+.simon_red {
+	background-color: red;
+}
+.simon_red_blink {
+	background-color: darkred;
+}
+.simon_blue {
+	background-color: blue;
+}
+.simon_blue_blink {
+	background-color: darkblue;
+}
+.simon_green {
+	background-color: green;
+}
+.simon_green_blink {
+	background-color: darkgreen;
+}
+.simon_yellow {
+	background-color: yellow;
+}
+.simon_yellow_blink {
+	background-color: darkgoldenrod;
+}
+
 @layer components {
 	.menu_background {
 		position: absolute;
