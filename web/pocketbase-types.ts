@@ -12,7 +12,7 @@ export type RecordIdString = string
 export type HTMLString = string
 
 // System fields
-export type BaseSystemFields<T = never> = {
+export type BaseSystemFields<T> = {
 	id: RecordIdString
 	created: IsoDateString
 	updated: IsoDateString
@@ -36,7 +36,7 @@ export type UsersRecord = {
 }
 
 // Response types include system fields and match responses from the PocketBase API
-export type UsersResponse = UsersRecord & AuthSystemFields
+export type UsersResponse<T = null> = UsersRecord & AuthSystemFields<T>
 
 // Types containing all Records and Responses, useful for creating typing helper functions
 

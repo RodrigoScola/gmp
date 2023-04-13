@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react"
+import React, { ComponentProps } from "react"
 
 export type MenuProps = {
 	title?: string
@@ -12,14 +12,14 @@ export type MenuProps = {
 	onToggle?: () => void
 }
 
-export const Menu = (props: MenuProps) => {
+export const Menu = (props: ComponentProps<"div"> & MenuProps) => {
 	const { TriggerElement, children } = props
 
 	return (
 		<>
 			<button onClick={() => props.onOpen()}>{TriggerElement}</button>
 
-			{props.isOpen && <div>{children}</div>}
+			{props.isOpen && <div {...props}>{children}</div>}
 		</>
 	)
 }
