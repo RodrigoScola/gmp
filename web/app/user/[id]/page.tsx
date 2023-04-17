@@ -59,6 +59,19 @@ export default async function PROFILEPAGE({
 			<div className="w-fit m-auto">
 				<h3 className="text-3xl text-center">Matches</h3>
 				<ul className="space-y-2">
+					<li className="w-full bg-red-50">
+						<div className="flex flex-row">
+							<div></div>
+							<div className="">
+								<div className="inline-flex gap-3">
+									<p>25 min ago</p>
+									<p>*</p>
+									<p>New Record</p>
+								</div>
+								<p className="text-4xl">29 rounds</p>
+							</div>
+						</div>
+					</li>
 					{new Array(4).fill(0).map((_, i) => {
 						return (
 							<li key={i}>

@@ -2,6 +2,7 @@
 
 import { getGame } from "@/data/games"
 import { GameNames, GameType, gameNames } from "@/types"
+import Link from "next/link"
 import { useState } from "react"
 
 const cardClassName = " rounded-md outline-2 text-2xl  outline-slate-200 outline  py-5 flex justify-center "
@@ -25,9 +26,11 @@ export default function PLAYPAGE() {
 				<div className="grid grid-cols-2 gap-2 max-w-3xl m-auto text-black">
 					{gameNames.map((gameName) => {
 						return (
-							<div onClick={() => toggleGame(gameName)} className={`${cardClassName} ${!games.includes(getGame(gameName)) ? "bg-slate-200" : "bg-blue-700"}`}>
-								<h3>{gameName}</h3>
-							</div>
+							<Link href={`/test/games/${gameName.replace(/ /gi, "").toLowerCase()}`}>
+								<div onClick={() => toggleGame(gameName)} className={`${cardClassName} ${!games.includes(getGame(gameName)) ? "bg-slate-200" : "bg-blue-700"}`}>
+									<h3>{gameName}</h3>
+								</div>
+							</Link>
 						)
 					})}
 				</div>

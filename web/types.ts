@@ -22,6 +22,24 @@ export type GameNames = "Simon Says" | "connect Four" | "Rock Paper Scissors" | 
 
 export const gameNames: GameNames[] = ["Simon Says", "connect Four", "Rock Paper Scissors", "Tic Tac Toe"]
 
+export enum SimonGameState {
+	START = "Start",
+	PLAYING = "Playing",
+	END = "End",
+	WAITING = "Waiting",
+}
+export type Coords = {
+	x: number
+	y: number
+}
+export enum TicTacToeGameState {
+	START = "Start",
+	PLAYING = "Playing",
+	END = "End",
+	TIE = "TIE",
+	ENEMYTURN = "Enemy Turn",
+	WAITING = "Waiting",
+}
 export interface GameType {
 	name: GameNames
 	id: number

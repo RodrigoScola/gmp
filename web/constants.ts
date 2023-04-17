@@ -1,4 +1,5 @@
 import { getBadges, getFriendsGames } from "./data/baseFriends"
+import { ExtendedUser, User } from "./types"
 
 export const baseUser: User<ExtendedUser> = {
 	id: "a5daa2be-77f4-4ba0-b5e3-717cabf20ab5",
