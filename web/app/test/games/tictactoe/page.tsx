@@ -1,23 +1,31 @@
 "use client"
 import { baseUser } from "@/constants"
-import { checkBoard, Result } from "@/lib/TicTacToe"
+import { checkBoard, } from "@/lib/TicTacToe"
 import { Coords, TicTacToeGameState } from "@/types"
-import { Key, useEffect, useState } from "react"
+import { useState } from "react"
 import { useEffectOnce, useUpdateEffect } from "usehooks-ts"
-
-const generateboard = (): null[][] => {
-	let rows: string[][] = []
-	for (let i = 0; i < 3; i++) {
-		rows[i] = new Array(3).fill(null)
-	}
-	return rows
-}
 export type TicTacToeMove = {
 	userId: string
 	moveId: string
 	coords: Coords
 	type: "X" | "O" | null
 }
+const generateboard = (): TicTacToeMove[][] => {
+	let rows: TicTacToeMove[][] = []
+	for (let i = 0; i < 3; i++) {
+		rows[i] = new Array(3).fill({
+			userId: "asoidufaosduf0av09asf",
+			moveId: Date.now().toString(),
+			coords: {
+				x: 0,
+				y: 0,
+			},
+			type: null
+		})
+	}
+	return rows
+}
+
 
 const isValid = (board: (TicTacToeMove | null)[][], x: number = 0, y: number = 0): boolean => {
 	if (x < 0 || x > board.length || y < 0 || y > board.length) {
@@ -59,15 +67,18 @@ const sendLetter = (board: TicTacToeMove[][]): Promise<TicTacToeMove | null> => 
 
 const newBlock = ({ coords, type, userId }: Partial<TicTacToeMove>): TicTacToeMove => {
 	return {
-		coords,
+		coords: {
+			x: coords?.x ?? 0,
+			y: coords?.y ?? 0,
+		},
 		moveId: Date.now().toString(),
-		userId,
+		userId: userId ?? baseUser.id,
 		type: type || "O",
 	}
 }
 
 export default function TiCTACTOEPAGE() {
-	const [board, setBoard] = useState<(TicTacToeMove | null)[][]>(generateboard())
+	const [board, setBoard] = useState<(TicTacToeMove)[][]>(generateboard())
 	const [gameState, setGameState] = useState<TicTacToeGameState>(TicTacToeGameState.WAITING)
 
 	const addToBoard = async (x: number, y: number) => {
@@ -119,10 +130,10 @@ export default function TiCTACTOEPAGE() {
 	return (
 		<>
 			<div>
-				{board.map((row: (TicTacToeMove | null)[], i: Key) => {
+				{board.map((row: (TicTacToeMove | null)[], i: number) => {
 					return (
 						<div className="flex" key={i}>
-							{row.map((col: TicTacToeMove | null, j: Key) => {
+							{row.map((col: TicTacToeMove | null, j: number) => {
 								return (
 									<div
 										onClick={() => {
