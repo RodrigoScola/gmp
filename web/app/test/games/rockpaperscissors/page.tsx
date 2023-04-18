@@ -1,33 +1,21 @@
 'use client'
 
 import { baseUser } from "@/constants"
-import { platform } from "os"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useUpdateEffect } from "usehooks-ts"
 
 type options = 'rock' | 'paper' | 'scissors'
 const options: options[] = ['rock', 'paper', 'scissors']
 const roption = (): options => options[Math.floor(Math.random() * options.length)]
-
-
 type Combination = {
     winner: options,
     loser: options,
     ties?: options
 }
 const combinations: Combination[] = [
-    {
-        winner: 'rock',
-        loser: 'scissors',
-    },
-    {
-        winner: 'paper',
-        loser: 'rock',
-    },
-    {
-        winner: 'scissors',
-        loser: 'paper',
-    },
+    { winner: 'rock', loser: 'scissors', },
+    { winner: 'paper', loser: 'rock', },
+    { winner: 'scissors', loser: 'paper', },
 ]
 
 const getWinnerCombination = (opt1: options, opt2: options): options => {
@@ -54,7 +42,8 @@ enum GameState {
     selecting,
     waiting,
     playing,
-    results
+    results,
+    end
 }
 type Player = {
     choice: options | null,
@@ -70,6 +59,9 @@ type Rounds = {
     count: number,
     rounds: Round[]
 }
+
+
+const maxWins = 5;
 
 export default function ROCKPAPERSCISSORSPAGE() {
     const [currentPlayer, setCurrentPlayer] = useState<Player>({
@@ -124,24 +116,37 @@ export default function ROCKPAPERSCISSORSPAGE() {
             ]
         }))
     }
-
     useUpdateEffect(() => {
+
         if (gameState == GameState.waiting && opponent.choice != null) {
+
             setGameState(GameState.results)
             handleResults(currentPlayer, opponent)
+
             setTimeout(() => {
                 setGameState(GameState.selecting)
                 setPlayer(current => ({
                     ...current, choice: null
                 }))
-            }, 20000)
+            }, 2000)
         }
     }, [opponent.choice])
     console.log(rounds)
 
+    useUpdateEffect(() => {
+
+        if (currentPlayer.wins == maxWins) {
+            setGameState(GameState.end)
+        }
+        if (opponent.wins == maxWins) {
+            setGameState(GameState.end)
+        }
+    }, [currentPlayer.wins, opponent.wins])
+
+
+
     return <div>state : {gameState}
 
-        {/* p1 */}
         <div className="gap-2 flex flex-row"><div className="flex">
             {[0, 1, 2, 3, 4].map((v, i) => {
                 return <div className={`w-6 h-6 outline outline-2 gap-2 rounded-full ${i < currentPlayer.wins ? 'bg-red-50' : null} `} key={i}>
@@ -198,6 +203,24 @@ export default function ROCKPAPERSCISSORSPAGE() {
                     <div>
                         you : {getWinner(currentPlayer, opponent).userId == currentPlayer.userId ? 'won' : 'lost'}
                     </div>
+                </div>
+            )
+        }
+        {
+            gameState == GameState.end && (
+                <div>
+                    <div>THe winner is</div>
+                    {
+                        currentPlayer.wins == maxWins ? (
+                            <div>
+                                {currentPlayer.userId}
+                            </div>
+                        ) : (
+                            <div>
+                                {opponent.userId}
+                            </div>
+                        )
+                    }
                 </div>
             )
         }
