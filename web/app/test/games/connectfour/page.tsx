@@ -235,15 +235,15 @@ export default function CONNECTFOURPAGE() {
 				g.board[j][i]?.show()
 			}
 		}
-		if (win != 0) {
-			g.handleWin()
-		}
 		playerPos = Math.floor(p.mouseX / w)
 
 		const playerBall = new PlayerBall(playerPos, 0, player == 1 ? [0, 0, 255] : [255, 0, 0]);
 
 
 		playerBall.show()
+		if (win != 0) {
+			g.handleWin()
+		}
 	}
 
 	console.log(ref)

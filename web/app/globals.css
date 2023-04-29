@@ -3,51 +3,54 @@
 @tailwind utilities;
 
 .simon_red {
-	background-color: red;
+  background-color: red;
 }
 .simon_red_blink {
-	background-color: darkred;
+  background-color: darkred;
 }
 .simon_blue {
-	background-color: blue;
+  background-color: blue;
 }
 .simon_blue_blink {
-	background-color: darkblue;
+  background-color: darkblue;
 }
 .simon_green {
-	background-color: green;
+  background-color: green;
 }
 .simon_green_blink {
-	background-color: darkgreen;
+  background-color: darkgreen;
 }
 .simon_yellow {
-	background-color: yellow;
+  background-color: yellow;
 }
 .simon_yellow_blink {
-	background-color: darkgoldenrod;
+  background-color: darkgoldenrod;
 }
 
 @layer components {
-	.menu_background {
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		z-index: 2;
-		background-color: rgba(0, 0, 0, 0.5);
-	}
+  /* body {
+    @apply bg-gray-900 text-white;
+  } */
+  .menu_background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
 
-	.menu_background > * {
-		position: absolute;
-		width: 40vw;
-		right: 0;
-		height: 100vh;
-	}
-	.sidebar-icon {
-		@apply relative flex;
-	}
-	.sidebar-tooltip {
-		@apply absolute -top-3 p-2 m-2 min-w-max left-14 rounded-md shadow-md text-white bg-gray-900 text-xs font-bold transition-all duration-100 scale-0 origin-left;
-	}
+  .menu_background > * {
+    position: absolute;
+    width: 40vw;
+    right: 0;
+    height: 100vh;
+  }
+  .sidebar-icon {
+    @apply relative flex;
+  }
+  .sidebar-tooltip {
+    @apply absolute -top-3 p-2 m-2 min-w-max left-14 rounded-md shadow-md text-white bg-gray-900 text-xs font-bold transition-all duration-100 scale-0 origin-left;
+  }
 }

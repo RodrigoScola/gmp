@@ -49,7 +49,7 @@ export default function SimonSaysPAGE() {
 	const [sequence, setSequence] = useState<ColorType[]>(genRandomSequence(2))
 	const [playerSequence, setPlayerSequence] = useState<string[]>([])
 	const [round, setRound] = useState<number>(0)
-	const [maxRound, setMaxRound] = useState<number>(parseInt(localStorage.getItem("simon_max_score") as string) ?? 0)
+	const [maxRound, setMaxRound] = useState<number>(parseInt(localStorage.getItem("simon_max_score") ?? "1" as string) ?? 0)
 
 	const [refs, __] = useState<ColorRefs>({
 		red: useRef<HTMLButtonElement | null>(null),
@@ -123,14 +123,14 @@ export default function SimonSaysPAGE() {
 	}
 	return (
 		<div className="w-fit m-auto">
-			<div className="flex w-screen justify-around pb-10  px-10">
+			<div className="flex  justify-around pb-10 ">
 				<div>
 					<p>best score</p>
-					<p className="text-center">{maxRound}</p>
+					<p className="text-center">{maxRound ?? 0}</p>
 				</div>
 				<div>
 					<p>current score</p>
-					<p className="text-center">{round}</p>
+					<p className="text-center">{round ?? 0}</p>
 				</div>
 			</div>
 			<div className="grid grid-cols-2 gap-4 w-fit m-auto">

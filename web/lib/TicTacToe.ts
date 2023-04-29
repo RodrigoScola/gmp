@@ -2,10 +2,11 @@ import { TicTacToeMove } from "@/app/test/games/tictactoe/page"
 
 export type Result = {
 	winner: string | null
-	board: TicTacToeMove[][]
+	isTie: boolean
+	board: TicTacToeMove[] | null
 }
 
-export const checkDiagonal = (diagonal: TicTacToeMove[]): boolean => {
+export const checkLine = (diagonal: TicTacToeMove[]): boolean => {
 	if (diagonal.length === 0) return false
 	for (let i = 0; i < diagonal.length; i++) {
 		if (diagonal[i]?.type !== diagonal[0]?.type) {
@@ -14,41 +15,50 @@ export const checkDiagonal = (diagonal: TicTacToeMove[]): boolean => {
 	}
 	return true
 }
-
-export const checkBoard = (board: TicTacToeMove[][]) => {
+export const checkBoard = (board: TicTacToeMove[][]): Result => {
+	let winner: Result = {
+		winner: null,
+		board: null,
+		isTie: false
+	}
 	for (let i = 0; i < board.length; i++) {
-		if (checkDiagonal(board[i])) {
-			return {
-				winner: board[i][0]?.userId,
-				board: board,
-			}
+		if (checkLine(board[i])) {
+			winner.winner = board[i][0]?.userId
+			winner.board = board[i]
 		}
 		let col = board.map((row) => row[i])
-		if (checkDiagonal(col)) {
-			return {
-				winner: col[0]?.userId,
-				board: board,
-			}
+		if (checkLine(col)) {
+			winner.winner = col[0]?.userId
+			winner.board = col
 		}
 	}
+
 
 	let diag1 = board.map((row, index) => row[index])
 
-	if (checkDiagonal(diag1)) {
-		return {
-			winner: diag1[0]?.userId,
-			board: board,
-		}
+	if (checkLine(diag1)) {
+		winner.winner = diag1[0]?.userId
+		winner.board = diag1
 	}
 	let diag2 = board.map((row, index) => row[board.length - index - 1])
-	if (checkDiagonal(diag2)) {
-		return {
-			winner: diag2[0]?.userId,
-			board: board,
+	if (checkLine(diag2)) {
+		winner.winner = diag2[0]?.userId
+		winner.board = diag2
+	}
+
+
+
+	let isFull = true
+	for (let i = 0; i < board.length; i++) {
+		for (let j = 0; j < board[i].length; j++) {
+			if (!board[i][j].type) {
+				isFull = false
+			}
 		}
 	}
-	return {
-		winner: null,
-		board: board,
+	if (isFull == true && !winner.winner) {
+		winner.isTie = true
+		winner.winner = 'tie'
 	}
+	return winner
 }

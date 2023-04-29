@@ -1,7 +1,8 @@
 'use client'
 
 import { baseUser } from "@/constants"
-import { useState } from "react"
+import { User } from "@/types"
+import { useMemo, useState } from "react"
 import { useUpdateEffect } from "usehooks-ts"
 
 type options = 'rock' | 'paper' | 'scissors'
@@ -28,10 +29,10 @@ const getWinnerCombination = (opt1: options, opt2: options): options => {
     }
     return opt1
 }
-const getWinner = (p1: Player, p2: Player): Player => {
+const getWinner = (p1: Player, p2: Player): Player | null => {
     if (!p1.choice || !p2.choice) throw new Error('invalid players')
     if (p1.choice == p2.choice) {
-        return p1
+        return null
     }
     if (getWinnerCombination(p1.choice, p2.choice) == p1.choice) {
         return p1
@@ -45,19 +46,22 @@ enum GameState {
     results,
     end
 }
-type Player = {
+interface Player extends Partial<User> {
+    id: string,
     choice: options | null,
-    userId: string,
-    wins: number
 }
 
 type Round = {
     winner: Player,
-    loser: Player
+    loser: Player,
+    isTie: boolean
 }
 type Rounds = {
     count: number,
     rounds: Round[]
+    wins: {
+        [k: string]: number,
+    }
 }
 
 
@@ -66,25 +70,31 @@ const maxWins = 5;
 export default function ROCKPAPERSCISSORSPAGE() {
     const [currentPlayer, setCurrentPlayer] = useState<Player>({
         choice: null,
-        userId: baseUser.id,
-        wins: 0
+        id: baseUser.id,
+
+    })
+    const [opponent, setPlayer] = useState<Player>({
+        choice: null,
+        id: 'asdfasdfasd',
     })
     const [gameState, setGameState] = useState<GameState>(GameState.selecting)
 
     const [rounds, setRounds] = useState<Rounds>({
         count: 0,
         rounds: [
-        ]
-    })
-    const [opponent, setPlayer] = useState<Player>({
-        choice: null,
-        userId: 'asdfasdfasd',
-        wins: 0
+        ],
+        wins: {
+            [currentPlayer.id]: 0,
+            [opponent.id]: 0
+        }
+
     })
 
-
+    const matchEnd = useMemo(() => {
+        return gameState == GameState.end || Object.values(rounds.wins).some(item => item >= maxWins)
+    }, [currentPlayer, opponent, gameState])
     const handleChoice = (option: options) => {
-
+        if (matchEnd) return
         setGameState(GameState.waiting)
         setCurrentPlayer((current) => ({
             ...current, choice: option
@@ -95,53 +105,67 @@ export default function ROCKPAPERSCISSORSPAGE() {
             }))
         }, Math.floor(Math.random() * 1000))
     }
-    const handleResults = (p1: Player, p2: Player) => {
-        const winner = getWinner(p1, p2)
-        if (winner == p1) {
-            setCurrentPlayer(current => ({
-                ...current, wins: current.wins + 1
+
+    const newRound = (winner: Player, loser: Player, isTie: boolean = false) => {
+        if (isTie) {
+            setRounds(current => ({
+                count: current.count + 1,
+                rounds: [
+                    ...current.rounds,
+                    { winner: winner, loser: loser, isTie: true },
+
+                ],
+                wins: current.wins
             }))
-        } else {
-            setPlayer(current => ({
-                ...current, wins: current.wins + 1
-            }))
+            return
         }
-        setRounds(current => ({
+        setRounds((current) => ({
+            ...current,
             count: current.count + 1,
             rounds: [
-                ...current.rounds, {
-                    winner: getWinner(p1, p2),
-                    loser: getWinner(p1, p2) == p1 ? p1 : p2
+                ...current.rounds,
+                {
+                    winner: winner,
+                    loser: loser,
+                    isTie: false
                 }
-            ]
+            ],
+            wins: {
+                [winner.id]: current.wins[winner.id] + 1,
+                [loser.id]: current.wins[loser.id]
+            }
+
         }))
+    }
+
+    const handleResults = (p1: Player, p2: Player) => {
+        const winner = getWinner(p1, p2)
+        if (!winner) return newRound(p1, p2, true)
+        const loser = winner == p1 ? p2 : p1
+        newRound(winner, loser)
     }
     useUpdateEffect(() => {
 
         if (gameState == GameState.waiting && opponent.choice != null) {
-
             setGameState(GameState.results)
             handleResults(currentPlayer, opponent)
-
-            setTimeout(() => {
-                setGameState(GameState.selecting)
-                setPlayer(current => ({
-                    ...current, choice: null
-                }))
-            }, 2000)
         }
     }, [opponent.choice])
     console.log(rounds)
 
     useUpdateEffect(() => {
 
-        if (currentPlayer.wins == maxWins) {
+        if (Object.values(rounds.wins).some(item => item >= maxWins)) {
             setGameState(GameState.end)
+        } else {
+            setTimeout(() => {
+                setGameState(GameState.selecting)
+                setPlayer(current => ({
+                    ...current, choice: null
+                }))
+            }, 500)
         }
-        if (opponent.wins == maxWins) {
-            setGameState(GameState.end)
-        }
-    }, [currentPlayer.wins, opponent.wins])
+    }, [rounds.count])
 
 
 
@@ -149,20 +173,20 @@ export default function ROCKPAPERSCISSORSPAGE() {
 
         <div className="gap-2 flex flex-row"><div className="flex">
             {[0, 1, 2, 3, 4].map((v, i) => {
-                return <div className={`w-6 h-6 outline outline-2 gap-2 rounded-full ${i < currentPlayer.wins ? 'bg-red-50' : null} `} key={i}>
+                return <div className={`w-6 h-6 outline outline-2 gap-2 rounded-full ${i < rounds.wins[currentPlayer.id] ? 'bg-red-50' : null} `} key={i}>
                 </div>
             })}
             <div>
-                {currentPlayer.userId}
+                {currentPlayer.id}
             </div>
         </div>
             <div className="flex">
                 {[0, 1, 2, 3, 4].map((v, i) => {
-                    return <div className={`w-6 h-6 outline outline-2 gap-2 rounded-full ${i < opponent.wins ? 'bg-red-50' : null} `} key={i}>
+                    return <div className={`w-6 h-6 outline outline-2 gap-2 rounded-full ${i < rounds.wins[opponent.id] ? 'bg-red-50' : null} `} key={i}>
                     </div>
                 })}
                 <div>
-                    {opponent.userId}
+                    {opponent.id}
                 </div>
             </div>
         </div>
@@ -201,23 +225,23 @@ export default function ROCKPAPERSCISSORSPAGE() {
                         opponents choice: {opponent.choice}
                     </div>
                     <div>
-                        you : {getWinner(currentPlayer, opponent).userId == currentPlayer.userId ? 'won' : 'lost'}
+                        you : {!getWinner(currentPlayer, opponent) ? 'tie' : getWinner(currentPlayer, opponent)?.id == currentPlayer.id ? 'won' : 'lost'}
                     </div>
                 </div>
             )
         }
         {
-            gameState == GameState.end && (
+            matchEnd && (
                 <div>
                     <div>THe winner is</div>
                     {
-                        currentPlayer.wins == maxWins ? (
+                        Object.values(rounds.wins).some(item => item >= maxWins) ? (
                             <div>
-                                {currentPlayer.userId}
+                                {currentPlayer.id}
                             </div>
                         ) : (
                             <div>
-                                {opponent.userId}
+                                {opponent.id}
                             </div>
                         )
                     }
