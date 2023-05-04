@@ -2,15 +2,14 @@
 import { baseUser } from "@/constants";
 import { useEffect, useMemo, useState } from "react";
 import {  useUpdateEffect} from "usehooks-ts";
-import { io , } from "socket.io-client";
-import {GameState, RockPaperScissorPlayer, RockPaperScissorsChoice, RockPaperScissorsOptions, RockPaperScissorsOptionsValues, RockPaperScissorsRound, RocketPaperScissorsChoice, Rounds, } from '@/types'
+import { io ,Socket } from "socket.io-client";
+import {GameState, RockPaperScissorPlayer, RockPaperScissorsChoice, RockPaperScissorsOptions, RockPaperScissorsOptionsValues, RockPaperScissorsRound,  Rounds, User, } from '@/types'
 import { useUser } from "@/hooks/useUser";
 import { RockPaperScissorsGame } from "@/../server/src/game/rockpaperScissors";
-import { SocketUser } from "@/../server/src/server";
-
+import {ServerToClientEvents, ClientToServerEvents} from '@/types'
 const maxWins = 5
 const       gameId = "a0s9df0a9sdjf"
-export const socket = io("ws://localhost:3001",{
+export const socket: Socket<ServerToClientEvents,ClientToServerEvents> = io("ws://localhost:3001",{
     transports: ["websocket"],
     autoConnect: false,
   })
@@ -59,10 +58,10 @@ const matchEnd = useMemo(() => {
     socket.auth = { user, roomId: gameId }
     socket.connect()
 
-    socket.emit('join-room', gameId)
+    socket.emit('join_room', gameId)
 
-    socket.emit('get-players')
-    socket.on('start-game', (players: RockPaperScissorPlayer[]) => {
+    socket.emit('get_players')
+    socket.on('start_game', (players: RockPaperScissorPlayer[]) => {
         console.log(players)
         const opponent = players.find((player) => player.id != user.id)
         if (opponent) {
@@ -92,8 +91,8 @@ const matchEnd = useMemo(() => {
     socket.on("choice", (choice: RockPaperScissorPlayer) => {
       console.log(choice)
     })
-    socket.on('round-winner', (round: RockPaperScissorsRound) => {
-        console.log(round, 'som')
+    socket.on('round_winner', (round: RockPaperScissorsRound | null) => {
+        if (!round) return
         setGameState(GameState.results)
         const opponentWin = round.winner.id == opponent.id
 
@@ -130,17 +129,19 @@ const matchEnd = useMemo(() => {
         }))
         }
 
+
         console.log(rounds, 'this is the round')
 
     })
-    socket.on('game-winner', (winner: RockPaperScissorPlayer) => {
-        console.log(winner, 'winner')
+    socket.on('game_winner', (winner: User | null) => {
+        if (winner) {
         setGameState(GameState.end)
+        }
     })
-    socket.on('new-round',() => {
+    socket.on('new_round',() => {
         handleNewRound()
     })
-    socket.on('user-disconnected', () => {
+    socket.on('user_disconnected', () => {
         console.log("a")
         
     window.location.reload()
@@ -158,7 +159,7 @@ const matchEnd = useMemo(() => {
  
 
 const handleChoice = (choice : RockPaperScissorsOptions) => {
-    const p = currentPlayer as RocketPaperScissorsChoice;
+    const p = currentPlayer as RockPaperScissorsChoice;
     p.choice = choice
     socket.emit('choice', p)
     setGameState(GameState.waiting)

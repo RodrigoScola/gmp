@@ -45,7 +45,7 @@
     "syncData.ts",
     "n.js",
     "app/api/chat/[username]"
-  ],
+,   ],
   "references": [
     {
       "path": "../server"
