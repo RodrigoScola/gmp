@@ -42,7 +42,13 @@ export const gameNames: GameNames[] = [
   "Rock Paper Scissors",
   "Tic Tac Toe",
 ];
-
+export enum GameState {
+  selecting,
+  waiting,
+  playing,
+  results,
+  end,
+}
 export enum SimonGameState {
   START = "Start",
   PLAYING = "Playing",
@@ -52,6 +58,20 @@ export enum SimonGameState {
 export type Coords = {
   x: number;
   y: number;
+};
+export type RockPaperScissorsRound = {
+  winner: RockPaperScissorPlayer;
+  loser: RockPaperScissorPlayer;
+  isTie: boolean;
+};
+
+export type Rounds = {
+  count: number;
+  rounds: RockPaperScissorsRound[];
+  wins: {
+    [key: string]: number;
+    ties: number;
+  };
 };
 export enum TicTacToeGameState {
   START = "Start",
@@ -141,3 +161,35 @@ export type ToastType = {
 export type newToastType = Partial<ToastType>;
 
 export type ReturnUserType = User | User<Partial<ExtendedUser>>;
+
+export const RockPaperScissorsOptionsValues = [
+  "rock",
+  "paper",
+  "scissors",
+] as const;
+export type RockPaperScissorsOptions =
+  (typeof RockPaperScissorsOptionsValues)[number];
+export type RockPaperScissorsCombination = {
+  winner: RockPaperScissorsOptions;
+  loser: RockPaperScissorsOptions;
+  tie?: RockPaperScissorsOptions;
+};
+export const RockPaperScissorsWinCombination: RockPaperScissorsCombination[] = [
+  { winner: "rock", loser: "scissors" },
+  { winner: "paper", loser: "rock" },
+  { winner: "scissors", loser: "paper" },
+];
+
+export interface RockPaperScissorPlayer extends Partial<User> {
+  id: string;
+  choice: RockPaperScissorsOptions | null;
+}
+
+export interface RockPaperScissorsChoice {
+  id: string;
+  choice: RockPaperScissorsOptions | null;
+}
+
+export interface SocketEvents {
+  join_room: (roomId: string) => void;
+}

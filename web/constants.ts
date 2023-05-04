@@ -11,8 +11,8 @@ export const baseUser: User<ExtendedUser> = {
   username: "Snuffy",
   verified: true,
   updated: new Date().toISOString(),
-  expand: {
-    badges: getBadges(3),
-    games: getFriendsGames(100),
-  },
+  // expand: {
+  //   badges: getBadges(3),
+  //   games: getFriendsGames(100),
+  // },
 };

@@ -6,20 +6,23 @@
     "skipLibCheck": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "noEmit": true,
+    "noEmit": false,
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "node",
     "noImplicitAny": true,
     "strictNullChecks": true,
+    "declaration": true,
+    "declarationMap": true,
     "strictFunctionTypes": true,
     "strictPropertyInitialization": true,
     "noImplicitThis": true,
     "alwaysStrict": true,
     "noUnusedLocals": true,
+    "outDir": "js",
     "noUnusedParameters": true,
     "noImplicitReturns": true,
-
+    "composite": true,
     "resolveJsonModule": true,
     "jsx": "preserve",
     "plugins": [
@@ -38,9 +41,15 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
+    "../server/**/*.ts",
     "syncData.ts",
     "n.js",
     "app/api/chat/[username]"
+  ],
+  "references": [
+    {
+      "path": "../server"
+    }
   ],
   "exclude": ["node_modules"]
 }

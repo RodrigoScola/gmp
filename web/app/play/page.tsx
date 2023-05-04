@@ -1,6 +1,7 @@
 "use client";
 
 import { getGame } from "@/data/games";
+import { useUser } from "@/hooks/useUser";
 import { GameNames, GameType, gameNames } from "@/types";
 import Link from "next/link";
 import { useState } from "react";
@@ -21,7 +22,8 @@ export default function PLAYPAGE() {
     }
     setGames((curr) => [...curr, game]);
   };
-
+  const user = useUser();
+  console.log(user.user.username)
   return (
     <div className="px-3">
       <div>

@@ -5,67 +5,7 @@ import { User } from "@/types"
 import { useMemo, useState } from "react"
 import { useUpdateEffect } from "usehooks-ts"
 
-type options = 'rock' | 'paper' | 'scissors'
-const options: options[] = ['rock', 'paper', 'scissors']
-const roption = (): options => options[Math.floor(Math.random() * options.length)]
-type Combination = {
-    winner: options,
-    loser: options,
-    ties?: options
-}
-const combinations: Combination[] = [
-    { winner: 'rock', loser: 'scissors', },
-    { winner: 'paper', loser: 'rock', },
-    { winner: 'scissors', loser: 'paper', },
-]
 
-const getWinnerCombination = (opt1: options, opt2: options): options => {
-    const combination = combinations.find((combination) => {
-        return (combination.winner == opt1 && combination.loser == opt2) || (combination.winner == opt2 && combination.loser == opt1)
-    })
-    console.log(combination)
-    if (combination) {
-        return combination.winner
-    }
-    return opt1
-}
-const getWinner = (p1: Player, p2: Player): Player | null => {
-    if (!p1.choice || !p2.choice) throw new Error('invalid players')
-    if (p1.choice == p2.choice) {
-        return null
-    }
-    if (getWinnerCombination(p1.choice, p2.choice) == p1.choice) {
-        return p1
-    }
-    return p2
-}
-enum GameState {
-    selecting,
-    waiting,
-    playing,
-    results,
-    end
-}
-interface Player extends Partial<User> {
-    id: string,
-    choice: options | null,
-}
-
-type Round = {
-    winner: Player,
-    loser: Player,
-    isTie: boolean
-}
-type Rounds = {
-    count: number,
-    rounds: Round[]
-    wins: {
-        [k: string]: number,
-    }
-}
-
-
-const maxWins = 5;
 
 export default function ROCKPAPERSCISSORSPAGE() {
     const [currentPlayer, setCurrentPlayer] = useState<Player>({

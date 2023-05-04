@@ -1,37 +1,47 @@
 "use client";
 
-import { baseUser } from "@/constants";
+import { RockPaperScissorsOptionsValues } from "@/types";
 import { useEffect, useState } from "react";
-import { useEffectOnce } from "usehooks-ts";
+import { io } from "socket.io-client";
+
+
+
 
 export default function WEBSOCKETPAGETEST() {
-  const [ws, setWs] = useState<WebSocket | null>();
-  useEffectOnce(() => {
-    setWs(
-      new WebSocket("ws://localhost:3001/ws", )
-    );
-  });
+  const socket = io("wss://localhost:3001/game" , {
+    path: '/'
+  })
 
-  useEffect(() => {
-    if (!ws) return;
-    ws.onmessage = (e) => {
-      console.log(e.data);
-    };
-    ws.onopen = () => {
-      console.log("open");
-     
-    }
-  }, [ws]);
 
+
+  // const [isConnected, setIsConnected] = useState(socket.connected);
+  // const [fooEvents, setFooEvents] = useState<any[]>([]);
+
+  // useEffect(() => {
+  //   function onConnect() {
+  //     setIsConnected(true);
+  //   }
+  //   function onDisconnect() {
+  //     setIsConnected(false);
+  //   }
+  //   function onFooEvent(value: any) {
+  //     setFooEvents((fooEvents) => [...fooEvents, value]);
+  //   }
+  //   socket.on("connect", onConnect);
+  //   socket.on("disconnect", onDisconnect);
+  //   socket.on("message", onFooEvent);
+  //   return () => {
+  //     socket.off("connect", onConnect);
+  //     socket.off("disconnect", onDisconnect);
+  //     socket.off("foo", onFooEvent);
+  //   };
+
+  // },[])
+  // console.log(isConnected)
+
+  // console.log(fooEvents)
   return (
     <div>
-      <button
-        onClick={() => {
- ws?.send( JSON.stringify(baseUser))
-        }}
-      >
-        s
-      </button>
     </div>
   );
 }

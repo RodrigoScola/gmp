@@ -16,11 +16,11 @@ export default function REGISTERPAGE() {
 				</label>
 				<label>
 					<p>Password</p>
-					<input type="email" />
+					<input type="password" />
 				</label>
 				<label>
 					<p>Confirm Password</p>
-					<input type="email" />
+					<input type="password" />
 				</label>
 			</form>
 			<div className="gap-2 pt-3 flex flex-col">
