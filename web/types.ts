@@ -175,6 +175,12 @@ export type RockPaperScissorsCombination = {
   loser: RockPaperScissorsOptions;
   tie?: RockPaperScissorsOptions;
 };
+export type TicTacToeCombination = {
+  winner: string | null;
+  loser: string | null;
+  isTie: boolean;
+  board: TicTacToeMove[] | null;
+};
 export const RockPaperScissorsWinCombination: RockPaperScissorsCombination[] = [
   { winner: "rock", loser: "scissors" },
   { winner: "paper", loser: "rock" },
@@ -188,19 +194,24 @@ export interface RockPaperScissorPlayer extends Partial<User> {
 
 export type TicTacToeOptions = "X" | "O";
 
+export type RockPaperScissorsMove = {
+  choice: RockPaperScissorsOptions;
+};
+
 export type TicTacToeMove = {
   coords: Coords;
   choice: TicTacToeOptions;
+  id: string;
 };
 
 export interface MoveChoice<T> {
   id: string;
-  choice: T;
+  move: T;
 }
 
 export interface ServerToClientEvents {
   join_room: (roomId: string) => void;
-  rps_choice: (player: MoveChoice<RockPaperScissorsOptions>) => void;
+  rps_choice: (player: MoveChoice<RockPaperScissorsMove>) => void;
   start_game: (players: RockPaperScissorPlayer[]) => void;
   round_winner: (round: RockPaperScissorsRound | null) => void;
   game_winner: (winner: User | null) => void;
@@ -211,7 +222,7 @@ export interface ServerToClientEvents {
 export interface ClientToServerEvents {
   join_room: (roomId: string) => void;
   get_players: () => void;
-  rps_choice: (player: MoveChoice<RockPaperScissorsOptions>) => void;
+  rps_choice: (player: MoveChoice<RockPaperScissorsMove>) => void;
   user_connected: (roomId: string) => void;
   start_game: () => void;
   round_winner: (round: RockPaperScissorsRound) => void;

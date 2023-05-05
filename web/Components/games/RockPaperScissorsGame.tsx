@@ -1,10 +1,8 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import { io, Socket } from "socket.io-client";
 import {
   GameState,
   RockPaperScissorPlayer,
-  MoveChoice,
   RockPaperScissorsOptions,
   RockPaperScissorsOptionsValues,
   RockPaperScissorsRound,
@@ -13,17 +11,9 @@ import {
 } from "@/types";
 import { useUser } from "@/hooks/useUser";
 import { RockPaperScissorsGame } from "@/../server/src/game/rockpaperScissors";
-import { ServerToClientEvents, ClientToServerEvents } from "@/types";
 const maxWins = 5;
 const gameId = "a0s9df0a9sdjf";
-export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-  "ws://localhost:3001",
-  {
-    transports: ["websocket"],
-    autoConnect: false,
-  }
-);
-
+import { socket } from "@/lib/socket";
 const { getWinner } = new RockPaperScissorsGame();
 
 export default function RockPaperScissorGameComponent() {
@@ -92,7 +82,7 @@ export default function RockPaperScissorGameComponent() {
 
     // socket.emit('set-user', user)
 
-    socket.on("rps_choice", (choice: RockPaperScissorPlayer) => {
+    socket.on("rps_choice", (choice) => {
       console.log(choice);
     });
     socket.on("round_winner", (round: RockPaperScissorsRound | null) => {
@@ -155,9 +145,12 @@ export default function RockPaperScissorGameComponent() {
   }, [socket]);
 
   const handleChoice = (choice: RockPaperScissorsOptions) => {
-    const p = currentPlayer as MoveChoice<RockPaperScissorsOptions>;
-    p.choice = choice;
-    socket.emit("rps_choice", p);
+    socket.emit("rps_choice", {
+      id: user.id,
+      move: {
+        choice,
+      },
+    });
     setGameState(GameState.waiting);
   };
 

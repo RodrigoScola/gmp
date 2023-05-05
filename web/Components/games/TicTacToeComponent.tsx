@@ -1,47 +1,19 @@
 "use client";
 import { baseUser } from "@/constants";
-import { checkBoard } from "@/lib/TicTacToe";
+import { socket } from "@/lib/socket";
 import { Coords, TicTacToeGameState } from "@/types";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useEffectOnce, useUpdateEffect } from "usehooks-ts";
+import { TicTacToeMove } from "@/types";
+import {
+  generateboard,
+  isValid,
+  checkBoard,
+  newBlock,
+} from "@/../server/src/game/TicTacToeGame";
+import { useUser } from "@/hooks/useUser";
 
-
-
-
-
-export type TicTacToeMove = {
-  coords: Coords;
-  type: "X" | "O" | null;
-};
-const generateboard = (): TicTacToeMove[][] => {
-  let rows: TicTacToeMove[][] = [];
-  for (let i = 0; i < 3; i++) {
-    rows[i] = new Array(3).fill({
-      userId: null,
-      moveId: Date.now().toString(),
-      coords: {
-        x: 0,
-        y: 0,
-      },
-      type: null,
-    });
-  }
-  return rows;
-};
-const isValid = (
-  board: TicTacToeMove[][],
-  x: number = -1,
-  y: number = -1
-): boolean => {
-  if (x < 0 || x > board.length || y < 0 || y > board.length) {
-    return false;
-  }
-  if (board[x][y]?.type) {
-    return false;
-  }
-  if (checkBoard(board).winner) return false;
-  return true;
-};
+const gameId = "a0s9df0a9sdjf";
 const sendLetter = (
   board: TicTacToeMove[][]
 ): Promise<TicTacToeMove | null> => {
@@ -74,21 +46,6 @@ const sendLetter = (
   });
 };
 // add round
-const newBlock = ({
-  coords,
-  type,
-  userId,
-}: Partial<TicTacToeMove>): TicTacToeMove => {
-  return {
-    coords: {
-      x: coords?.x ?? 0,
-      y: coords?.y ?? 0,
-    },
-    moveId: Date.now().toString(),
-    userId: userId ?? baseUser.id,
-    type: type || "O",
-  };
-};
 
 type TicTacToeState = {
   moves: TicTacToeMove[];
@@ -182,6 +139,26 @@ export default function TicTacToeGameComponent() {
   useEffectOnce(() => {
     setGameState(TicTacToeGameState.PLAYING);
   });
+
+  const { user } = useUser();
+  useEffect(() => {
+    socket.auth = { user, roomId: gameId };
+    socket.connect();
+    socket.emit("join_room", gameId);
+
+    socket.emit("start_game");
+
+    // socket.emit('set-user', user)
+
+    socket.on("disconnect", () => {
+      console.log("user disconnected");
+    });
+    return () => {
+      if (socket) {
+        socket.disconnect();
+      }
+    };
+  }, [socket]);
   useUpdateEffect(() => {
     const result = checkBoard(board);
     console.log(result);
@@ -197,6 +174,19 @@ export default function TicTacToeGameComponent() {
       console.log(moves);
     }
   }, [board]);
+
+  useEffectOnce(() => {
+    socket.auth = {
+      baseUser,
+      roomId: gameId,
+    };
+    socket.connect();
+    socket.emit("join_room", gameId);
+    socket.on("connect", () => {
+      socket.emit("start_game");
+    });
+  });
+
   return (
     <>
       <div>
