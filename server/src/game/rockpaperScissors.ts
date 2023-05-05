@@ -1,4 +1,3 @@
-import { PlayerHandler } from "./TicTacToeGame";
 import {
   RockPaperScissorPlayer,
   RockPaperScissorsWinCombination,
@@ -8,14 +7,22 @@ import {
   RockPaperScissorsOptions,
   GameNames,
 } from "../../../web/types";
+import { Game } from "../handlers/GameHandler";
+import { PlayerHandler } from "../handlers/usersHandler";
+
 export const RockPaperScissorsMaxWins = 5;
 
-export class RoundHandler {
+export class RoundHandler<T> {
   count: number = 0;
   maxWins: number = RockPaperScissorsMaxWins;
-  rounds: RockPaperScissorsRound[] = [];
+  rounds: T[] = [];
 
-  addRound(round: RockPaperScissorsRound) {
+  lastRound(): T | null {
+    if (this.rounds.length == 0) return null;
+    return this.rounds[this.rounds.length - 1];
+  }
+
+  addRound(round: T) {
     this.rounds.push(round);
     this.count++;
   }
@@ -46,11 +53,14 @@ export class RoundHandler {
   }
 }
 
-export class RockPaperScissorsGame {
+export class RockPaperScissorsGame implements Game {
   name: GameNames = "Rock Paper Scissors";
   players: PlayerHandler = new PlayerHandler();
   currentChoice: Record<string, MoveChoice> = {};
-  rounds: RoundHandler = new RoundHandler();
+  rounds: RoundHandler = new RoundHandler<RockPaperScissorsRound>();
+  isReady(): boolean {
+    return this.getPlayers().length == 2;
+  }
   play(player: RockPaperScissorPlayer, choice: RockPaperScissorsOptions) {
     if (this.rounds.hasGameWinner()) return;
     if (this.currentChoice[player.id] || !this.players.hasPlayer(player.id))
