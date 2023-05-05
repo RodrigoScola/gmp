@@ -12,7 +12,7 @@ import { PlayerHandler } from "../handlers/usersHandler";
 
 export const RockPaperScissorsMaxWins = 5;
 
-export class RoundHandler<T> {
+export class RoundHandler<T> implements Game {
   count: number = 0;
   maxWins: number = RockPaperScissorsMaxWins;
   rounds: T[] = [];
@@ -53,16 +53,16 @@ export class RoundHandler<T> {
   }
 }
 
-export class RockPaperScissorsGame implements Game {
+export class RockPaperScissorsGame {
   name: GameNames = "Rock Paper Scissors";
   players: PlayerHandler = new PlayerHandler();
   currentChoice: Record<string, MoveChoice> = {};
   rounds: RoundHandler = new RoundHandler<RockPaperScissorsRound>();
-  isReady(): boolean {
-    return this.getPlayers().length == 2;
-  }
   play(player: RockPaperScissorPlayer, choice: RockPaperScissorsOptions) {
     if (this.rounds.hasGameWinner()) return;
+    console.log(player, choice);
+    console.log(player, choice);
+    console.log(player, choice);
     if (this.currentChoice[player.id] || !this.players.hasPlayer(player.id))
       return;
     this.currentChoice[player.id] = {

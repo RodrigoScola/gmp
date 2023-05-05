@@ -55,6 +55,6 @@ export class Room {
     this.id = id;
     this.users = users;
 
-    this.game = new TicTacToeGame();
+    this.game = new RockPaperScissorsGame();
   }
 }

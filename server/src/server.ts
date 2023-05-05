@@ -56,8 +56,12 @@ io.on("connection", (socket: MySocket) => {
     io.to(roomId).emit("user_connected", roomId);
   });
   socket.on("start_game", () => {
-    if (game.isReady()) {
+    if (game?.getPlayers().length == 2) {
       console.log(game?.name);
+      console.log(game?.name);
+      console.log(game?.name);
+      console.log(game?.name);
+
       gameHandler.playGame(io, socket, game);
       io.to(getRoomId(socket)).emit("start_game", game?.getPlayers());
     } else {

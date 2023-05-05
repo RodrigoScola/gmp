@@ -6,28 +6,23 @@ import {
   TicTacToeMove,
 } from "../../../web/types";
 import { TicTacToeGame } from "../game/TicTacToeGame";
-import { RockPaperScissorsGame } from "../game/rockpaperScissors";
 import { MyIo, MySocket, getRoomId } from "../server";
 import { Room, getRoom } from "./room";
 
 export interface Game {
   name: GameNames;
-  isReady(): boolean;
 }
-
 const handleTTCGame = (
   io: MyIo,
   socket: MySocket,
   game: TicTacToeGame,
   room: Room
 ) => {
-  console.log("hey this is coold");
-  console.log("hey this is coold");
-  console.log("hey this is coold");
-  console.log("hey this is coold");
-  console.log("hey this is coold");
-  console.log("hey this is coold");
-  console.log("hey this is coold");
+  console.log(game);
+  console.log(game);
+  console.log(game);
+  console.log(game);
+  console.log(game);
   socket.on("ttc_choice", (move: TicTacToeMove) => {
     if (game.isPLayerTurn(move.id)) {
       game.play(move);
@@ -42,7 +37,7 @@ const handleRpsGame = (
 ) => {
   // player move
   socket.on("rps_choice", (player: MoveChoice<RockPaperScissorsMove>) => {
-    if (!player.id) return;
+    console.log(player);
     game?.play(
       {
         choice: player.move.choice,
@@ -85,11 +80,7 @@ export class GameHandler {
     }
   }
 
-  playGame(
-    io: MyIo,
-    socket: MySocket,
-    game: RockPaperScissorsGame | TicTacToeGame
-  ) {
+  playGame(io: MyIo, socket: MySocket, game) {
     const handler = this.getGameHandler(game.name);
 
     if (!handler) return;
