@@ -61,6 +61,7 @@ const matchEnd = useMemo(() => {
 
     socket.emit('get_players')
     socket.on('start_game', (players: RockPaperScissorPlayer[]) => {
+        
         console.log(players)
         const opponent = players.find((player) => player.id != user.id)
         if (opponent) {
@@ -158,7 +159,7 @@ const matchEnd = useMemo(() => {
  
 
 const handleChoice = (choice : RockPaperScissorsOptions) => {
-    const p = currentPlayer as MoveChoice;
+    const p = currentPlayer as MoveChoice<RockPaperScissorsOptions>;
     p.choice = choice
     socket.emit('choice', p)
     setGameState(GameState.waiting)

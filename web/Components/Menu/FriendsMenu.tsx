@@ -15,7 +15,7 @@ type FriendsMenuProps = {
 
 export default function FriendsMenu(props: FriendsMenuProps) {
   const { isOpen, onToggle, onClose } = useDisclosure();
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: { preventDefault: () => void; }) => {
     e.preventDefault();
   };
   const handleCloseMenu = () => {

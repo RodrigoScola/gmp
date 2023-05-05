@@ -1,6 +1,5 @@
 import { SocketUser } from "../server";
 import { RockPaperScissorsGame } from "./rockpaperScissors";
-
 export class RoomHandler {
   rooms: Map<string, Room>;
   constructor() {

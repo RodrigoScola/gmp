@@ -2,23 +2,25 @@ import express from "express";
 const app = express();
 import http from "http";
 const server = http.createServer(app);
-import { Server, Socket } from "socket.io";
+import { Server } from "socket.io";
 
 import { RockPaperScissorsChoice } from "../../web/types";
 import { User } from "../../web/types";
 import { RoomHandler } from "./game/room";
-import { ServerToClientEvents } from "../../web/types";
-export const io = new Server(server);
+import { ServerToClientEvents, ClientToServerEvents } from "../../web/types";
+export const io = new Server<ServerToClientEvents, ClientToServerEvents>(
+  server
+);
 
 export interface SocketUser extends User {
   socketId: string;
 }
 
 const r = new RoomHandler();
-const getRoomId = (socket: MySocket) => socket.handshake.auth["roomId"];
+
+const getRoomId = (socket) => socket.handshake.auth["roomId"];
 io.on("connection", (socket) => {
   const gameStr = socket.handshake.auth;
-
   var room = r.getRoom(getRoomId(socket));
   var game = room?.game;
   console.log("user connected");
@@ -40,7 +42,7 @@ io.on("connection", (socket) => {
 
     io.to(roomId).emit("user_connected", roomId);
     if (game?.getPlayers().length == 2) {
-      io.to(roomId).emit("start-game", game?.getPlayers());
+      io.to(roomId).emit("start_game", game?.getPlayers());
     }
   });
   // player move
