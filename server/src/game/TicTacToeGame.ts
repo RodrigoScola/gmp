@@ -1,3 +1,4 @@
+import { RoundHandler } from "./rockpaperScissors";
 import { MoveChoice, TicTacToeOptions, User } from "../../../web/types";
 
 export class PlayerHandler {
@@ -22,9 +23,11 @@ export class PlayerHandler {
 
 export class TicTacToeGame {
   players: PlayerHandler = new PlayerHandler();
+  rounds: RoundHandler = new RoundHandler();
   addPlayer(player: User) {
     this.players.addPlayer(player);
   }
+
   getPlayers(): User[] {
     return this.players.getPlayers();
   }

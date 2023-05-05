@@ -1,4 +1,3 @@
-import { RockPaperScissorsGame } from "@/../server/dist/game/rockpaperScissors";
 import { UsersResponse } from "./pocketbase-types";
 
 export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
@@ -187,41 +186,29 @@ export interface RockPaperScissorPlayer extends Partial<User> {
   choice: RockPaperScissorsOptions | null;
 }
 
-export type TicTacToeOptions = "X" | "O";
-
-export interface MoveChoice<
-  T extends
-    | RockPaperScissorsOptions
-    | TicTacToeOptions = RockPaperScissorsOptions
-> {
+export interface MoveChoice<T> {
   id: string;
   choice: T;
 }
 
-const g = new RockPaperScissorsGame();
-
 export interface ServerToClientEvents {
   join_room: (roomId: string) => void;
-  choice: (player: MoveChoice) => void;
+  choice: (player: MoveChoice<RockPaperScissorsOptions>) => void;
   start_game: (players: RockPaperScissorPlayer[]) => void;
-  round_winner: (round: roundWinnerType) => void;
-  game_winner: (winner: gameWinnerType) => void;
+  round_winner: (round: RockPaperScissorsRound | null) => void;
+  game_winner: (winner: User | null) => void;
   new_round: () => void;
   user_disconnected: () => void;
 }
 
-type roundWinnerType = ReturnType<typeof g.hasRoundWinner>;
-type getPlayersReturnType = ReturnType<typeof g.getPlayers>;
-type gameWinnerType = ReturnType<typeof g.hasGameWinner>;
-
 export interface ClientToServerEvents {
   join_room: (roomId: string) => void;
   get_players: () => void;
-  choice: (player: MoveChoice) => void;
+  choice: (player: MoveChoice<RockPaperScissorsOptions>) => void;
   user_connected: (roomId: string) => void;
-  start_game: (players: getPlayersReturnType) => void;
-  round_winner: (round: roundWinnerType) => void;
-  game_winner: (winner: gameWinnerType) => void;
+  start_game: (players: User[]) => void;
+  round_winner: (round: RockPaperScissorsRound) => void;
+  game_winner: (winner: RockPaperScissorsRound) => void;
   new_round: () => void;
   user_disconnected: (roomId: string) => void;
 }

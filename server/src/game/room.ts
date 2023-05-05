@@ -1,5 +1,6 @@
-import { RockPaperScissorsGame } from "./game/rockpaperScissors";
-import { SocketUser } from "./server";
+import { SocketUser } from "../server";
+import { RockPaperScissorsGame } from "./rockpaperScissors";
+
 export class RoomHandler {
   rooms: Map<string, Room>;
   constructor() {
@@ -16,7 +17,6 @@ export class RoomHandler {
   getRoom(roomId: string) {
     return this.rooms.get(roomId);
   }
-
   addUserToRoom(roomId: string, user: SocketUser) {
     if (!this.roomExists(roomId)) {
       this.createRoom(roomId);
@@ -28,6 +28,7 @@ export class RoomHandler {
     if (room.users.find((i) => i.id == user.id)) {
       room.users.push({
         ...user,
+        id: "player1",
       });
       return;
     }

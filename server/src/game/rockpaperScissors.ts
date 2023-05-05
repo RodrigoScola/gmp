@@ -1,17 +1,13 @@
+import { PlayerHandler } from "./TicTacToeGame";
 import {
-  MoveChoice,
-  RockPaperScissorsRound,
   RockPaperScissorPlayer,
-} from "../../../web/types";
-import {
   RockPaperScissorsWinCombination,
   User,
+  MoveChoice,
+  RockPaperScissorsRound,
   RockPaperScissorsOptions,
 } from "../../../web/types";
-import { PlayerHandler, TicTacToeGame } from "./TicTacToeGame";
 export const RockPaperScissorsMaxWins = 5;
-
-export type Game = RockPaperScissorsGame | TicTacToeGame;
 
 export class RoundHandler {
   count: number = 0;
@@ -88,6 +84,16 @@ export class RockPaperScissorsGame {
     return this.hasRoundWinner()?.id == player.id;
   }
 
+  getOpponents(player: RockPaperScissorPlayer) {
+    return Object.values(this.currentChoice).filter((i) => i.id != player.id);
+  }
+  isTie() {
+    return Object.values(this.currentChoice).every((i) => i.choice);
+  }
+  isRoundWinner(player: RockPaperScissorPlayer) {
+    return this.hasRoundWinner()?.id == player.id;
+  }
+
   getWinnerCombination = (
     opt1: RockPaperScissorsOptions,
     opt2: RockPaperScissorsOptions
@@ -139,6 +145,58 @@ export class RockPaperScissorsGame {
     this.currentChoice = {};
   }
   hasGameWinner() {
+    const players = this.getPlayers();
+    for (let i = 0; i < players.length; i++) {
+      const player = players[i];
+      if (!player) continue;
+      if (this.isGameWinner(player.id)) {
+        return player;
+      }
+    }
+    return null;
+  }
+
+  isGameWinner(playerId: string) {
+    return this.rounds.isWinner(playerId);
+  }
+
+  getWinner = (
+    player1: RockPaperScissorPlayer,
+    player2: RockPaperScissorPlayer
+  ): RockPaperScissorsRound | null => {
+    if (!player1 || !player2) return null;
+    if (player1.choice == null || player2.choice == null) return null;
+    if (player1.choice == player2.choice) {
+      return {
+        isTie: true,
+        loser: player1,
+        winner: player2,
+      };
+    }
+    if (
+      this.getWinnerCombination(player1.choice, player2.choice) ==
+      player1.choice
+    ) {
+      return {
+        isTie: false,
+        loser: player2,
+        winner: player1,
+      };
+    }
+    return {
+      isTie: false,
+      loser: player1,
+      winner: player2,
+    };
+  };
+
+  newRound() {
+    const roundWinner = this.hasRoundWinner();
+    if (!roundWinner) return;
+    this.rounds.addRound(roundWinner);
+    this.currentChoice = {};
+  }
+  hasGameWin() {
     const players = this.getPlayers();
     for (let i = 0; i < players.length; i++) {
       const player = players[i];

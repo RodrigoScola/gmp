@@ -1,8 +1,12 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    // "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
@@ -12,8 +16,8 @@
     "moduleResolution": "node",
     "noImplicitAny": true,
     "strictNullChecks": true,
-    "declaration": true,
-    "declarationMap": true,
+    // "declaration": true,
+    // "declarationMap": true,
     "strictFunctionTypes": true,
     "strictPropertyInitialization": true,
     "noImplicitThis": true,
@@ -31,10 +35,13 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": [
+        "./*"
+      ]
     },
     "incremental": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "allowJs": true
   },
   "include": [
     "next-env.d.ts",
@@ -43,13 +50,14 @@
     ".next/types/**/*.ts",
     "../server/**/*.ts",
     "syncData.ts",
-    "n.js",
-    "app/api/chat/[username]"
-,   ],
+    "n.js"
+  ],
   "references": [
     {
       "path": "../server"
     }
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }
