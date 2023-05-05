@@ -1,5 +1,6 @@
 import { SocketUser } from "../server";
-import { RockPaperScissorsGame } from "./rockpaperScissors";
+import { TicTacToeGame } from "../game/TicTacToeGame";
+import { RockPaperScissorsGame } from "../game/rockpaperScissors";
 export class RoomHandler {
   rooms: Map<string, Room>;
   constructor() {
@@ -15,6 +16,11 @@ export class RoomHandler {
   }
   getRoom(roomId: string) {
     return this.rooms.get(roomId);
+  }
+  deleteRoom(roomId: string) {
+    if (!this.roomExists(roomId)) return;
+
+    this.rooms.delete(roomId);
   }
   addUserToRoom(roomId: string, user: SocketUser) {
     if (!this.roomExists(roomId)) {
@@ -34,11 +40,17 @@ export class RoomHandler {
     room.users.push(user);
   }
 }
+export const roomHandler = new RoomHandler();
+
+export const getRoom = (roomId: string) => {
+  return roomHandler.getRoom(roomId);
+};
+
 export class Room {
   id: string;
   users: SocketUser[];
-  game: RockPaperScissorsGame;
-  constructor(id: string, users: []) {
+  game: RockPaperScissorsGame | TicTacToeGame;
+  constructor(id: string, users: [], game?: RockPaperScissorsGame) {
     this.id = id;
     this.users = users;
     this.game = new RockPaperScissorsGame();

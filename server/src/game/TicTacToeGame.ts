@@ -1,5 +1,10 @@
 import { RoundHandler } from "./rockpaperScissors";
-import { MoveChoice, TicTacToeOptions, User } from "../../../web/types";
+import {
+  GameNames,
+  MoveChoice,
+  TicTacToeOptions,
+  User,
+} from "../../../web/types";
 
 export class PlayerHandler {
   players: Record<string, User> = {};
@@ -22,6 +27,7 @@ export class PlayerHandler {
 }
 
 export class TicTacToeGame {
+  name: GameNames = "Tic Tac Toe";
   players: PlayerHandler = new PlayerHandler();
   rounds: RoundHandler = new RoundHandler();
   addPlayer(player: User) {

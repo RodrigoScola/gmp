@@ -4,10 +4,14 @@ import http from "http";
 const server = http.createServer(app);
 import { Server } from "socket.io";
 
-import { RockPaperScissorsChoice } from "../../web/types";
+import { GameType, RockPaperScissorsChoice } from "../../web/types";
 import { User } from "../../web/types";
-import { RoomHandler } from "./game/room";
+import { Room, RoomHandler } from "./handlers/room";
 import { ServerToClientEvents, ClientToServerEvents } from "../../web/types";
+import { TicTacToeGame } from "./game/TicTacToeGame";
+import { RockPaperScissorsGame } from "./game/rockpaperScissors";
+import { roomHandler } from "./handlers/room";
+import { GameHandler } from "./handlers/Handlers";
 export const io = new Server<ServerToClientEvents, ClientToServerEvents>(
   server
 );
@@ -15,72 +19,55 @@ export const io = new Server<ServerToClientEvents, ClientToServerEvents>(
 export interface SocketUser extends User {
   socketId: string;
 }
+export type MyIo = Server<
+  ServerToClientEvents,
+  ClientToServerEvents,
+  DefaultEventsMap,
+  any
+>;
 
-const r = new RoomHandler();
+export type MySocket = Socket<
+  ServerToClientEvents,
+  ClientToServerEvents,
+  DefaultEventsMap,
+  any
+>;
 
-const getRoomId = (socket) => socket.handshake.auth["roomId"];
+const gameHandler = new GameHandler();
+
+export const getRoomId = (socket) => socket.handshake.auth["roomId"];
+
 io.on("connection", (socket) => {
   const gameStr = socket.handshake.auth;
-  var room = r.getRoom(getRoomId(socket));
+  var room = roomHandler.getRoom(getRoomId(socket));
   var game = room?.game;
-  console.log("user connected");
-  const handshakeInfo = {
-    roomId: gameStr["roomId"] as string,
-    user: gameStr["user"] as SocketUser,
+  const connInfo = {
+    roomId: socket.handshake.auth["roomId"] as string,
+    user: socket.handshake.auth["user"] as SocketUser,
   };
-  handshakeInfo.user.socketId = socket.id;
+  connInfo.user.socketId = socket.id;
   socket.on("join_room", async (roomId: string) => {
-    r.addUserToRoom(roomId, handshakeInfo.user);
-    console.log("player connected");
+    roomHandler.addUserToRoom(roomId, connInfo.user);
     socket.join(roomId);
-    room = r.getRoom(getRoomId(socket));
+    room = roomHandler.getRoom(getRoomId(socket));
     game = room?.game;
-    game?.addPlayer({
-      ...handshakeInfo.user,
-    });
-    // console.log(r.getRoom(roomId))
-
+    game?.addPlayer(connInfo.user);
     io.to(roomId).emit("user_connected", roomId);
-    if (game?.getPlayers().length == 2) {
-      io.to(roomId).emit("start_game", game?.getPlayers());
-    }
   });
-  // player move
-  socket.on("choice", (player: MoveChoice) => {
-    if (!player.choice) return;
-    game?.play(
-      {
-        choice: player.choice,
-        id: player.id,
-      },
-      player.choice
-    );
-
-    const roundWinner = game?.hasRoundWinner();
-    if (roundWinner) {
-      io.to(getRoomId(socket)).emit("round_winner", roundWinner);
-      game?.newRound();
-      if (game?.hasGameWin()) {
-        io.to(getRoomId(socket)).emit("game_winner", game.hasGameWin());
-      } else {
-        setTimeout(() => {
-          io.to(getRoomId(socket)).emit("new_round");
-        }, 10);
-      }
+  socket.on("start_game", () => {
+    if (game?.getPlayers().length == 2) {
+      io.to(getRoomId(socket)).emit("start_game", game?.getPlayers());
     }
-
-    io.to(getRoomId(socket)).emit("choice", {
-      id: player.id,
-      choice: player.choice,
-    });
-
-    // console.log(r.rooms)
+    console.log("start game");
+    gameHandler.playGame(io, socket, game);
   });
 
   socket.on("disconnect", () => {
-    io.in(getRoomId(socket)).emit("user-disconnected", getRoomId(socket));
-    r.rooms.delete(getRoomId(socket));
-    io.in(getRoomId(socket)).socketsLeave(getRoomId(socket));
+    const roomId = getRoomId(socket);
+    io.in(roomId).emit("user_disconnected", roomId);
+    io.in(roomId).socketsLeave(roomId);
+    roomHandler.deleteRoom(roomId);
+
     console.log("user disconnected");
   });
 });

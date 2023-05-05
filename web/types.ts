@@ -186,6 +186,13 @@ export interface RockPaperScissorPlayer extends Partial<User> {
   choice: RockPaperScissorsOptions | null;
 }
 
+export type TicTacToeOptions = "X" | "O";
+
+export type TicTacToeMove = {
+  coords: Coords;
+  choice: TicTacToeOptions;
+};
+
 export interface MoveChoice<T> {
   id: string;
   choice: T;
@@ -193,7 +200,7 @@ export interface MoveChoice<T> {
 
 export interface ServerToClientEvents {
   join_room: (roomId: string) => void;
-  choice: (player: MoveChoice<RockPaperScissorsOptions>) => void;
+  rps_choice: (player: MoveChoice<RockPaperScissorsOptions>) => void;
   start_game: (players: RockPaperScissorPlayer[]) => void;
   round_winner: (round: RockPaperScissorsRound | null) => void;
   game_winner: (winner: User | null) => void;
@@ -204,9 +211,9 @@ export interface ServerToClientEvents {
 export interface ClientToServerEvents {
   join_room: (roomId: string) => void;
   get_players: () => void;
-  choice: (player: MoveChoice<RockPaperScissorsOptions>) => void;
+  rps_choice: (player: MoveChoice<RockPaperScissorsOptions>) => void;
   user_connected: (roomId: string) => void;
-  start_game: (players: User[]) => void;
+  start_game: () => void;
   round_winner: (round: RockPaperScissorsRound) => void;
   game_winner: (winner: RockPaperScissorsRound) => void;
   new_round: () => void;

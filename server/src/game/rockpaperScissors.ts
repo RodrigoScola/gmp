@@ -6,6 +6,7 @@ import {
   MoveChoice,
   RockPaperScissorsRound,
   RockPaperScissorsOptions,
+  GameNames,
 } from "../../../web/types";
 export const RockPaperScissorsMaxWins = 5;
 
@@ -46,6 +47,7 @@ export class RoundHandler {
 }
 
 export class RockPaperScissorsGame {
+  name: GameNames = "Rock Paper Scissors";
   players: PlayerHandler = new PlayerHandler();
   currentChoice: Record<string, MoveChoice> = {};
   rounds: RoundHandler = new RoundHandler();
