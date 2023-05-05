@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RockPaperScissorsGame = exports.RockPaperScissorsMaxWins = void 0;
+exports.RockPaperScissorsGame = exports.RoundHandler = exports.RockPaperScissorsMaxWins = void 0;
 const types_1 = require("../../../web/types");
+const TicTacToeGame_1 = require("./TicTacToeGame");
 exports.RockPaperScissorsMaxWins = 5;
 class RoundHandler {
     constructor() {
@@ -40,10 +41,11 @@ class RoundHandler {
         return winner;
     }
 }
+exports.RoundHandler = RoundHandler;
 class RockPaperScissorsGame {
     constructor() {
+        this.players = new TicTacToeGame_1.PlayerHandler();
         this.currentChoice = {};
-        this.players = {};
         this.rounds = new RoundHandler();
         this.getWinnerCombination = (opt1, opt2) => {
             const combination = types_1.RockPaperScissorsWinCombination.find((combination) => {
@@ -82,22 +84,20 @@ class RockPaperScissorsGame {
             };
         };
     }
-    addChoice(player, choice) {
+    play(player, choice) {
         if (this.rounds.hasGameWinner())
             return;
-        if (this.currentChoice[player.id] || !this.players[player.id])
+        if (this.currentChoice[player.id] || !this.players.hasPlayer(player.id))
             return;
-        this.currentChoice[player.id] = Object.assign(Object.assign({}, player), { choice });
+        this.currentChoice[player.id] = Object.assign(Object.assign({}, player), { choice: choice });
         console.log(this.currentChoice);
         return;
     }
     addPlayer(player) {
-        if (this.players[player.id])
-            return;
-        this.players[player.id] = player;
+        this.players.addPlayer(player);
     }
     getPlayers() {
-        return Object.values(this.players);
+        return this.players.getPlayers();
     }
     hasRoundWinner() {
         const [player1, player2] = this.getPlayers();
@@ -108,12 +108,6 @@ class RockPaperScissorsGame {
         if (!player1Choice || !player2Choice)
             return null;
         return this.getWinner(Object.assign(Object.assign({}, player1), { choice: player1Choice.choice }), Object.assign(Object.assign({}, player2), { choice: player2Choice.choice }));
-    }
-    getOpponents(player) {
-        return Object.values(this.currentChoice).filter((i) => i.id != player.id);
-    }
-    isTie() {
-        return Object.values(this.currentChoice).every((i) => i.choice);
     }
     isRoundWinner(player) {
         var _a;
@@ -126,7 +120,7 @@ class RockPaperScissorsGame {
         this.rounds.addRound(roundWinner);
         this.currentChoice = {};
     }
-    hasGameWin() {
+    hasGameWinner() {
         const players = this.getPlayers();
         for (let i = 0; i < players.length; i++) {
             const player = players[i];

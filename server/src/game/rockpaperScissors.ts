@@ -1,13 +1,19 @@
-import { RockPaperScissorsRound } from "../../../web/types";
 import {
+  MoveChoice,
+  RockPaperScissorsRound,
   RockPaperScissorPlayer,
+} from "../../../web/types";
+import {
   RockPaperScissorsWinCombination,
   User,
   RockPaperScissorsOptions,
 } from "../../../web/types";
+import { PlayerHandler, TicTacToeGame } from "./TicTacToeGame";
 export const RockPaperScissorsMaxWins = 5;
 
-class RoundHandler {
+export type Game = RockPaperScissorsGame | TicTacToeGame;
+
+export class RoundHandler {
   count: number = 0;
   maxWins: number = RockPaperScissorsMaxWins;
   rounds: RockPaperScissorsRound[] = [];
@@ -44,28 +50,28 @@ class RoundHandler {
 }
 
 export class RockPaperScissorsGame {
-  currentChoice: Record<string, RockPaperScissorPlayer> = {};
-  players: Record<string, User> = {};
+  players: PlayerHandler = new PlayerHandler();
+  currentChoice: Record<string, MoveChoice> = {};
   rounds: RoundHandler = new RoundHandler();
-  addChoice(player: RockPaperScissorPlayer, choice: RockPaperScissorsOptions) {
+  play(player: RockPaperScissorPlayer, choice: RockPaperScissorsOptions) {
     if (this.rounds.hasGameWinner()) return;
-    if (this.currentChoice[player.id] || !this.players[player.id]) return;
+    if (this.currentChoice[player.id] || !this.players.hasPlayer(player.id))
+      return;
     this.currentChoice[player.id] = {
       ...player,
-      choice,
+      choice: choice,
     };
     console.log(this.currentChoice);
     return;
   }
   addPlayer(player: User) {
-    if (this.players[player.id]) return;
-    this.players[player.id] = player;
+    this.players.addPlayer(player);
   }
 
   getPlayers(): User[] {
-    return Object.values(this.players);
+    return this.players.getPlayers();
   }
-  hasRoundWinner(): RockPaperScissorsRound | null {
+  hasRoundWinner() {
     const [player1, player2] = this.getPlayers();
 
     if (!player1 || !player2) return null;
@@ -77,12 +83,6 @@ export class RockPaperScissorsGame {
       { ...player1, choice: player1Choice.choice },
       { ...player2, choice: player2Choice.choice }
     );
-  }
-  getOpponents(player: RockPaperScissorPlayer) {
-    return Object.values(this.currentChoice).filter((i) => i.id != player.id);
-  }
-  isTie() {
-    return Object.values(this.currentChoice).every((i) => i.choice);
   }
   isRoundWinner(player: RockPaperScissorPlayer) {
     return this.hasRoundWinner()?.id == player.id;
@@ -138,7 +138,7 @@ export class RockPaperScissorsGame {
     this.rounds.addRound(roundWinner);
     this.currentChoice = {};
   }
-  hasGameWin() {
+  hasGameWinner() {
     const players = this.getPlayers();
     for (let i = 0; i < players.length; i++) {
       const player = players[i];

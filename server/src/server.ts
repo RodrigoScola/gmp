@@ -4,7 +4,7 @@ import http from "http";
 const server = http.createServer(app);
 import { Server, Socket } from "socket.io";
 
-import { RockPaperScissorsChoice } from "../../web/types";
+import { MoveChoice } from "../../web/types";
 import { User } from "../../web/types";
 import { RoomHandler } from "./room";
 import { ServerToClientEvents, ClientToServerEvents } from "../../web/types";
@@ -30,7 +30,7 @@ io.on("connection", (socket) => {
   const gameStr = socket.handshake.auth;
   var room = r.getRoom(getRoomId(socket));
   var game = room?.game;
-
+  console.log("user connected");
   const handshakeInfo = {
     roomId: gameStr["roomId"] as string,
     user: gameStr["user"] as SocketUser,
@@ -38,7 +38,7 @@ io.on("connection", (socket) => {
   handshakeInfo.user.socketId = socket.id;
   socket.on("join_room", async (roomId: string) => {
     r.addUserToRoom(roomId, handshakeInfo.user);
-    console.log("player connected");
+
     socket.join(roomId);
     room = r.getRoom(getRoomId(socket));
     game = room?.game;
@@ -53,13 +53,9 @@ io.on("connection", (socket) => {
     }
   });
   // player move
-  socket.on("choice", (player: RockPaperScissorsChoice) => {
-    // console.log(socket.handshake.query)
-    // update game state
-    // send game state to all players
+  socket.on("choice", (player: MoveChoice) => {
     if (!player.choice) return;
-
-    game?.addChoice(
+    game?.play(
       {
         choice: player.choice,
         id: player.id,
@@ -68,17 +64,15 @@ io.on("connection", (socket) => {
     );
 
     const roundWinner = game?.hasRoundWinner();
-    console.log(roundWinner);
     if (roundWinner) {
       io.to(getRoomId(socket)).emit("round_winner", roundWinner);
       game?.newRound();
-      if (game?.hasGameWin()) {
-        io.to(getRoomId(socket)).emit("game_winner", game.hasGameWin());
-      } else {
-        setTimeout(() => {
-          io.to(getRoomId(socket)).emit("new_round");
-        }, 10);
+      if (game?.hasGameWinner()) {
+        io.to(getRoomId(socket)).emit("game_winner", game.hasGameWinner());
       }
+      setTimeout(() => {
+        io.to(getRoomId(socket)).emit("new_round");
+      }, 10);
     }
 
     io.to(getRoomId(socket)).emit("choice", {

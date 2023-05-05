@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Room = exports.RoomHandler = void 0;
+const rockpaperScissors_1 = require("./game/rockpaperScissors");
 class RoomHandler {
     constructor() {
         this.rooms = new Map();
@@ -36,7 +37,7 @@ class Room {
     constructor(id, users) {
         this.id = id;
         this.users = users;
-        this.game = new RockPaperScissorsGame();
+        this.game = new rockpaperScissors_1.RockPaperScissorsGame();
     }
 }
 exports.Room = Room;
