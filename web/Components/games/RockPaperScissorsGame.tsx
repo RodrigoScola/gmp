@@ -145,6 +145,7 @@ export default function RockPaperScissorGameComponent() {
   }, [socket]);
 
   const handleChoice = (choice: RockPaperScissorsOptions) => {
+    console.log(choice);
     socket.emit("rps_choice", {
       id: user.id,
       move: {

@@ -1,7 +1,6 @@
 import { SocketUser } from "../server";
 import { TicTacToeGame } from "../game/TicTacToeGame";
 import { RockPaperScissorsGame } from "../game/rockpaperScissors";
-import { GameHandler } from "./GameHandler";
 export class RoomHandler {
   rooms: Map<string, Room>;
   constructor() {
@@ -50,8 +49,8 @@ export const getRoom = (roomId: string) => {
 export class Room {
   id: string;
   users: SocketUser[];
-  game: RockPaperScissorsGame | TicTacToeGame;
-  constructor(id: string, users: []) {
+  game: RockPaperScissorsGame;
+  constructor(id: string, users: [], game?: RockPaperScissorsGame) {
     this.id = id;
     this.users = users;
 

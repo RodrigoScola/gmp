@@ -1,46 +1,20 @@
 import {
   GameNames,
+  RockPaperScissorsCombination,
   MoveChoice,
-  RockPaperScissorPlayer,
   RockPaperScissorsMove,
-  TicTacToeMove,
 } from "../../../web/types";
-import { TicTacToeGame } from "../game/TicTacToeGame";
 import { MyIo, MySocket, getRoomId } from "../server";
-import { Room, getRoom } from "./room";
+import { getRoom } from "./room";
 
-export interface Game {
-  name: GameNames;
-  isReady(): boolean;
-}
-const handleTTCGame = (
-  io: MyIo,
-  socket: MySocket,
-  game: TicTacToeGame,
-  room: Room
-) => {
-  console.log(game);
-  console.log(game);
-  console.log(game);
-  console.log(game);
-  console.log(game);
-  socket.on("ttc_choice", (move: TicTacToeMove) => {
-    if (game.isPLayerTurn(move.id)) {
-      game.play(move);
-    }
-  });
-};
 const handleRpsGame = (
   io: MyIo,
   socket: MySocket,
-  game: RockPaperScissorsGame,
+  game: TicTacToeGame | RockPaperScissorsGame,
   room: Room
 ) => {
   // player move
-  socket.on("rps_choice", (player: MoveChoice<RockPaperScissorsMove>) => {
-    console.log(player);
-    console.log(player);
-    console.log(player);
+  socket.on("rps_choice", (player) => {
     console.log(player);
     game?.play(
       {
@@ -51,6 +25,7 @@ const handleRpsGame = (
     );
 
     const roundWinner = game?.hasRoundWinner();
+    console.log(roundWinner);
     if (roundWinner) {
       io.to(getRoomId(socket)).emit("round_winner", roundWinner);
       game?.newRound();
@@ -64,7 +39,7 @@ const handleRpsGame = (
     }
     io.to(getRoomId(socket)).emit("rps_choice", {
       id: player.id,
-      choice: player.move.choice,
+      choice: player.choice,
     });
   });
 };
@@ -75,19 +50,12 @@ export class GameHandler {
         return handleRpsGame;
     }
   }
-  getGame(gameName: GameNames) {
-    switch (gameName) {
-      case "Tic Tac Toe":
-        return new TicTacToeGame();
-      case "Rock Paper Scissors":
-        return new RockPaperScissorsGame();
-    }
-  }
-
   playGame(io: MyIo, socket: MySocket, game) {
     const handler = this.getGameHandler(game.name);
-
-    if (!handler) return;
+    if (!handler) {
+      console.log("no handler");
+      return;
+    }
     handler(io, socket, game, getRoom(getRoomId(socket)));
   }
 }

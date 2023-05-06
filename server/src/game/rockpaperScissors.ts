@@ -1,3 +1,5 @@
+import { PlayerHandler } from "./TicTacToeGame";
+import { Game } from "@/../server/dist/handlers/GameHandler";
 import {
   RockPaperScissorPlayer,
   RockPaperScissorsWinCombination,
@@ -7,22 +9,14 @@ import {
   RockPaperScissorsOptions,
   GameNames,
 } from "../../../web/types";
-import { Game } from "../handlers/GameHandler";
-import { PlayerHandler } from "../handlers/usersHandler";
-
 export const RockPaperScissorsMaxWins = 5;
 
-export class RoundHandler<T> implements Game {
+export class RoundHandler<T> {
   count: number = 0;
   maxWins: number = RockPaperScissorsMaxWins;
-  rounds: T[] = [];
+  rounds: RockPaperScissorsRound[] = [];
 
-  lastRound(): T | null {
-    if (this.rounds.length == 0) return null;
-    return this.rounds[this.rounds.length - 1];
-  }
-
-  addRound(round: T) {
+  addRound(round: RockPaperScissorsRound) {
     this.rounds.push(round);
     this.count++;
   }
@@ -53,11 +47,11 @@ export class RoundHandler<T> implements Game {
   }
 }
 
-export class RockPaperScissorsGame {
+export class RockPaperScissorsGame implements Game {
   name: GameNames = "Rock Paper Scissors";
   players: PlayerHandler = new PlayerHandler();
   currentChoice: Record<string, MoveChoice> = {};
-  rounds: RoundHandler = new RoundHandler<RockPaperScissorsRound>();
+  rounds: RoundHandler = new RoundHandler();
   play(player: RockPaperScissorPlayer, choice: RockPaperScissorsOptions) {
     if (this.rounds.hasGameWinner()) return;
     console.log(player, choice);
@@ -75,7 +69,9 @@ export class RockPaperScissorsGame {
   addPlayer(player: User) {
     this.players.addPlayer(player);
   }
-
+  isReady(): boolean {
+    return this.getPlayers().length == 2;
+  }
   getPlayers(): User[] {
     return this.players.getPlayers();
   }

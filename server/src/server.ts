@@ -3,7 +3,7 @@ const app = express();
 import http from "http";
 const server = http.createServer(app);
 import { Server } from "socket.io";
-import { usersHandlers } from "./handlers/usersHandler";
+
 import { GameType, RockPaperScissorsChoice } from "../../web/types";
 import { User } from "../../web/types";
 import { Room, RoomHandler } from "./handlers/room";
@@ -11,7 +11,7 @@ import { ServerToClientEvents, ClientToServerEvents } from "../../web/types";
 import { TicTacToeGame } from "./game/TicTacToeGame";
 import { RockPaperScissorsGame } from "./game/rockpaperScissors";
 import { roomHandler } from "./handlers/room";
-import { GameHandler } from "./handlers/GameHandler";
+import { GameHandler } from "./handlers/Handlers";
 export const io = new Server<ServerToClientEvents, ClientToServerEvents>(
   server
 );
@@ -37,37 +37,30 @@ const gameHandler = new GameHandler();
 
 export const getRoomId = (socket) => socket.handshake.auth["roomId"];
 
-io.on("connection", (socket: MySocket) => {
+io.on("connection", (socket) => {
   const gameStr = socket.handshake.auth;
   var room = roomHandler.getRoom(getRoomId(socket));
   var game = room?.game;
   const connInfo = {
-    roomId: gameStr["roomId"] as string,
-    user: { ...gameStr["user"], socketId: socket.id } as SocketUser,
+    roomId: socket.handshake.auth["roomId"] as string,
+    user: socket.handshake.auth["user"] as SocketUser,
   };
-  usersHandlers.addUser(connInfo.user);
-
+  connInfo.user.socketId = socket.id;
   socket.on("join_room", async (roomId: string) => {
     roomHandler.addUserToRoom(roomId, connInfo.user);
     socket.join(roomId);
     room = roomHandler.getRoom(getRoomId(socket));
     game = room?.game;
-    game?.addPlayer(usersHandlers.getUser(connInfo.user.id));
+    game?.addPlayer(connInfo.user);
     io.to(roomId).emit("user_connected", roomId);
   });
   socket.on("start_game", () => {
-    if (game?.getPlayers().length == 2) {
-      console.log(game?.name);
-      console.log(game?.name);
-      console.log(game?.name);
-      console.log(game?.name);
-
-      gameHandler.playGame(io, socket, game);
+    if (game?.isReady()) {
       io.to(getRoomId(socket)).emit("start_game", game?.getPlayers());
-    } else {
-      console.log("is not ready");
     }
     console.log("start game");
+
+    gameHandler.playGame(io, socket, game);
   });
 
   socket.on("disconnect", () => {
