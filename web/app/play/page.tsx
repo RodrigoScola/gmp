@@ -1,6 +1,6 @@
 "use client";
 
-import { getGame } from "@/data/games";
+import { getGameData } from "@/data/games";
 import { useUser } from "@/hooks/useUser";
 import { GameNames, GameType, gameNames } from "@/types";
 import Link from "next/link";
@@ -13,7 +13,7 @@ export default function PLAYPAGE() {
   const [games, setGames] = useState<GameType[]>([]);
 
   const toggleGame = (GameName: GameNames) => {
-    const game = getGame(GameName);
+    const game = getGameData(GameName);
     if (games.some((currentGame) => currentGame.id === game.id)) {
       setGames((curr) =>
         curr.filter((currentGame) => currentGame.id !== game.id)
@@ -23,7 +23,7 @@ export default function PLAYPAGE() {
     setGames((curr) => [...curr, game]);
   };
   const user = useUser();
-  console.log(user.user.username)
+  console.log(user.user.username);
   return (
     <div className="px-3">
       <div>
@@ -40,7 +40,7 @@ export default function PLAYPAGE() {
                 <div
                   onClick={() => toggleGame(gameName)}
                   className={`${cardClassName} ${
-                    !games.includes(getGame(gameName))
+                    !games.includes(getGameData(gameName))
                       ? "bg-slate-200"
                       : "bg-blue-700"
                   }`}

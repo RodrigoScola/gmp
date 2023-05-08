@@ -1,57 +1,36 @@
 "use client";
 import { baseUser } from "@/constants";
-import { socket } from "@/lib/socket";
-import { Coords, TicTacToeGameState } from "@/types";
+import { newSocketAuth, socket } from "@/lib/socket";
+import {
+  Coords,
+  GameNames,
+  MoveChoice,
+  TTCCombination,
+  TTCOptions,
+  TTCPlayer,
+  TicTacToeGameState,
+  User,
+} from "@/types";
 import { useEffect, useMemo, useState } from "react";
 import { useEffectOnce, useUpdateEffect } from "usehooks-ts";
-import { TicTacToeMove } from "@/types";
+import { TTCMove } from "@/types";
 import {
   generateboard,
   isValid,
   checkBoard,
   newBlock,
+  TTCBoardMove,
 } from "@/../server/src/game/TicTacToeGame";
 import { useUser } from "@/hooks/useUser";
 
 const gameId = "a0s9df0a9sdjf";
-const sendLetter = (
-  board: TicTacToeMove[][]
-): Promise<TicTacToeMove | null> => {
-  return new Promise((resolve) => {
-    let availableOptions: number[][] = [];
-    for (let i = 0; i < board.length; i++) {
-      for (let j = 0; j < board[i].length; j++) {
-        if (isValid(board, i, j)) {
-          availableOptions.push([i, j]);
-        }
-      }
-    }
-    if (availableOptions.length === 0) {
-      resolve(null);
-      return;
-    }
-    const pos =
-      availableOptions[Math.floor(Math.random() * availableOptions.length)];
-    let b = newBlock({
-      coords: {
-        x: pos[0],
-        y: pos[1],
-      },
-      type: "O",
-      userId: "asoidufaosduf0av09asf",
-    });
-    setTimeout(() => {
-      resolve(b);
-    }, 1000);
-  });
-};
-// add round
+const gameType: GameNames = "Tic Tac Toe";
 
 type TicTacToeState = {
-  moves: TicTacToeMove[];
-  winner?: {
+  moves: TTCBoardMove[];
+  winner: {
     id: string | null | "tie";
-    board: TicTacToeMove[] | null;
+    board: TTCBoardMove[] | null;
   };
   wins: {
     [k: string]: number;
@@ -69,87 +48,129 @@ export default function TicTacToeGameComponent() {
       aoisdjfoisd: 0,
     },
   });
+  const { user } = useUser();
 
-  const [board, setBoard] = useState<TicTacToeMove[][]>(generateboard());
+  const [player, setPlayer] = useState<
+    | (User & { choice: TTCOptions | null })
+    | { id: string; choice: TTCOptions | null }
+  >({
+    choice: null,
+    id: "string2",
+  });
+
+  const [opponent, setOpponent] = useState<
+    (User & { choice: TTCOptions | null }) | { id: string }
+  >({
+    id: "string",
+  });
+  const [board, setBoard] = useState<MoveChoice<TTCMove>[][]>(generateboard());
   const [gameState, setGameState] = useState<TicTacToeGameState>(
     TicTacToeGameState.WAITING
   );
 
-  const addToBoard = async (x: number, y: number) => {
-    let nb = [...board];
-    const block = newBlock({
-      type: "X",
-      coords: {
-        x,
-        y,
-      },
-      userId: baseUser.id,
-    });
-    if (!isValid(board, x, y)) return;
-
-    nb[x][y] = block;
-
-    setMoves((curr) => ({
-      ...curr,
-      moves: [...curr.moves, block],
-    }));
-
-    setGameState(TicTacToeGameState.ENEMYTURN);
-    setBoard(nb);
-  };
-  console.log(moves);
   const canPlay = useMemo(() => {
     if (isValid(board)) {
       return false;
     }
-
+    if (moves.moves[moves.moves.length - 1]?.id == user.id) {
+      return false;
+    }
+    if (moves.moves.length == 0 && player.choice == "O") {
+      return false;
+    }
     return true;
   }, [board]);
-  const addBlock = (x: number, y: number) => {
-    if (canPlay == false) return;
-    addToBoard(x, y);
-  };
 
-  useUpdateEffect(() => {
-    if (
-      moves.moves[moves.moves.length - 1].userId == baseUser.id &&
-      moves.moves.length > 0
-    ) {
-      console.log("asdf");
-      if (canPlay) {
-        setLetter();
-      }
-    }
-  }, [moves.moves]);
-  const setLetter = async () => {
-    if (canPlay == false) return;
-    const value = await sendLetter(board);
-    if (!value) {
-      console.log("game over");
-      setGameState(TicTacToeGameState.END);
+  useEffect(() => {
+    console.log(moves);
+    if (moves.moves[moves.moves.length - 1]?.id == user.id) {
+      setGameState(TicTacToeGameState.ENEMYTURN);
       return;
     }
-    const move = newBlock(value);
-    setMoves((curr) => ({ ...curr, moves: [...curr.moves, move] }));
-    let nb = [...board];
-    nb[move.coords.x][move.coords.y] = move;
-    setBoard(nb);
+    if (moves.moves.length == 0 && player.choice == "O") {
+      setGameState(TicTacToeGameState.ENEMYTURN);
+
+      return;
+    }
     setGameState(TicTacToeGameState.PLAYING);
+  }, [moves.moves, player.choice]);
+
+  // console.log(canPlay);
+  const addBlock = (x: number, y: number) => {
+    if (player.choice == null) return;
+    // if (canPlay == false) return;
+    if (isValid(board, x, y) == false) return;
+    socket.emit("ttc_choice", {
+      id: user.id,
+      move: {
+        choice: player.choice,
+        coords: { x, y },
+      },
+    });
   };
+
   useEffectOnce(() => {
     setGameState(TicTacToeGameState.PLAYING);
   });
 
-  const { user } = useUser();
   useEffect(() => {
-    socket.auth = { user, roomId: gameId };
+    const socketAuth = newSocketAuth({
+      user: user,
+      roomId: gameId,
+      gameName: gameType,
+    });
+    socket.auth = socketAuth;
     socket.connect();
     socket.emit("join_room", gameId);
 
-    socket.emit("start_game");
+    socket.on("get_players", (players: TTCPlayer[]) => {
+      const opponent = players.find((player) => player.id != user.id);
+      if (opponent) {
+        setOpponent(opponent);
+      }
+      const player = players.find((player) => player.id == user.id);
+      if (player) {
+        setPlayer(player);
+      }
+      socket.on(
+        "ttc_choice",
+        (params: { board: TTCBoardMove[]; move: TTCBoardMove }) => {
+          setMoves((current) => ({
+            ...current,
+            moves: [...current.moves, params.move],
+          }));
+          setBoard(params.board);
+        }
+      );
+      socket.on("new_round", () => {
+        setBoard(generateboard());
+        setMoves((current) => ({
+          ...current,
+          winner: {
+            board: [],
+            id: "",
+          },
+          moves: [],
+        }));
+      });
 
+      socket.emit("player_ready");
+    });
+    socket.on("ttc_game_winner", (winner: TTCCombination) => {
+      if (!winner) return;
+      setMoves((current) => ({
+        ...current,
+        winner: {
+          id: winner.winner,
+          board: winner.board,
+        },
+      }));
+      setGameState(TicTacToeGameState.END);
+    });
     // socket.emit('set-user', user)
-
+    socket.on("user_disconnected", () => {
+      window.location.reload();
+    });
     socket.on("disconnect", () => {
       console.log("user disconnected");
     });
@@ -159,45 +180,33 @@ export default function TicTacToeGameComponent() {
       }
     };
   }, [socket]);
-  useUpdateEffect(() => {
-    const result = checkBoard(board);
-    console.log(result);
-    if (result.winner) {
-      setMoves((current) => ({
-        ...current,
-        winner: {
-          board: result.board,
-          id: result.winner || "tie",
-        },
-      }));
-      setGameState(TicTacToeGameState.END);
-      console.log(moves);
-    }
-  }, [board]);
-
-  useEffectOnce(() => {
-    socket.auth = {
-      baseUser,
-      roomId: gameId,
-    };
-    socket.connect();
-    socket.emit("join_room", gameId);
-    socket.on("connect", () => {
-      socket.emit("start_game");
-    });
-  });
-
+  // useUpdateEffect(() => {
+  //   const result = checkBoard(board);
+  //   console.log(result);
+  //   if (result.winner) {
+  //     setMoves((current) => ({
+  //       ...current,
+  //       winner: {
+  //         board: result.board,
+  //         id: result.winner || "tie",
+  //       },
+  //     }));
+  //     setGameState(TicTacToeGameState.END);
+  //     console.log(moves);
+  //   }
+  // }, [board]);
+  console.log(board);
   return (
     <>
       <div>
-        {board.map((row: (TicTacToeMove | null)[], i: number) => {
+        {board.map((row: (MoveChoice<TTCMove> | null)[], i: number) => {
           return (
             <div className="flex m-auto w-fit" key={i}>
-              {row.map((col: TicTacToeMove | null, j: number) => {
+              {row.map((col: MoveChoice<TTCMove> | null, j: number) => {
                 let clas = "";
                 if (moves.winner?.board) {
                   const found = moves.winner.board.find(
-                    (b) => b.coords.x == i && b.coords.y == j
+                    (b) => b.move.coords.x == i && b.move.coords.y == j
                   );
                   if (found) {
                     clas = "bg-green-500";
@@ -212,7 +221,7 @@ export default function TicTacToeGameComponent() {
                     key={j}
                     className={`${clas} h-24 w-24 border border-black flex align-middle justify-center items-center`}
                   >
-                    <div className="relative text-4xl">{col?.type}</div>
+                    <div className="relative text-4xl">{col?.move.choice}</div>
                   </div>
                 );
               })}
@@ -226,9 +235,7 @@ export default function TicTacToeGameComponent() {
             {moves.winner.id == "tie" ? (
               <div>ITS A TIE</div>
             ) : (
-              <div>
-                {moves.winner.id == baseUser.id ? "YOU WON" : "YOU LOST"}
-              </div>
+              <div>{moves.winner.id == user.id ? "YOU WON" : "YOU LOST"}</div>
             )}
           </div>
         )}

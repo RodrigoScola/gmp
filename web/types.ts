@@ -1,4 +1,6 @@
+import { TTCBoardMove } from "@/../server/dist/game/TicTacToeGame";
 import { UsersResponse } from "./pocketbase-types";
+import { PlayerHandler } from "@/../server/dist/handlers/usersHandler";
 
 export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 export type OmitBy<T, K extends keyof T> = Omit<T, K>;
@@ -60,15 +62,15 @@ export type Coords = {
   x: number;
   y: number;
 };
-export type RockPaperScissorsRound = {
-  winner: RockPaperScissorPlayer;
-  loser: RockPaperScissorPlayer;
+export type RPSRound = {
+  winner: RPSPlayer;
+  loser: RPSPlayer;
   isTie: boolean;
 };
 
 export type Rounds = {
   count: number;
-  rounds: RockPaperScissorsRound[];
+  rounds: RPSRound[];
   wins: {
     [key: string]: number;
     ties: number;
@@ -82,26 +84,29 @@ export enum TicTacToeGameState {
   ENEMYTURN = "Enemy Turn",
   WAITING = "Waiting",
 }
-export interface GameType {
-  name: GameNames;
-  id: number;
-}
-
-export interface FriendGameType extends GameType {
+export interface FriendGameType extends Game {
   played: number;
   won: number;
   lost: number;
 }
-export interface SimonSaysGameType extends FriendGameType {
+export interface Game {
+  name: GameNames;
+  isReady: () => boolean;
+  getPlayers: <T>() => T[];
+  players: PlayerHandler;
+  // isPlayerTurn(playerId: string): boolean;
+}
+
+export interface SimonSaysGameType extends Game {
   name: "Simon Says";
 }
-export interface ConnectFourGameType extends FriendGameType {
+export interface ConnectFourGameType extends Game {
   name: "connect Four";
 }
-export interface RockPaperScissorsGameType extends FriendGameType {
+export interface RockPaperScissorsGameType extends Game {
   name: "Rock Paper Scissors";
 }
-export interface TicTacToeGameType extends FriendGameType {
+export interface TicTacToeGameType extends Game {
   name: "Tic Tac Toe";
 }
 
@@ -163,45 +168,44 @@ export type newToastType = Partial<ToastType>;
 
 export type ReturnUserType = User | User<Partial<ExtendedUser>>;
 
-export const RockPaperScissorsOptionsValues = [
-  "rock",
-  "paper",
-  "scissors",
-] as const;
-export type RockPaperScissorsOptions =
-  (typeof RockPaperScissorsOptionsValues)[number];
-export type RockPaperScissorsCombination = {
-  winner: RockPaperScissorsOptions;
-  loser: RockPaperScissorsOptions;
-  tie?: RockPaperScissorsOptions;
+export const RPSOptionsValues = ["rock", "paper", "scissors"] as const;
+export type RPSOptions = (typeof RPSOptionsValues)[number];
+export type RPSCombination = {
+  winner: RPSOptions;
+  loser: RPSOptions;
+  tie?: RPSOptions;
 };
-export type TicTacToeCombination = {
-  winner: string | null;
+export type TTCCombination = {
+  winner: "tie" | string | null;
   loser: string | null;
   isTie: boolean;
-  board: TicTacToeMove[] | null;
+  board: TTCBoardMove[] | null;
 };
-export const RockPaperScissorsWinCombination: RockPaperScissorsCombination[] = [
+export const RPSWinCombination: RPSCombination[] = [
   { winner: "rock", loser: "scissors" },
   { winner: "paper", loser: "rock" },
   { winner: "scissors", loser: "paper" },
 ];
 
-export interface RockPaperScissorPlayer extends Partial<User> {
+export interface RPSPlayer {
   id: string;
-  choice: RockPaperScissorsOptions | null;
+  choice: RPSOptions | null;
 }
 
-export type TicTacToeOptions = "X" | "O";
+export type TTCOptions = "X" | "O";
 
-export type RockPaperScissorsMove = {
-  choice: RockPaperScissorsOptions;
+export interface TTCPlayer extends Partial<User> {
+  id: string;
+  choice?: TTCOptions;
+}
+
+export type RPSMove = {
+  choice: RPSOptions;
 };
 
-export type TicTacToeMove = {
+export type TTCMove = {
   coords: Coords;
-  choice: TicTacToeOptions;
-  id: string;
+  choice: TTCOptions;
 };
 
 export interface MoveChoice<T> {
@@ -211,22 +215,30 @@ export interface MoveChoice<T> {
 
 export interface ServerToClientEvents {
   join_room: (roomId: string) => void;
-  rps_choice: (player: MoveChoice<RockPaperScissorsMove>) => void;
-  start_game: (players: RockPaperScissorPlayer[]) => void;
-  round_winner: (round: RockPaperScissorsRound | null) => void;
-  game_winner: (winner: User | null) => void;
+  rps_choice: (player: MoveChoice<RPSMove>) => void;
+  rps_game_winner: (winner: User | null) => void;
+  ttc_game_winner: (winner: TTCCombination) => void;
+  ttc_choice: (params: { board: TTCBoardMove[]; move: TTCBoardMove }) => void;
+  start_game: () => void;
+  round_winner: (round: RPSRound | null) => void;
+  player_ready: () => void;
   new_round: () => void;
+  get_players: (players: User[]) => void;
+  get_state: (game: Game) => void;
   user_disconnected: () => void;
 }
 
 export interface ClientToServerEvents {
   join_room: (roomId: string) => void;
   get_players: () => void;
-  rps_choice: (player: MoveChoice<RockPaperScissorsMove>) => void;
+  rps_choice: (player: MoveChoice<RPSMove>) => void;
+  rps_game_winner: (winner: RPSRound) => void;
+  ttc_choice: (player: MoveChoice<TTCMove>) => void;
+  ttc_game_winner: (winner: TTCCombination) => void;
   user_connected: (roomId: string) => void;
   start_game: () => void;
-  round_winner: (round: RockPaperScissorsRound) => void;
-  game_winner: (winner: RockPaperScissorsRound) => void;
+  round_winner: (round: RPSRound) => void;
+  player_ready: () => void;
   new_round: () => void;
   user_disconnected: (roomId: string) => void;
 }

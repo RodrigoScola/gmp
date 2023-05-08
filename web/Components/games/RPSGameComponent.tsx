@@ -1,11 +1,12 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import {
+  GameNames,
   GameState,
-  RockPaperScissorPlayer,
-  RockPaperScissorsOptions,
-  RockPaperScissorsOptionsValues,
-  RockPaperScissorsRound,
+  RPSPlayer,
+  RPSOptions,
+  RPSOptionsValues,
+  RPSRound,
   Rounds,
   User,
 } from "@/types";
@@ -13,20 +14,24 @@ import { useUser } from "@/hooks/useUser";
 import { RockPaperScissorsGame } from "@/../server/src/game/rockpaperScissors";
 const maxWins = 5;
 const gameId = "a0s9df0a9sdjf";
+const gameName: GameNames = "Rock Paper Scissors";
 import { socket } from "@/lib/socket";
 const { getWinner } = new RockPaperScissorsGame();
 
 export default function RockPaperScissorGameComponent() {
-  const [opponent, setOpponent] = useState<RockPaperScissorPlayer>({
+  const [opponent, setOpponent] = useState<
+    (User & { choice: RPSOptions | null }) | { id: string }
+  >({
     id: "string",
-    choice: null,
   });
 
   const [gameState, setGameState] = useState<GameState>(GameState.selecting);
 
   const { user } = useUser();
 
-  const [currentPlayer, setCurrentPlayer] = useState<RockPaperScissorPlayer>({
+  const [currentPlayer, setCurrentPlayer] = useState<
+    (User & { choice: RPSOptions | null }) | { id: string }
+  >({
     choice: null,
     id: "string2",
   });
@@ -52,12 +57,12 @@ export default function RockPaperScissorGameComponent() {
   }, [rounds.wins[currentPlayer.id], gameState, rounds.wins[opponent.id]]);
 
   useEffect(() => {
-    socket.auth = { user, roomId: gameId };
+    socket.auth = { user, roomId: gameId, gameName: gameName };
     socket.connect();
     socket.emit("join_room", gameId);
 
-    socket.emit("start_game");
-    socket.on("start_game", (players: RockPaperScissorPlayer[]) => {
+    socket.on("get_players", (players: User[]) => {
+      console.log(players);
       console.log(players);
       const opponent = players.find((player) => player.id != user.id);
       if (opponent) {
@@ -78,14 +83,13 @@ export default function RockPaperScissorGameComponent() {
           },
         });
       }
+      socket.emit("player_ready");
     });
-
     // socket.emit('set-user', user)
-
     socket.on("rps_choice", (choice) => {
       console.log(choice);
     });
-    socket.on("round_winner", (round: RockPaperScissorsRound | null) => {
+    socket.on("round_winner", (round: RPSRound | null) => {
       if (!round) return;
       setGameState(GameState.results);
       const opponentWin = round.winner.id == opponent.id;
@@ -121,7 +125,7 @@ export default function RockPaperScissorGameComponent() {
 
       console.log(rounds, "this is the round");
     });
-    socket.on("game_winner", (winner: User | null) => {
+    socket.on("rps_game_winner", (winner: User | null) => {
       if (winner) {
         setGameState(GameState.end);
       }
@@ -144,7 +148,7 @@ export default function RockPaperScissorGameComponent() {
     };
   }, [socket]);
 
-  const handleChoice = (choice: RockPaperScissorsOptions) => {
+  const handleChoice = (choice: RPSOptions) => {
     console.log(choice);
     socket.emit("rps_choice", {
       id: user.id,
@@ -205,7 +209,7 @@ export default function RockPaperScissorGameComponent() {
       </div>
       {gameState == GameState.selecting && (
         <div className="gap-3 flex">
-          {RockPaperScissorsOptionsValues.map((option) => (
+          {RPSOptionsValues.map((option) => (
             <button
               key={option}
               onClick={() => {

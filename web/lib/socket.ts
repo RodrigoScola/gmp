@@ -1,5 +1,11 @@
 import { io, Socket } from "socket.io-client";
-import { ServerToClientEvents, ClientToServerEvents } from "@/types";
+import {
+  User,
+  ServerToClientEvents,
+  ClientToServerEvents,
+  GameNames,
+  ExtendedUser,
+} from "@/types";
 
 export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
   "ws://localhost:3001",
@@ -8,3 +14,17 @@ export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
     autoConnect: false,
   }
 );
+
+export type SocketAuth = {
+  user: User | User<ExtendedUser>;
+  roomId: string;
+  gameName: GameNames;
+};
+
+export const newSocketAuth = (params: SocketAuth): SocketAuth => {
+  return {
+    user: params.user,
+    roomId: params.roomId,
+    gameName: params.gameName,
+  };
+};

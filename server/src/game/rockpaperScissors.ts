@@ -1,12 +1,12 @@
-import { PlayerHandler } from "./TicTacToeGame";
+import { PlayerHandler, usersHandlers } from "../handlers/usersHandler";
 import { Game } from "@/../server/dist/handlers/GameHandler";
 import {
-  RockPaperScissorPlayer,
-  RockPaperScissorsWinCombination,
+  RPSPlayer,
+  RPSWinCombination,
   User,
   MoveChoice,
-  RockPaperScissorsRound,
-  RockPaperScissorsOptions,
+  RPSRound,
+  RPSOptions,
   GameNames,
 } from "../../../web/types";
 export const RockPaperScissorsMaxWins = 5;
@@ -14,9 +14,13 @@ export const RockPaperScissorsMaxWins = 5;
 export class RoundHandler<T> {
   count: number = 0;
   maxWins: number = RockPaperScissorsMaxWins;
-  rounds: RockPaperScissorsRound[] = [];
+  rounds: T[];
 
-  addRound(round: RockPaperScissorsRound) {
+  constructor() {
+    this.rounds = [];
+  }
+
+  addRound(round: RPSRound) {
     this.rounds.push(round);
     this.count++;
   }
@@ -52,7 +56,7 @@ export class RockPaperScissorsGame implements Game {
   players: PlayerHandler = new PlayerHandler();
   currentChoice: Record<string, MoveChoice> = {};
   rounds: RoundHandler = new RoundHandler();
-  play(player: RockPaperScissorPlayer, choice: RockPaperScissorsOptions) {
+  play(player: RPSPlayer, choice: RPSOptions) {
     if (this.rounds.hasGameWinner()) return;
     console.log(player, choice);
     console.log(player, choice);
@@ -88,25 +92,22 @@ export class RockPaperScissorsGame implements Game {
       { ...player2, choice: player2Choice.choice }
     );
   }
-  isRoundWinner(player: RockPaperScissorPlayer) {
+  isRoundWinner(player: RPSPlayer) {
     return this.hasRoundWinner()?.id == player.id;
   }
 
-  getOpponents(player: RockPaperScissorPlayer) {
+  getOpponents(player: RPSPlayer) {
     return Object.values(this.currentChoice).filter((i) => i.id != player.id);
   }
   isTie() {
     return Object.values(this.currentChoice).every((i) => i.choice);
   }
-  isRoundWinner(player: RockPaperScissorPlayer) {
+  isRoundWinner(player: RPSPlayer) {
     return this.hasRoundWinner()?.id == player.id;
   }
 
-  getWinnerCombination = (
-    opt1: RockPaperScissorsOptions,
-    opt2: RockPaperScissorsOptions
-  ): RockPaperScissorsOptions => {
-    const combination = RockPaperScissorsWinCombination.find((combination) => {
+  getWinnerCombination = (opt1: RPSOptions, opt2: RPSOptions): RPSOptions => {
+    const combination = RPSWinCombination.find((combination) => {
       return (
         (combination.winner == opt1 && combination.loser == opt2) ||
         (combination.winner == opt2 && combination.loser == opt1)
@@ -117,10 +118,7 @@ export class RockPaperScissorsGame implements Game {
     }
     return opt1;
   };
-  getWinner = (
-    player1: RockPaperScissorPlayer,
-    player2: RockPaperScissorPlayer
-  ): RockPaperScissorsRound | null => {
+  getWinner = (player1: RPSPlayer, player2: RPSPlayer): RPSRound | null => {
     if (!player1 || !player2) return null;
     if (player1.choice == null || player2.choice == null) return null;
     if (player1.choice == player2.choice) {
@@ -168,10 +166,7 @@ export class RockPaperScissorsGame implements Game {
     return this.rounds.isWinner(playerId);
   }
 
-  getWinner = (
-    player1: RockPaperScissorPlayer,
-    player2: RockPaperScissorPlayer
-  ): RockPaperScissorsRound | null => {
+  getWinner = (player1: RPSPlayer, player2: RPSPlayer): RPSRound | null => {
     if (!player1 || !player2) return null;
     if (player1.choice == null || player2.choice == null) return null;
     if (player1.choice == player2.choice) {

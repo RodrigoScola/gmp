@@ -1,20 +1,23 @@
 import { SocketUser } from "../server";
 import { TicTacToeGame } from "../game/TicTacToeGame";
 import { RockPaperScissorsGame } from "../game/rockpaperScissors";
+import { Game } from "../../../web/types";
 export class RoomHandler {
   rooms: Map<string, Room>;
+
   constructor() {
     this.rooms = new Map();
   }
   roomExists(roomId: string) {
     return this.rooms.has(roomId);
   }
-  createRoom(roomId: string) {
+  createRoom(roomId: string, users: SocketUser[] = [], game?: Game) {
     if (!this.roomExists(roomId)) {
-      this.rooms.set(roomId, new Room(roomId, []));
+      this.rooms.set(roomId, new Room(roomId, [], game));
     }
   }
-  getRoom(roomId: string) {
+  getRoom(roomId: string): Room | undefined {
+    if (!this.rooms.has(roomId)) return;
     return this.rooms.get(roomId);
   }
   deleteRoom(roomId: string) {
@@ -30,13 +33,6 @@ export class RoomHandler {
     if (!room) {
       return;
     }
-    if (room.users.find((i) => i.id == user.id)) {
-      room.users.push({
-        ...user,
-        id: "player1",
-      });
-      return;
-    }
     room.users.push(user);
   }
 }
@@ -49,11 +45,12 @@ export const getRoom = (roomId: string) => {
 export class Room {
   id: string;
   users: SocketUser[];
-  game: RockPaperScissorsGame;
-  constructor(id: string, users: [], game?: RockPaperScissorsGame) {
+  game?: Game;
+  constructor(id: string, users: [], game?: Game) {
     this.id = id;
     this.users = users;
-
-    this.game = new RockPaperScissorsGame();
+    if (game) {
+      this.game = game;
+    }
   }
 }

@@ -1,18 +1,13 @@
 "use client";
 
-import { RockPaperScissorsOptionsValues } from "@/types";
+import { RPSOptionsValues } from "@/types";
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 
-
-
-
 export default function WEBSOCKETPAGETEST() {
-  const socket = io("wss://localhost:3001/game" , {
-    path: '/'
-  })
-
-
+  const socket = io("wss://localhost:3001/game", {
+    path: "/",
+  });
 
   // const [isConnected, setIsConnected] = useState(socket.connected);
   // const [fooEvents, setFooEvents] = useState<any[]>([]);
@@ -40,8 +35,5 @@ export default function WEBSOCKETPAGETEST() {
   // console.log(isConnected)
 
   // console.log(fooEvents)
-  return (
-    <div>
-    </div>
-  );
+  return <div></div>;
 }

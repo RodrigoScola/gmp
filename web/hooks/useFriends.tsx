@@ -3,7 +3,6 @@ import { ChildrenType, Friend, GameNames } from "@/types";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useMap } from "usehooks-ts";
 import { useToast } from "./useToast";
-import { getGame } from "@/data/games";
 
 export type FriendsContext = {
   friends: Friend[];
@@ -86,7 +85,7 @@ export const useFriend = (id: string) => {
     id: friendId,
     friend: friendContext?.getFriend(friendId),
     sendInvite: (gameName: number | GameNames) => {
-      const game = getGame(gameName);
+      const game = getGameData(gameName);
       if (!game) {
         throw new Error("Game not found");
       }
