@@ -89,11 +89,14 @@ export interface FriendGameType extends Game {
   won: number;
   lost: number;
 }
-export interface Game {
-  name: GameNames;
-  isReady: () => boolean;
-  getPlayers: <T>() => T[];
-  players: PlayerHandler;
+export abstract class Game {
+  abstract name: GameNames;
+  abstract isReady: () => boolean;
+  abstract getPlayers: <T>() => T[];
+  abstract players: PlayerHandler;
+  abstract play(): void;
+  abstract newRound(): void;
+
   // isPlayerTurn(playerId: string): boolean;
 }
 

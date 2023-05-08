@@ -19,7 +19,10 @@ const handleTTCGame = (
   room: Room
 ) => {
   socket.on("ttc_choice", (move: MoveChoice<TTCMove>) => {
+    console.log(game.isPlayerTurn(move.id));
     if (game.isPlayerTurn(move.id)) {
+      console.log(move);
+
       game.play(move, move.move.choice);
       io.to(getRoomId(socket)).emit("ttc_choice", {
         board: game.board.board,
@@ -29,10 +32,9 @@ const handleTTCGame = (
     const winner = game.board.checkBoard(game.board.board);
     if (winner.winner) {
       io.to(getRoomId(socket)).emit("ttc_game_winner", winner);
-      game.nextRound();
-      console.log(game.board.board);
       setTimeout(() => {
         io.to(getRoomId(socket)).emit("new_round", winner);
+        game.nextRound();
       }, 1000);
     }
   });

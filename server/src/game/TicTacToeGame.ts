@@ -11,11 +11,12 @@ import {
   TTCOptions,
 } from "../../../web/types";
 import { PlayerHandler } from "../handlers/usersHandler";
+import { Board } from "./c4Game";
 
 export type TTCBoardMove = MoveChoice<TTCMove>;
 
-export class TicTacToeBoard {
-  board: TTCBoardMove[][];
+export class TicTacToeBoard extends Board<TTCBTTCBoardMove> {
+  board: TTCBTTCBoardMove[][];
   moves: TTCBoardMove[];
   constructor() {
     this.moves = [];
@@ -139,7 +140,9 @@ export class TicTacToeGame implements Game {
 
   isPlayerTurn(playerId: string): boolean {
     if (this.board.moves.length == 0) {
-      return this.players.getPlayers()[0].id == playerId;
+      return (
+        this.players.getPlayers().find((i) => i.id == playerId)?.choice == "X"
+      );
     }
     return this.board.moves[this.board.moves.length - 1].id != playerId;
   }
@@ -148,22 +151,33 @@ export class TicTacToeGame implements Game {
     return true;
   }
   addPlayer(player: User) {
+    let choice;
+    if (this.players.getPlayers().length == 0) {
+      choice = Math.random() > 0.5 ? "X" : "O";
+    } else {
+      choice = this.players.getPlayers()[0].choice == "X" ? "O" : "X";
+    }
+
     this.players.addPlayer({
       ...player,
-      choice: this.players.getPlayers().length == 0 ? "X" : "O",
+      choice,
     });
   }
   nextRound() {
-    this.rounds.addRound(this.board.moves);
-    this.board.board = generateboard();
+    if (this.board.moves.length > 0) {
+      this.rounds.addRound(this.board.moves);
+    }
 
-    // console.log(this.rounds.rounds);
+    this.board.board = generateboard();
+    this.players.getPlayers().forEach((player) => {
+      player.choice = player.choice == "X" ? "O" : "X";
+    });
+    this.board.moves = [];
+
+    console.log(this.rounds.rounds);
   }
   getPlayers(): TTCPlayer[] {
     return this.players.getPlayers();
-  }
-  hasGameWinner(): User | null {
-    return null;
   }
   play(player: TTCBoardMove, choice: TTCBoardMove["move"]) {
     this.board.addMove(player);

@@ -1,5 +1,5 @@
 import { PlayerHandler, usersHandlers } from "../handlers/usersHandler";
-import { Game } from "@/../server/dist/handlers/GameHandler";
+import { Game } from "../../../web/types";
 import {
   RPSPlayer,
   RPSWinCombination,
@@ -20,7 +20,7 @@ export class RoundHandler<T> {
     this.rounds = [];
   }
 
-  addRound(round: RPSRound) {
+  addRound(round: T) {
     this.rounds.push(round);
     this.count++;
   }
@@ -51,7 +51,7 @@ export class RoundHandler<T> {
   }
 }
 
-export class RockPaperScissorsGame implements Game {
+export class RockPaperScissorsGame extends Game {
   name: GameNames = "Rock Paper Scissors";
   players: PlayerHandler = new PlayerHandler();
   currentChoice: Record<string, MoveChoice> = {};
@@ -102,10 +102,6 @@ export class RockPaperScissorsGame implements Game {
   isTie() {
     return Object.values(this.currentChoice).every((i) => i.choice);
   }
-  isRoundWinner(player: RPSPlayer) {
-    return this.hasRoundWinner()?.id == player.id;
-  }
-
   getWinnerCombination = (opt1: RPSOptions, opt2: RPSOptions): RPSOptions => {
     const combination = RPSWinCombination.find((combination) => {
       return (
@@ -193,12 +189,6 @@ export class RockPaperScissorsGame implements Game {
     };
   };
 
-  newRound() {
-    const roundWinner = this.hasRoundWinner();
-    if (!roundWinner) return;
-    this.rounds.addRound(roundWinner);
-    this.currentChoice = {};
-  }
   hasGameWin() {
     const players = this.getPlayers();
     for (let i = 0; i < players.length; i++) {
@@ -209,8 +199,5 @@ export class RockPaperScissorsGame implements Game {
       }
     }
     return null;
-  }
-  isGameWinner(playerId: string) {
-    return this.rounds.isWinner(playerId);
   }
 }

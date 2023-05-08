@@ -2,7 +2,6 @@
 import { baseUser } from "@/constants";
 import { newSocketAuth, socket } from "@/lib/socket";
 import {
-  Coords,
   GameNames,
   MoveChoice,
   TTCCombination,
@@ -12,13 +11,11 @@ import {
   User,
 } from "@/types";
 import { useEffect, useMemo, useState } from "react";
-import { useEffectOnce, useUpdateEffect } from "usehooks-ts";
+import { useEffectOnce } from "usehooks-ts";
 import { TTCMove } from "@/types";
 import {
   generateboard,
   isValid,
-  checkBoard,
-  newBlock,
   TTCBoardMove,
 } from "@/../server/src/game/TicTacToeGame";
 import { useUser } from "@/hooks/useUser";
@@ -67,9 +64,12 @@ export default function TicTacToeGameComponent() {
   const [gameState, setGameState] = useState<TicTacToeGameState>(
     TicTacToeGameState.WAITING
   );
-
+  console.log(player.choice);
   const canPlay = useMemo(() => {
     if (isValid(board)) {
+      return false;
+    }
+    if (!user.id) {
       return false;
     }
     if (moves.moves[moves.moves.length - 1]?.id == user.id) {
@@ -79,26 +79,24 @@ export default function TicTacToeGameComponent() {
       return false;
     }
     return true;
-  }, [board]);
+  }, [board, moves, player.choice]);
 
   useEffect(() => {
-    console.log(moves);
-    if (moves.moves[moves.moves.length - 1]?.id == user.id) {
+    // console.log(moves);
+    if (canPlay == false) {
       setGameState(TicTacToeGameState.ENEMYTURN);
       return;
+    } else {
+      setGameState(TicTacToeGameState.PLAYING);
     }
-    if (moves.moves.length == 0 && player.choice == "O") {
-      setGameState(TicTacToeGameState.ENEMYTURN);
+  }, [canPlay]);
 
-      return;
-    }
-    setGameState(TicTacToeGameState.PLAYING);
-  }, [moves.moves, player.choice]);
-
-  // console.log(canPlay);
+  console.log(canPlay);
   const addBlock = (x: number, y: number) => {
+    console.log(isValid(board, x, y));
+    console.log(player.choice);
     if (player.choice == null) return;
-    // if (canPlay == false) return;
+    if (canPlay == false) return;
     if (isValid(board, x, y) == false) return;
     socket.emit("ttc_choice", {
       id: user.id,
