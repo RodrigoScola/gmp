@@ -1,7 +1,12 @@
 import { TTCBoardMove } from "@/../server/dist/game/TicTacToeGame";
 import { UsersResponse } from "./pocketbase-types";
 import { PlayerHandler } from "@/../server/dist/handlers/usersHandler";
-import { CFBoard, CFBoardMove, CFplayer } from "@/../server/dist/game/c4Game";
+import {
+  CFBoard,
+  CFBoardMove,
+  CFMove,
+  CFplayer,
+} from "@/../server/dist/game/c4Game";
 import { RoundType } from "@/../server/dist/game/rockpaperScissors";
 
 export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
@@ -118,6 +123,7 @@ export abstract class Game {
   abstract players: PlayerHandler;
   abstract play(...args: any): void;
   abstract newRound(): void;
+  abstract addPlayer(player: User): void;
   abstract getState(): void;
   // isPlayerTurn(playerId: string): boolean;
 }
@@ -229,6 +235,7 @@ export interface RPSPlayer {
 }
 
 export type TTCOptions = "X" | "O";
+export type ConnectChoices = "red" | "blue";
 
 export interface TTCPlayer extends Partial<User> {
   id: string;
@@ -254,22 +261,28 @@ export interface ServerToClientEvents {
   rps_choice: (player: MoveChoice<RPSMove>) => void;
   rps_game_winner: (winner: User | null) => void;
   ttc_game_winner: (winner: TTCCombination) => void;
-  ttc_choice: (params: { board: TTCBoardMove[]; move: TTCBoardMove }) => void;
   start_game: () => void;
   round_winner: (round: RPSRound | null) => void;
+  connect_choice: (move: MoveChoice<CFMove>) => void;
   player_ready: () => void;
   new_round: () => void;
   get_players: (players: User[]) => void;
-  get_state: () => void;
+  get_state: (callback: (...args: any) => void) => void;
+  ttc_choice: (params: { board: TTCBoardMove[][]; move: TTCBoardMove }) => void;
   user_disconnected: () => void;
 }
 
 export interface ClientToServerEvents {
   join_room: (roomId: string) => void;
-  get_players: () => void;
+  get_players: (players: any[]) => void;
+  connect_choice: (params: {
+    move: MoveChoice<CFMove>;
+    board: CFBoard;
+  }) => void;
+  ttc_choice: (params: { board: TTCBoardMove[][]; move: TTCBoardMove }) => void;
+
   rps_choice: (player: MoveChoice<RPSMove>) => void;
   rps_game_winner: (winner: RPSRound) => void;
-  ttc_choice: (player: MoveChoice<TTCMove>) => void;
   ttc_game_winner: (winner: TTCCombination) => void;
   user_connected: (roomId: string) => void;
   get_state: (callback: (...args: any) => void) => void;

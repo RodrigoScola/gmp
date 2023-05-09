@@ -7,7 +7,6 @@ import {
   TTCCombination,
   TTCOptions,
   TTCPlayer,
-  TTCState,
   TicTacToeGameState,
   User,
 } from "@/types";
@@ -97,11 +96,18 @@ export default function TicTacToeGameComponent() {
     if (player.choice == null) return;
     if (canPlay == false) return;
     if (isValid(board, x, y) == false) return;
+
     socket.emit("ttc_choice", {
-      id: user.id,
+      board,
       move: {
-        choice: player.choice,
-        coords: { x, y },
+        id: user.id,
+        move: {
+          choice: player.choice,
+          coords: {
+            x,
+            y,
+          },
+        },
       },
     });
   };
@@ -129,16 +135,15 @@ export default function TicTacToeGameComponent() {
       if (player) {
         setPlayer(player);
       }
-      socket.on(
-        "ttc_choice",
-        (params: { board: TTCBoardMove[]; move: TTCBoardMove }) => {
-          setMoves((current) => ({
-            ...current,
-            moves: [...current.moves, params.move],
-          }));
-          setBoard(params.board);
-        }
-      );
+      socket.on("ttc_choice", (move) => {
+        setMoves((current) => ({
+          ...current,
+
+          moves: [...current.moves, move.move],
+        }));
+
+        setBoard(move.board);
+      });
 
       socket.emit("player_ready");
     });

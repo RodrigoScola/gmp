@@ -15,6 +15,7 @@ export class RoomHandler {
     if (!this.roomExists(roomId)) {
       this.rooms.set(roomId, new Room(roomId, [], game));
     }
+    return this.rooms.get(roomId);
   }
   getRoom(roomId: string): Room | undefined {
     if (!this.rooms.has(roomId)) return;

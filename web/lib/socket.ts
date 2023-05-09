@@ -7,7 +7,7 @@ import {
   ExtendedUser,
 } from "@/types";
 
-export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
+export const socket: Socket<ClientToServerEvents, ServerToClientEvents> = io(
   "ws://localhost:3001",
   {
     transports: ["websocket"],

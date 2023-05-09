@@ -4,19 +4,13 @@ import http from "http";
 const server = http.createServer(app);
 import { Server, Socket } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
-import {
-  Game,
-  GameNames,
-  GameType,
-  RockPaperScissorsChoice,
-} from "../../web/types";
+import { Game, GameNames } from "../../web/types";
 import { User } from "../../web/types";
-import { Room, RoomHandler } from "./handlers/room";
+
 import { ServerToClientEvents, ClientToServerEvents } from "../../web/types";
-import { TicTacToeGame } from "./game/TicTacToeGame";
-import { RockPaperScissorsGame } from "./game/rockpaperScissors";
+
 import { roomHandler } from "./handlers/room";
-import { GameHandler, games } from "./handlers/Handlers";
+import { GameHandler } from "./handlers/Handlers";
 import { getGame } from "./handlers/Handlers";
 export const io = new Server<ServerToClientEvents, ClientToServerEvents>(
   server
@@ -41,20 +35,21 @@ export type MySocket = Socket<
 
 const gameHandler = new GameHandler();
 
-export const getRoomId = (socket) => socket.handshake.auth["roomId"];
+export const getRoomId = (socket: MySocket) => socket.handshake.auth["roomId"];
 
-io.on("connection", (socket) => {
+io.on("connection", (socket: MySocket) => {
   const gameStr = socket.handshake.auth;
   var room = roomHandler.getRoom(getRoomId(socket));
   if (!room) {
-    // console.log(gameStr);
     const Games = getGame(gameStr["gameName"] as GameNames);
-    if (Games) {
-      room = roomHandler.createRoom(getRoomId(socket), [], new Games());
-    }
+    if (!Games) return;
+    room = roomHandler.createRoom(getRoomId(socket), [], Games);
+  }
+  var game: Game;
+  if (room?.game) {
+    game = room.game;
   }
 
-  var game: Game | null = room?.game;
   const connInfo = {
     roomId: socket.handshake.auth["roomId"] as string,
     user: {
@@ -62,17 +57,20 @@ io.on("connection", (socket) => {
       socketId: socket.id,
     },
   };
-  connInfo.user = connInfo.user as SocketUser;
   socket.on("join_room", async (roomId: string) => {
     roomHandler.addUserToRoom(roomId, connInfo.user);
+    console.log(room);
     socket.join(roomId);
     room = roomHandler.getRoom(getRoomId(socket));
-    game = room?.game;
+
+    if (room?.game) {
+      game = room.game;
+    }
     game?.addPlayer(connInfo.user);
 
-    io.to(roomId).emit("get_players", game?.getPlayers());
-    // console.log("gampe");
-    // console.log(game.getPlayers());
+    io.to(roomId).emit("get_players", game!.getPlayers());
+    console.log("gampe");
+    console.log(game.getPlayers());
   });
   socket.on("get_state", (callback) => {
     callback(game);

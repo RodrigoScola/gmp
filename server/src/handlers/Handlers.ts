@@ -18,24 +18,38 @@ const handleConnectGame = (
   game: CFGame,
   room: Room
 ) => {
+  console.log(io, socket, game, room);
   console.log("connect four game");
+  socket.on("connect_choice", (move) => {
+    console.log("asdf");
+    if (game.isPlayerTurn(move.id)) {
+      game.play(move);
+      io.to(getRoomId(socket)).emit("connect_choice", {
+        board: game.board.board,
+        move: move,
+      });
+    }
+    // io.to(getRoomId(socket)).emit("connect_choice", {
+
+    //   move: move,
+    // });
+  });
 };
 
 const handleTTCGame = (
   io: MyIo,
   socket: MySocket,
-  game: TicTacToeGame,
-  room: Room
+  game: TicTacToeGame
+  // room: Room
 ) => {
-  socket.on("ttc_choice", (move: MoveChoice<TTCMove>) => {
+  socket.on("ttc_choice", (move) => {
     console.log(game.isPlayerTurn(move.id));
     if (game.isPlayerTurn(move.id)) {
       console.log(move);
-
-      game.play(move, move.move.choice);
-      io.to(getRoomId(socket)).emit("ttc_choice", {
+      game.play(move);
+      socket.broadcast.to(getRoomId(socket)).emit("ttc_choice", {
         board: game.board.board,
-        move: move,
+        move: move.move,
       });
     }
     const winner = game.board.checkBoard(game.board.board);
@@ -111,11 +125,11 @@ export class GameHandler {
 export const getGame = (gameName: GameNames): Game | null => {
   switch (gameName) {
     case "Tic Tac Toe":
-      return TicTacToeGame;
+      return new TicTacToeGame();
     case "Rock Paper Scissors":
-      return RockPaperScissorsGame;
+      return new RockPaperScissorsGame();
     case "connect Four":
-      return CFGame;
+      return new CFGame();
     default:
       return null;
   }

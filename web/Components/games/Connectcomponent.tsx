@@ -2,12 +2,12 @@
 import { CFplayer } from "@/../server/src/game/c4Game";
 import { useUser } from "@/hooks/useUser";
 import { newSocketAuth, socket } from "@/lib/socket";
-import { GameNames } from "@/types";
+import { CFState, Game, GameNames } from "@/types";
 import dynamic from "next/dynamic";
 
 const Sketch = dynamic(() => import("react-p5"), { ssr: false });
 import p5types from "p5";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useUpdateEffect } from "usehooks-ts";
 let p5: p5types;
 const cols = 7;
@@ -224,8 +224,6 @@ export default function CONNECTFOURPAGE() {
   const [player, setPlayer] = useState(1);
   const [opponent, setOpponent] = useState(2);
 
-  const [state, setState] = useState();
-
   useEffect(() => {
     const socketAuth = newSocketAuth({
       user: user,
@@ -236,7 +234,7 @@ export default function CONNECTFOURPAGE() {
     socket.connect();
     socket.emit("join_room", gameId);
 
-    socket.on("get_state", (players: CFplayer[]) => {
+    socket.on("get_players", (players: CFplayer[]) => {
       const opponent = players.find((player) => player.id != user.id);
       if (opponent) {
         setOpponent(opponent);
@@ -252,12 +250,20 @@ export default function CONNECTFOURPAGE() {
     });
     // socket.on('cf_choice', (gameState) => {})
     // socket.on('cf_game_winner')
-    // socket.on('get_state', (state: Game) => {})
+    socket.on("start_game", () => {
+      socket.emit("get_state", (state: CFState) => {
+        console.log(state.players);
+      });
+    });
     socket.on("user_disconnected", () => {
       window.location.reload();
     });
     socket.on("disconnect", () => {
       console.log("user disconnected");
+    });
+
+    socket.on("connect_choice", (move) => {
+      g.addPiece(move.move.move.coords.x);
     });
     return () => {
       if (socket) {
@@ -266,26 +272,31 @@ export default function CONNECTFOURPAGE() {
     };
   }, [socket]);
 
-  // useUpdateEffect(() => {
-  //   console.log(ref);
-  // }, [ref]);
+  useUpdateEffect(() => {
+    console.log(ref);
+  }, [ref]);
+
+  const sendMouse = useCallback((playerPos: number) => {
+    console.log("a");
+    socket.emit("connect_choice", {
+      id: user.id,
+      move: {
+        color: "blue",
+        coords: {
+          x: playerPos,
+          y: -1,
+        },
+      },
+    });
+  }, []);
+
   const setup = (p: p5types, canvasRef: Element) => {
     if (!canvasRef) return;
     p.createCanvas(width, height).parent(canvasRef);
     p5 = p;
     p.rectMode("center");
-    p.mousePressed = () => {
-      console.time("addPiece");
-      console.log(g.checkWin());
-      console.timeEnd("addPiece");
-      if (g.checkWin()) {
-        setTimeout(() => {
-          win = player;
-        }, 500);
-      } else {
-        g.nextPlayer();
-        g.addPiece(playerPos);
-      }
+    p.mouseReleased = () => {
+      sendMouse(playerPos);
     };
   };
 
@@ -313,7 +324,6 @@ export default function CONNECTFOURPAGE() {
     }
   }
 
-  console.log(ref);
   return (
     <div className="m-auto  w-fit">
       <Sketch setup={setup} draw={draw} />
