@@ -10,10 +10,8 @@ export abstract class Board<T> {
   abstract generateBoard(): void;
   abstract board: T[][];
   abstract moves: T[];
-  abstract addMove(): void;
-  abstract isValid(): void;
-  abstract checkBoard(): void;
-  abstract checkLine(): void;
+  abstract addMove(move: T): void;
+  abstract isValid(board: T[][], x: number, y: number): void;
 }
 
 export type CFMove = {

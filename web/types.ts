@@ -2,6 +2,7 @@ import { TTCBoardMove } from "@/../server/dist/game/TicTacToeGame";
 import { UsersResponse } from "./pocketbase-types";
 import { PlayerHandler } from "@/../server/dist/handlers/usersHandler";
 import { CFBoard, CFBoardMove, CFplayer } from "@/../server/dist/game/c4Game";
+import { RoundType } from "@/../server/dist/game/rockpaperScissors";
 
 export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 export type OmitBy<T, K extends keyof T> = Omit<T, K>;
@@ -67,6 +68,7 @@ export type RPSRound = {
   winner: RPSPlayer;
   loser: RPSPlayer;
   isTie: boolean;
+  moves: MoveChoice<RPSMove>[];
 };
 
 export type Rounds = {
@@ -148,7 +150,7 @@ export interface RPSstate {
   name: GameNames;
   rounds: {
     count: number;
-    rounds: RPSRound[];
+    rounds: RoundType<RPSRound>[];
   };
 }
 export interface ExtendedUser {

@@ -43,7 +43,7 @@ const handleTTCGame = (
       io.to(getRoomId(socket)).emit("ttc_game_winner", winner);
       setTimeout(() => {
         io.to(getRoomId(socket)).emit("new_round", winner);
-        game.nextRound();
+        game.newRound();
       }, 1000);
     }
   });

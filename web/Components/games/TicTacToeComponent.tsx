@@ -15,7 +15,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useEffectOnce } from "usehooks-ts";
 import { TTCMove } from "@/types";
 import {
-  generateboard,
+  generateBoard,
   isValid,
   TTCBoardMove,
 } from "@/../server/src/game/TicTacToeGame";
@@ -61,7 +61,7 @@ export default function TicTacToeGameComponent() {
   >({
     id: "string",
   });
-  const [board, setBoard] = useState<MoveChoice<TTCMove>[][]>(generateboard());
+  const [board, setBoard] = useState<MoveChoice<TTCMove>[][]>(generateBoard());
   const [gameState, setGameState] = useState<TicTacToeGameState>(
     TicTacToeGameState.WAITING
   );
@@ -144,7 +144,7 @@ export default function TicTacToeGameComponent() {
     });
 
     socket.on("new_round", () => {
-      setBoard(generateboard());
+      setBoard(generateBoard());
       setMoves((current) => ({
         ...current,
         winner: {

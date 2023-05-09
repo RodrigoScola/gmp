@@ -11,16 +11,24 @@ import {
 } from "../../../web/types";
 export const RockPaperScissorsMaxWins = 5;
 
-export class RoundHandler<T extends RPSRound> {
+export type RoundType<T> = {
+  winner: {
+    id: string;
+  };
+  isTie: boolean;
+  moves: T[];
+};
+
+export class RoundHandler<T> {
   count: number = 0;
   maxWins: number = RockPaperScissorsMaxWins;
-  rounds: T[];
+  rounds: RoundType<T>[];
 
   constructor() {
     this.rounds = [];
   }
 
-  addRound(round: T) {
+  addRound(round: RoundType<T>) {
     this.rounds.push(round);
     this.count++;
   }
@@ -56,7 +64,7 @@ export class RockPaperScissorsGame extends Game {
   name: GameNames = "Rock Paper Scissors";
   players: PlayerHandler = new PlayerHandler();
   currentChoice: Record<string, MoveChoice<RPSMove>> = {};
-  rounds: RoundHandler<RPSRound> = new RoundHandler();
+  rounds: RoundHandler<RPSRound> = new RoundHandler<RPSRound>();
   play(player: RPSPlayer, choice: RPSOptions) {
     if (this.rounds.hasGameWinner()) return;
     if (this.currentChoice[player.id] || !this.players.hasPlayer(player.id))
@@ -117,11 +125,24 @@ export class RockPaperScissorsGame extends Game {
   getWinner = (player1: RPSPlayer, player2: RPSPlayer): RPSRound | null => {
     if (!player1 || !player2) return null;
     if (player1.choice == null || player2.choice == null) return null;
+    const player1Move: MoveChoice<RPSMove> = {
+      id: player1.id,
+      move: {
+        choice: player1.choice,
+      },
+    };
+    const player2Move: MoveChoice<RPSMove> = {
+      id: player2.id,
+      move: {
+        choice: player2.choice,
+      },
+    };
     if (player1.choice == player2.choice) {
       return {
         isTie: true,
         loser: player1,
         winner: player2,
+        moves: [player1Move, player2Move],
       };
     }
     if (
@@ -132,18 +153,26 @@ export class RockPaperScissorsGame extends Game {
         isTie: false,
         loser: player2,
         winner: player1,
+        moves: [player1Move, player2Move],
       };
     }
     return {
       isTie: false,
       loser: player1,
       winner: player2,
+      moves: [player1Move, player2Move],
     };
   };
   newRound() {
     const roundWinner = this.hasRoundWinner();
     if (!roundWinner) return;
-    this.rounds.addRound(roundWinner);
+    this.rounds.addRound({
+      isTie: roundWinner.isTie,
+      moves: [roundWinner],
+      winner: {
+        id: roundWinner.winner.id,
+      },
+    });
     this.currentChoice = {};
   }
   hasGameWinner() {

@@ -3,35 +3,36 @@ import {
   GameNames,
   MoveChoice,
   TTCPlayer,
-  TicTacToeOptions,
   TTCCombination as TTCCombination,
   User,
   TTCMove,
   Game,
-  TTCOptions,
   TTCState,
+  TTCOptions,
 } from "../../../web/types";
 import { PlayerHandler } from "../handlers/usersHandler";
 import { Board } from "./c4Game";
 
 export type TTCBoardMove = MoveChoice<TTCMove>;
 
-export class TicTacToeBoard implements Board<TTCBTTCBoardMove> {
-  board: TTCBTTCBoardMove[][];
+export class TicTacToeBoard extends Board<TTCBoardMove> {
+  board: TTCBoardMove[][] = [];
   moves: TTCBoardMove[];
   constructor() {
+    super();
     this.moves = [];
-    this.board = this.generateboard();
+    this.board = this.generateBoard();
   }
   addMove = (move: TTCBoardMove) => {
+    const p = this.board[move.move.coords.x];
+    if (!p) return;
     if (isValid(this.board, move.move.coords.x, move.move.coords.y)) {
-      this.board[move.move.coords.x][move.move.coords.y] = move;
+      p[move.move.coords.y] = move;
       this.moves.push(move);
     }
-
     return this.board;
   };
-  generateboard = (): TTCBoardMove[][] => {
+  generateBoard = (): TTCBoardMove[][] => {
     let rows: TTCBoardMove[][] = [];
     for (let i = 0; i < 3; i++) {
       rows[i] = new Array(3).fill({
@@ -52,10 +53,14 @@ export class TicTacToeBoard implements Board<TTCBTTCBoardMove> {
     x: number = -1,
     y: number = -1
   ): boolean => {
+    if (!board) return false;
+
     if (x < 0 || x > board.length || y < 0 || y > board.length) {
       return false;
     }
-    if (board[x][y]?.move.choice) {
+    const pos = board[x];
+    if (!pos) return false;
+    if (pos[y]?.move.choice) {
       return false;
     }
     if (this.checkBoard(board).winner) return false;
@@ -78,36 +83,48 @@ export class TicTacToeBoard implements Board<TTCBTTCBoardMove> {
     let winner: TTCCombination = {
       winner: null,
       board: null,
+      loser: null,
       isTie: false,
     };
+
+    if (!board) return winner;
+
     for (let i = 0; i < board.length; i++) {
-      if (this.checkLine(board[i])) {
-        winner.winner = board[i][0]?.id;
-        winner.board = board[i];
+      const elem = board[i];
+      if (!elem) continue;
+      if (this.checkLine(elem)) {
+        if (elem[0]!.id) winner.winner = elem[0]!.id;
+        winner.board = elem;
       }
-      let col = board.map((row) => row[i]);
+      let col = board.map((row) => row[i]).filter((i) => i) as TTCBoardMove[];
       if (this.checkLine(col)) {
-        winner.winner = col[0]?.id;
+        winner.winner = col[0]!.id;
         winner.board = col;
       }
     }
 
-    let diag1 = board.map((row, index) => row[index]);
+    let diag1 = board.map((row, index) => row[index]) as TTCBoardMove[];
 
     if (this.checkLine(diag1)) {
-      winner.winner = diag1[0]?.id;
+      winner.winner = diag1[0]!.id;
       winner.board = diag1;
     }
-    let diag2 = board.map((row, index) => row[board.length - index - 1]);
+    let diag2 = board.map(
+      (row, index) => row[board.length - index - 1]
+    ) as TTCBoardMove[];
     if (this.checkLine(diag2)) {
-      winner.winner = diag2[0]?.id;
+      winner.winner = diag2[0]!.id;
       winner.board = diag2;
     }
 
     let isFull = true;
     for (let i = 0; i < board.length; i++) {
-      for (let j = 0; j < board[i].length; j++) {
-        if (!board[i][j].move.choice) {
+      const elem = board[i];
+      if (!elem) break;
+      for (let j = 0; j < elem.length; j++) {
+        const nelem = elem[j];
+        if (!nelem) break;
+        if (!nelem.move.choice) {
           isFull = false;
         }
       }
@@ -119,7 +136,7 @@ export class TicTacToeBoard implements Board<TTCBTTCBoardMove> {
     return winner;
   };
 
-  private checkLine = (diagonal: TTCBoardMove[]): boolean => {
+  checkLine = (diagonal: TTCBoardMove[]): boolean => {
     if (diagonal.length === 0) return false;
     for (let i = 0; i < diagonal.length; i++) {
       if (diagonal[i]?.move.choice !== diagonal[0]?.move.choice) {
@@ -130,8 +147,19 @@ export class TicTacToeBoard implements Board<TTCBTTCBoardMove> {
   };
 }
 
-export const { generateboard, isValid, newBlock, checkBoard, checkLine } =
+export const { generateBoard, isValid, newBlock, checkBoard, checkLine } =
   new TicTacToeBoard();
+
+export type TTCRound = {
+  winner: {
+    id: string;
+  };
+  loser: {
+    id: string;
+  };
+  isTie: boolean;
+  moves: TTCBoardMove[];
+};
 
 export class TicTacToeGame extends Game {
   name: GameNames = "Tic Tac Toe";
@@ -141,9 +169,13 @@ export class TicTacToeGame extends Game {
 
   isPlayerTurn(playerId: string): boolean {
     if (this.board.moves.length == 0) {
-      return this.players.getPlayers().find((i) => i.choice == "X");
+      const player = this.players.getPlayers().filter((i) => i.choice == "X");
+      if (player.length == 0 || !player[0]) return false;
+      return player[0].id == playerId;
     }
-    return this.board.moves[this.board.moves.length - 1].id !== playerId;
+    const p = this.board.moves[this.board.moves.length - 1];
+    if (!p) return false;
+    return p.id !== playerId;
   }
   playerTurn() {
     if (this.board.moves.length == 0) {
@@ -162,31 +194,37 @@ export class TicTacToeGame extends Game {
       this.players.getPlayers()[0]?.choice == "O" ||
       this.players.getPlayers()[0]?.choice == "X"
     ) {
-      choice = this.players.getPlayers()[0].choice == "X" ? "O" : "X";
+      choice = this.players.getPlayers()[0]!.choice == "X" ? "O" : "X";
     }
 
     this.players.addPlayer({
       ...player,
-      choice,
+      choice: choice as TTCOptions,
     });
   }
-  nextRound() {
+  newRound() {
     if (this.board.moves.length > 0) {
-      this.rounds.addRound(this.board.moves);
+      const winner = this.board.checkBoard(this.board.board);
+      this.rounds.addRound({
+        winner: {
+          id: winner.isTie ? "tie" : winner.winner!,
+        },
+        isTie: winner.isTie,
+        moves: winner.board!,
+      });
     }
 
-    this.board.board = generateboard();
+    this.board.board = this.board.generateBoard();
     this.players.getPlayers().forEach((player) => {
       player.choice = player.choice == "X" ? "O" : "X";
     });
     this.board.moves = [];
-
     console.log(this.rounds.rounds);
   }
   getPlayers(): TTCPlayer[] {
     return this.players.getPlayers();
   }
-  play(player: TTCBoardMove, choice: TTCBoardMove["move"]) {
+  play(player: TTCBoardMove) {
     this.board.addMove(player);
     // console.log(this.board.board);
   }
@@ -197,11 +235,14 @@ export class TicTacToeGame extends Game {
   getState(): TTCState {
     return {
       board: this.board.board,
-      currentPlayerTurn: this.playerTurn(),
+      currentPlayerTurn: this.playerTurn() as TTCPlayer,
       moves: this.board.moves,
       name: this.name,
       players: this.players.getPlayers(),
-      rounds: this.rounds.rounds,
+      rounds: {
+        count: this.rounds.count,
+        rounds: this.rounds.rounds,
+      },
     };
   }
 }
