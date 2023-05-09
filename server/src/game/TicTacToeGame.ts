@@ -9,13 +9,14 @@ import {
   TTCMove,
   Game,
   TTCOptions,
+  TTCState,
 } from "../../../web/types";
 import { PlayerHandler } from "../handlers/usersHandler";
 import { Board } from "./c4Game";
 
 export type TTCBoardMove = MoveChoice<TTCMove>;
 
-export class TicTacToeBoard extends Board<TTCBTTCBoardMove> {
+export class TicTacToeBoard implements Board<TTCBTTCBoardMove> {
   board: TTCBTTCBoardMove[][];
   moves: TTCBoardMove[];
   constructor() {
@@ -132,7 +133,7 @@ export class TicTacToeBoard extends Board<TTCBTTCBoardMove> {
 export const { generateboard, isValid, newBlock, checkBoard, checkLine } =
   new TicTacToeBoard();
 
-export class TicTacToeGame implements Game {
+export class TicTacToeGame extends Game {
   name: GameNames = "Tic Tac Toe";
   players: PlayerHandler<TTCPlayer> = new PlayerHandler<TTCPlayer>();
   board: TicTacToeBoard = new TicTacToeBoard();
@@ -140,13 +141,16 @@ export class TicTacToeGame implements Game {
 
   isPlayerTurn(playerId: string): boolean {
     if (this.board.moves.length == 0) {
-      return (
-        this.players.getPlayers().find((i) => i.id == playerId)?.choice == "X"
-      );
+      return this.players.getPlayers().find((i) => i.choice == "X");
     }
-    return this.board.moves[this.board.moves.length - 1].id != playerId;
+    return this.board.moves[this.board.moves.length - 1].id !== playerId;
   }
-
+  playerTurn() {
+    if (this.board.moves.length == 0) {
+      return this.players.getPlayers().find((i) => i.choice == "X");
+    }
+    return this.board.moves[this.board.moves.length - 1];
+  }
   isReady(): boolean {
     return true;
   }
@@ -154,7 +158,10 @@ export class TicTacToeGame implements Game {
     let choice;
     if (this.players.getPlayers().length == 0) {
       choice = Math.random() > 0.5 ? "X" : "O";
-    } else {
+    } else if (
+      this.players.getPlayers()[0]?.choice == "O" ||
+      this.players.getPlayers()[0]?.choice == "X"
+    ) {
       choice = this.players.getPlayers()[0].choice == "X" ? "O" : "X";
     }
 
@@ -185,5 +192,16 @@ export class TicTacToeGame implements Game {
   }
   hasWinner() {
     return this.board.isValid;
+  }
+
+  getState(): TTCState {
+    return {
+      board: this.board.board,
+      currentPlayerTurn: this.playerTurn(),
+      moves: this.board.moves,
+      name: this.name,
+      players: this.players.getPlayers(),
+      rounds: this.rounds.rounds,
+    };
   }
 }

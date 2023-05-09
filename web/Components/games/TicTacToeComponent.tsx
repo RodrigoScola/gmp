@@ -7,6 +7,7 @@ import {
   TTCCombination,
   TTCOptions,
   TTCPlayer,
+  TTCState,
   TicTacToeGameState,
   User,
 } from "@/types";
@@ -64,7 +65,6 @@ export default function TicTacToeGameComponent() {
   const [gameState, setGameState] = useState<TicTacToeGameState>(
     TicTacToeGameState.WAITING
   );
-  console.log(player.choice);
   const canPlay = useMemo(() => {
     if (isValid(board)) {
       return false;
@@ -91,10 +91,9 @@ export default function TicTacToeGameComponent() {
     }
   }, [canPlay]);
 
-  console.log(canPlay);
   const addBlock = (x: number, y: number) => {
-    console.log(isValid(board, x, y));
-    console.log(player.choice);
+    // console.log(isValid(board, x, y));
+    // console.log(player.choice);
     if (player.choice == null) return;
     if (canPlay == false) return;
     if (isValid(board, x, y) == false) return;
@@ -140,19 +139,25 @@ export default function TicTacToeGameComponent() {
           setBoard(params.board);
         }
       );
-      socket.on("new_round", () => {
-        setBoard(generateboard());
-        setMoves((current) => ({
-          ...current,
-          winner: {
-            board: [],
-            id: "",
-          },
-          moves: [],
-        }));
-      });
 
       socket.emit("player_ready");
+    });
+
+    socket.on("new_round", () => {
+      setBoard(generateboard());
+      setMoves((current) => ({
+        ...current,
+        winner: {
+          board: [],
+          id: "",
+        },
+        moves: [],
+      }));
+    });
+    socket.on("start_game", () => {
+      socket.emit("get_state", (state: any) => {
+        console.log(state);
+      });
     });
     socket.on("ttc_game_winner", (winner: TTCCombination) => {
       if (!winner) return;
@@ -193,7 +198,6 @@ export default function TicTacToeGameComponent() {
   //     console.log(moves);
   //   }
   // }, [board]);
-  console.log(board);
   return (
     <>
       <div>

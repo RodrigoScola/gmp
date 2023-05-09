@@ -1,6 +1,7 @@
 import { TTCBoardMove } from "@/../server/dist/game/TicTacToeGame";
 import { UsersResponse } from "./pocketbase-types";
 import { PlayerHandler } from "@/../server/dist/handlers/usersHandler";
+import { CFBoard, CFBoardMove, CFplayer } from "@/../server/dist/game/c4Game";
 
 export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 export type OmitBy<T, K extends keyof T> = Omit<T, K>;
@@ -45,7 +46,7 @@ export const gameNames: GameNames[] = [
   "Rock Paper Scissors",
   "Tic Tac Toe",
 ];
-export enum GameState {
+export enum GamePlayState {
   selecting,
   waiting,
   playing,
@@ -89,17 +90,6 @@ export interface FriendGameType extends Game {
   won: number;
   lost: number;
 }
-export abstract class Game {
-  abstract name: GameNames;
-  abstract isReady: () => boolean;
-  abstract getPlayers: <T>() => T[];
-  abstract players: PlayerHandler;
-  abstract play(): void;
-  abstract newRound(): void;
-
-  // isPlayerTurn(playerId: string): boolean;
-}
-
 export interface SimonSaysGameType extends Game {
   name: "Simon Says";
 }
@@ -112,7 +102,6 @@ export interface RockPaperScissorsGameType extends Game {
 export interface TicTacToeGameType extends Game {
   name: "Tic Tac Toe";
 }
-
 export type FriendsGamesType = {
   simonSays: SimonSaysGameType;
   connectFour: ConnectFourGameType;
@@ -120,6 +109,48 @@ export type FriendsGamesType = {
   ticTacToe: TicTacToeGameType;
 };
 
+export abstract class Game {
+  abstract name: GameNames;
+  abstract isReady(): boolean;
+  abstract getPlayers(): any[];
+  abstract players: PlayerHandler;
+  abstract play(...args: any): void;
+  abstract newRound(): void;
+  abstract getState(): void;
+  // isPlayerTurn(playerId: string): boolean;
+}
+export interface TTCState {
+  players: TTCPlayer[];
+  board: TTCBoardMove[][];
+  currentPlayerTurn: TTCPlayer;
+  moves: TTCBoardMove[];
+  name: GameNames;
+  rounds: {
+    count: number;
+    rounds: TTCBoardMove[];
+  };
+}
+export interface CFState {
+  players: CFplayer[];
+  board: CFBoardMove[][];
+  currentPlayerTurn: CFplayer;
+  moves: CFBoardMove[];
+  name: GameNames;
+  rounds: {
+    count: number;
+    rounds: CFBoardMove[];
+  };
+}
+
+export interface RPSstate {
+  players: User[];
+  moves: MoveChoice<RPSMove>[];
+  name: GameNames;
+  rounds: {
+    count: number;
+    rounds: RPSRound[];
+  };
+}
 export interface ExtendedUser {
   badges?: Badges;
   games?: FriendsGamesType;
@@ -227,7 +258,7 @@ export interface ServerToClientEvents {
   player_ready: () => void;
   new_round: () => void;
   get_players: (players: User[]) => void;
-  get_state: (game: Game) => void;
+  get_state: () => void;
   user_disconnected: () => void;
 }
 
@@ -239,6 +270,7 @@ export interface ClientToServerEvents {
   ttc_choice: (player: MoveChoice<TTCMove>) => void;
   ttc_game_winner: (winner: TTCCombination) => void;
   user_connected: (roomId: string) => void;
+  get_state: (callback: (...args: any) => void) => void;
   start_game: () => void;
   round_winner: (round: RPSRound) => void;
   player_ready: () => void;

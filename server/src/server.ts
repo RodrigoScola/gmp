@@ -74,8 +74,12 @@ io.on("connection", (socket) => {
     // console.log("gampe");
     // console.log(game.getPlayers());
   });
+  socket.on("get_state", (callback) => {
+    callback(game);
+  });
   socket.on("player_ready", () => {
     if (game?.isReady()) {
+      socket.emit("start_game");
       gameHandler.playGame(io, socket, game);
     }
   });

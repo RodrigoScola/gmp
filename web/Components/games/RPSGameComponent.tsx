@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   GameNames,
-  GameState,
+  GamePlayState,
   RPSPlayer,
   RPSOptions,
   RPSOptionsValues,
@@ -25,7 +25,9 @@ export default function RockPaperScissorGameComponent() {
     id: "string",
   });
 
-  const [gameState, setGameState] = useState<GameState>(GameState.selecting);
+  const [gameState, setGameState] = useState<GamePlayState>(
+    GamePlayState.selecting
+  );
 
   const { user } = useUser();
 
@@ -48,7 +50,7 @@ export default function RockPaperScissorGameComponent() {
     if (
       (rounds.wins[currentPlayer.id] == maxWins ||
         rounds.wins[opponent.id] == maxWins) &&
-      gameState == GameState.end
+      gameState == GamePlayState.end
     ) {
       console.log("match end");
       return true;
@@ -91,7 +93,7 @@ export default function RockPaperScissorGameComponent() {
     });
     socket.on("round_winner", (round: RPSRound | null) => {
       if (!round) return;
-      setGameState(GameState.results);
+      setGameState(GamePlayState.results);
       const opponentWin = round.winner.id == opponent.id;
 
       if (opponentWin) {
@@ -127,7 +129,7 @@ export default function RockPaperScissorGameComponent() {
     });
     socket.on("rps_game_winner", (winner: User | null) => {
       if (winner) {
-        setGameState(GameState.end);
+        setGameState(GamePlayState.end);
       }
     });
     socket.on("new_round", () => {
@@ -156,11 +158,11 @@ export default function RockPaperScissorGameComponent() {
         choice,
       },
     });
-    setGameState(GameState.waiting);
+    setGameState(GamePlayState.waiting);
   };
 
   const handleNewRound = () => {
-    setGameState(GameState.selecting);
+    setGameState(GamePlayState.selecting);
     setOpponent((current) => ({
       ...current,
       choice: null,
@@ -207,7 +209,7 @@ export default function RockPaperScissorGameComponent() {
           <div>{opponent.id}</div>
         </div>
       </div>
-      {gameState == GameState.selecting && (
+      {gameState == GamePlayState.selecting && (
         <div className="gap-3 flex">
           {RPSOptionsValues.map((option) => (
             <button
@@ -221,13 +223,13 @@ export default function RockPaperScissorGameComponent() {
           ))}
         </div>
       )}
-      {gameState == GameState.waiting && (
+      {gameState == GamePlayState.waiting && (
         <div>
           <div>waiting for opponents choice</div>
           <div>{currentPlayer.choice}</div>
         </div>
       )}
-      {gameState == GameState.results && (
+      {gameState == GamePlayState.results && (
         <div>
           <div>Your choice: {currentPlayer.choice}</div>
           <div>opponents choice: {opponent.choice}</div>

@@ -113,9 +113,9 @@
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
     
   },
-  "references": [
-    {
-      "path": "../web"
-    }
-  ]
+  // "references": [
+  //   {
+  //     "path": "../web"
+  //   }
+  // ]
 }

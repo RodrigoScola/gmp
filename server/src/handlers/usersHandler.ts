@@ -18,8 +18,8 @@ class UsersHandlers {
 export const usersHandlers = new UsersHandlers();
 
 export class PlayerHandler<T = User> {
-  players: Record<string, T> = {};
-  addPlayer(player: T) {
+  players: Record<string, T & { id: string }> = {};
+  addPlayer(player: T & { id: string }) {
     if (this.players[player.id]) return;
     this.players[player.id] = player;
   }

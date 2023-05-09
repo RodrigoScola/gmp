@@ -2,8 +2,7 @@ import { RockPaperScissorsGame } from "../game/rockpaperScissors";
 import {
   GameNames,
   MoveChoice,
-  RockPaperScissorPlayer,
-  RockPaperScissorsMove,
+  RPSMove,
   TTCMove,
   Game,
   gameNames,
@@ -11,6 +10,16 @@ import {
 import { TicTacToeGame } from "../game/TicTacToeGame";
 import { MyIo, MySocket, getRoomId } from "../server";
 import { Room, getRoom } from "./room";
+import { CFGame } from "../game/c4Game";
+
+const handleConnectGame = (
+  io: MyIo,
+  socket: MySocket,
+  game: CFGame,
+  room: Room
+) => {
+  console.log("connect four game");
+};
 
 const handleTTCGame = (
   io: MyIo,
@@ -47,7 +56,7 @@ const handleRpsGame = (
   room: Room
 ) => {
   // player move
-  socket.on("rps_choice", (player: MoveChoice<RockPaperScissorsMove>) => {
+  socket.on("rps_choice", (player: MoveChoice<RPSMove>) => {
     console.log(player);
     game?.play(
       {
@@ -82,6 +91,10 @@ export class GameHandler {
         return handleRpsGame;
       case "Tic Tac Toe":
         return handleTTCGame;
+      case "connect Four":
+        return handleConnectGame;
+      default:
+        return null;
     }
   }
   getGame(gameName: GameNames) {
@@ -101,6 +114,8 @@ export const getGame = (gameName: GameNames): Game | null => {
       return TicTacToeGame;
     case "Rock Paper Scissors":
       return RockPaperScissorsGame;
+    case "connect Four":
+      return CFGame;
     default:
       return null;
   }
