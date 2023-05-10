@@ -78,81 +78,12 @@ export class CFBoard extends Board<CFBoardMove> {
     // console.log(this.board);
   }
   checkBoard(): boolean {
-    const board = this.board;
-    const rows = this.rows;
-    const cols = this.cols;
-    // Test Horizontal
-    for (let j = 0; j < rows; j++) {
-      for (let i = 0; i <= cols - 4; i++) {
-        const test = board[j][i].id;
-        if (test) {
-          let temp = true;
-          for (let k = 0; k < 4; k++) {
-            if (board[j][i + k].id !== test) {
-              temp = false;
-            }
-          }
-          if (temp == true) {
-            return true;
-          }
-        }
-      }
-    }
-    // Test Vertical
-    for (let j = 0; j <= rows - 4; j++) {
-      for (let i = 0; i < cols; i++) {
-        const test = board[j][i].id;
-        if (test) {
-          let temp = true;
-          for (let k = 0; k < 4; k++) {
-            if (board[j + k][i].id !== test) {
-              temp = false;
-            }
-          }
-          if (temp == true) {
-            return true;
-          }
-        }
-      }
-    }
-    // Test Diagonal
-    for (let j = 0; j <= rows - 4; j++) {
-      for (let i = 0; i <= cols - 4; i++) {
-        const test = board[j][i].id;
-        if (test) {
-          let temp = true;
-          for (let k = 0; k < 4; k++) {
-            if (board[j + k][i + k].id !== test) {
-              temp = false;
-            }
-          }
-          if (temp == true) {
-            return true;
-          }
-        }
-      }
-    }
+    if (this.moves.length < 7) return false;
+    const lastMove = this.moves[this.moves.length - 1];
+    const { x, y } = lastMove.move.coords;
+    const id = lastMove.id;
 
-    // Test Antidiagnol
-    for (let j = 0; j <= rows - 3; j++) {
-      console.log(rows - 4);
-      for (let i = 4; i < cols; i++) {
-        const test = board[j][i].id;
-        if (test) {
-          let temp = true;
-          for (let k = 0; k < 4; k++) {
-            if (board[j + k][i - k].id !== test) {
-              temp = false;
-            }
-          }
-          if (temp == true) {
-            return true;
-          }
-        }
-      }
-    }
-
-    return false;
+    ocnst;
   }
 
   isTie() {
