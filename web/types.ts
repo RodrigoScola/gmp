@@ -5,9 +5,11 @@ import {
   CFBoard,
   CFBoardMove,
   CFMove,
+  CFRound,
   CFplayer,
 } from "@/../server/dist/game/c4Game";
 import { RoundType } from "@/../server/dist/game/rockpaperScissors";
+import { RoundHandler } from "@/../server/dist/handlers/RoundHandler";
 
 export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 export type OmitBy<T, K extends keyof T> = Omit<T, K>;
@@ -264,12 +266,14 @@ export interface ServerToClientEvents {
   start_game: () => void;
   round_winner: (round: RPSRound | null) => void;
   connect_choice: (move: MoveChoice<CFMove>) => void;
+  connect_game_winner(winner: RoundType<CFRound>): void;
   player_ready: () => void;
   new_round: () => void;
   get_players: (players: User[]) => void;
   get_state: (callback: (...args: any) => void) => void;
   ttc_choice: (params: { board: TTCBoardMove[][]; move: TTCBoardMove }) => void;
   user_disconnected: () => void;
+  c_player_move: (c: Coords) => void;
 }
 
 export interface ClientToServerEvents {
@@ -280,10 +284,11 @@ export interface ClientToServerEvents {
     board: CFBoard;
   }) => void;
   ttc_choice: (params: { board: TTCBoardMove[][]; move: TTCBoardMove }) => void;
-
+  c_player_move: (c: Coords) => void;
   rps_choice: (player: MoveChoice<RPSMove>) => void;
-  rps_game_winner: (winner: RPSRound) => void;
+  rps_game_winner: (winner: User) => void;
   ttc_game_winner: (winner: TTCCombination) => void;
+  connect_game_winner(winner: RoundType<CFRound>): void;
   user_connected: (roomId: string) => void;
   get_state: (callback: (...args: any) => void) => void;
   start_game: () => void;

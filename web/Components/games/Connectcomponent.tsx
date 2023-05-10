@@ -1,8 +1,9 @@
 "use client";
-import { CFplayer } from "@/../server/src/game/c4Game";
+import { CFMove, CFRound, CFplayer } from "@/../server/src/game/c4Game";
+import { RoundType } from "@/../server/src/handlers/RoundHandler";
 import { useUser } from "@/hooks/useUser";
 import { newSocketAuth, socket } from "@/lib/socket";
-import { CFState, Game, GameNames } from "@/types";
+import { CFState, Coords, Game, GameNames, MoveChoice } from "@/types";
 import dynamic from "next/dynamic";
 
 const Sketch = dynamic(() => import("react-p5"), { ssr: false });
@@ -17,6 +18,7 @@ const dw = 80;
 const width = cols * w;
 const height = rows * w + w;
 let playerPos = 0;
+let prevPlayerPos = 0;
 let win = 0;
 let player = 1;
 
@@ -28,7 +30,7 @@ class Ball {
     public x: number,
     public y: number,
     public color: number[] = [255, 255, 255],
-    public playerId: number
+    public playerId: string
   ) {
     this.y = 0 * w + (3 * w) / 2;
     this.endY = y * w + (3 * w) / 2;
@@ -56,134 +58,56 @@ class PlayerBall {
   }
 }
 
-class Player {
-  ballColor: number[];
-  name: string;
-  constructor({
-    ballColor = [255, 255, 255],
-    name = "you",
-  }: {
-    ballColor: number[];
-    name: string;
-  }) {
-    this.ballColor = ballColor;
-    this.name = name;
-  }
-}
-
-type Move = {
-  player: Player;
-  coords: {
-    x: number;
-    y: number;
-  };
-};
 class GameState {
-  moves: Move[] = [];
+  moves: MoveChoice<CFMove>[] = [];
   board: (Ball | null)[][];
-  constructor(public players: Player[]) {
+  players: CFplayer[] = [];
+  constructor() {
     this.board = [];
     for (let j = 0; j < rows; j++) {
       this.board[j] = new Array(cols).fill(null);
     }
   }
+  addPlayer(player: CFplayer) {
+    if (Object.values(this.players).find((i) => i.id == player.id)) return;
 
-  nextPlayer() {
-    player = player == 1 ? 2 : 1;
+    this.players.push(player);
   }
 
-  addPiece(x: number) {
+  addPiece(x: number, player: CFplayer) {
     for (let i = rows - 1; i >= 0; i--) {
       if (this.board[i][x] == null) {
         this.board[i][x] = new Ball(
           x,
           i,
-          this.currentPlayer().ballColor,
-          player
+          player.choice == "red" ? [255, 0, 0] : [0, 0, 255],
+          player.id
         );
         this.moves.push({
-          player: this.currentPlayer(),
-          coords: {
-            x,
-            y: i,
+          id: player.id,
+          move: {
+            color: player.choice,
+            coords: {
+              x,
+              y: i,
+            },
           },
         });
         return;
       }
     }
-    console.log(this.board);
   }
   currentPlayer() {
-    return this.players[player - 1];
-  }
-  checkWin() {
-    // help
-    for (let j = 0; j < rows; j++) {
-      for (let i = 0; i <= cols - 4; i++) {
-        const test = this.board[j][i];
-        if (test) {
-          let temp = true;
-          for (let k = 0; k < 4; k++) {
-            if (this.board[j][i + k]?.playerId !== test.playerId) {
-              temp = false;
-            }
-          }
-          if (temp == true) {
-            return true;
-          }
-        }
-      }
+    if (this.moves.length == 0) {
+      return Object.values(this.players).find((x) => x.choice == "blue");
     }
-    for (let j = 0; j <= rows - 4; j++) {
-      for (let i = 0; i < cols; i++) {
-        const test = this.board[j][i];
-        if (test) {
-          let temp = true;
-          for (let k = 0; k < 4; k++) {
-            if (this.board[j + k][i]?.playerId !== test.playerId) {
-              temp = false;
-            }
-          }
-          if (temp == true) {
-            return true;
-          }
-        }
-      }
-
-      for (let i = 0; i <= cols - 4; i++) {
-        const test = this.board[j][i];
-        if (test) {
-          let temp = true;
-          for (let k = 0; k < 4; k++) {
-            if (this.board[j + k][i + k]?.playerId !== test.playerId) {
-              temp = false;
-            }
-          }
-          if (temp == true) {
-            return true;
-          }
-        }
-      }
-
-      for (let i = 3; i <= cols; i++) {
-        const test = this.board[j][i];
-        if (test) {
-          let temp = true;
-          for (let k = 0; k < 4; k++) {
-            if (this.board[j + k][i - k]?.playerId !== test.playerId) {
-              return true;
-            }
-          }
-          if (temp == true) {
-            return true;
-          }
-        }
-      }
-    }
-
-    return false;
+    return Object.values(this.players).find(
+      (x) => x.id !== this.moves[this.moves.length - 1].id
+    );
   }
-  handleWin() {
+  handleWin(winner: RoundType<CFRound>) {
+    const colorWon = winner.winner.id;
+    const name = this.players.find((player) => player.id == colorWon)?.choice;
     p5.noStroke();
     p5.fill(0);
     if (win == 2) {
@@ -198,21 +122,12 @@ class GameState {
     } else if (win == 3) {
       p5.text("It is a tie.", width / 2, w / 2);
     } else {
-      p5.text(`${this.currentPlayer().name} won!`, width / 2, w / 2);
+      p5.text(`${name} won!`, width / 2, w / 2);
     }
     p5.noLoop();
   }
 }
-const g = new GameState([
-  new Player({
-    ballColor: [255, 0, 0],
-    name: "red",
-  }),
-  new Player({
-    ballColor: [0, 0, 255],
-    name: "enemy",
-  }),
-]);
+const g = new GameState([]);
 
 const gameId = "a0s9df0a9sdjf";
 const gameType: GameNames = "connect Four";
@@ -221,9 +136,15 @@ export default function CONNECTFOURPAGE() {
   const ref = useRef(null);
 
   const { user } = useUser();
-  const [player, setPlayer] = useState(1);
-  const [opponent, setOpponent] = useState(2);
-
+  const [player, setPlayer] = useState<CFplayer>({
+    choice: "blue",
+    id: "string2",
+  });
+  const [opponent, setOpponent] = useState<CFplayer>({
+    choice: "red",
+    id: "string",
+  });
+  const [ableToStart, setAbleToStart] = useState<boolean>(false);
   useEffect(() => {
     const socketAuth = newSocketAuth({
       user: user,
@@ -243,17 +164,34 @@ export default function CONNECTFOURPAGE() {
       if (player) {
         setPlayer(player);
       }
+
+      console.log(players);
       // socket.on("new_round", () => {
       //   setBoard(generateboard());
       // });
+      console.log(players);
       socket.emit("player_ready");
+    });
+    socket.on("c_player_move", (coords: Coords) => {
+      console.log(coords);
+      playerPos = coords.x;
     });
     // socket.on('cf_choice', (gameState) => {})
     // socket.on('cf_game_winner')
     socket.on("start_game", () => {
       socket.emit("get_state", (state: CFState) => {
-        console.log(state.players);
+        const firstPlayer = state.currentPlayerTurn.id;
+        const pl = state.players.find((player) => player.id == firstPlayer);
+        if (pl) {
+          g.addPlayer(pl);
+        }
+        const spl = state.players.find((player) => player.id != firstPlayer);
+        if (spl) {
+          g.addPlayer(spl);
+        }
+        console.log("state", state.players);
       });
+      setAbleToStart(true);
     });
     socket.on("user_disconnected", () => {
       window.location.reload();
@@ -263,7 +201,17 @@ export default function CONNECTFOURPAGE() {
     });
 
     socket.on("connect_choice", (move) => {
-      g.addPiece(move.move.move.coords.x);
+      g.addPiece(move.move.move.coords.x, {
+        choice: move.move.move.color,
+        id: move.move.id,
+      });
+    });
+    socket.on("connect_game_winner", (winner) => {
+      g.handleWin(winner);
+      console.log(winner);
+      console.log(winner);
+      console.log(winner);
+      console.log(winner);
     });
     return () => {
       if (socket) {
@@ -276,25 +224,36 @@ export default function CONNECTFOURPAGE() {
     console.log(ref);
   }, [ref]);
 
-  const sendMouse = useCallback((playerPos: number) => {
-    console.log("a");
-    socket.emit("connect_choice", {
-      id: user.id,
-      move: {
-        color: "blue",
-        coords: {
-          x: playerPos,
-          y: -1,
+  const sendMouse = useCallback(
+    (playerPos: number) => {
+      console.log(g.currentPlayer());
+      if (ableToStart == false) return;
+      console.log(user.id);
+      socket.emit("connect_choice", {
+        id: user.id,
+        move: {
+          color: player.choice,
+          coords: {
+            x: playerPos,
+            y: 0,
+          },
         },
-      },
-    });
-  }, []);
+      });
+    },
+    [ableToStart]
+  );
 
   const setup = (p: p5types, canvasRef: Element) => {
     if (!canvasRef) return;
     p.createCanvas(width, height).parent(canvasRef);
     p5 = p;
     p.rectMode("center");
+    p.mouseMoved = () => {
+      if (playerPos != prevPlayerPos && g.currentPlayer()?.id == user.id) {
+        socket.emit("c_player_move", { x: playerPos, y: 0 });
+        prevPlayerPos = playerPos;
+      }
+    };
     p.mouseReleased = () => {
       sendMouse(playerPos);
     };
@@ -310,17 +269,15 @@ export default function CONNECTFOURPAGE() {
         g.board[j][i]?.show();
       }
     }
-    playerPos = Math.floor(p.mouseX / w);
-
-    const playerBall = new PlayerBall(
-      playerPos,
-      0,
-      player == 1 ? [0, 0, 255] : [255, 0, 0]
-    );
-
-    playerBall.show();
-    if (win != 0) {
-      g.handleWin();
+    const cplayer = g.currentPlayer();
+    if (cplayer) {
+      playerPos = cplayer.id == user.id ? Math.floor(p.mouseX / w) : playerPos;
+      const playerBall = new PlayerBall(
+        playerPos,
+        0,
+        cplayer?.choice == "blue" ? [0, 0, 255] : [255, 0, 0]
+      );
+      playerBall.show();
     }
   }
 

@@ -6,6 +6,7 @@ import {
   TTCMove,
   Game,
   gameNames,
+  Coords,
 } from "../../../web/types";
 import { TicTacToeGame } from "../game/TicTacToeGame";
 import { MyIo, MySocket, getRoomId } from "../server";
@@ -18,21 +19,26 @@ const handleConnectGame = (
   game: CFGame,
   room: Room
 ) => {
-  console.log(io, socket, game, room);
-  console.log("connect four game");
+  socket.on("c_player_move", (move: Coords) => {
+    io.to(getRoomId(socket)).emit("c_player_move", move);
+  });
   socket.on("connect_choice", (move) => {
-    console.log("asdf");
     if (game.isPlayerTurn(move.id)) {
       game.play(move);
       io.to(getRoomId(socket)).emit("connect_choice", {
         board: game.board.board,
         move: move,
       });
-    }
-    // io.to(getRoomId(socket)).emit("connect_choice", {
+      const winner = game.getWinner();
 
-    //   move: move,
-    // });
+      if (winner) {
+        io.to(getRoomId(socket)).emit("connect_game_winner", {
+          board: game.board.board,
+          move: move,
+        });
+        console.log(winner);
+      }
+    }
   });
 };
 
@@ -42,7 +48,7 @@ const handleTTCGame = (
   game: TicTacToeGame
   // room: Room
 ) => {
-  socket.on("ttc_choice", (move) => {
+  socket.on("ttc_choice", ({ move }) => {
     console.log(game.isPlayerTurn(move.id));
     if (game.isPlayerTurn(move.id)) {
       console.log(move);
@@ -56,7 +62,7 @@ const handleTTCGame = (
     if (winner.winner) {
       io.to(getRoomId(socket)).emit("ttc_game_winner", winner);
       setTimeout(() => {
-        io.to(getRoomId(socket)).emit("new_round", winner);
+        io.to(getRoomId(socket)).emit("new_round");
         game.newRound();
       }, 1000);
     }
@@ -84,8 +90,9 @@ const handleRpsGame = (
     if (roundWinner) {
       io.to(getRoomId(socket)).emit("round_winner", roundWinner);
       game?.newRound();
-      if (game?.hasGameWin()) {
-        io.to(getRoomId(socket)).emit("rps_game_winner", game.hasGameWin());
+      const gameWinner = game?.hasGameWin();
+      if (gameWinner) {
+        io.to(getRoomId(socket)).emit("rps_game_winner", gameWinner);
       } else {
         setTimeout(() => {
           io.to(getRoomId(socket)).emit("new_round");
@@ -94,7 +101,9 @@ const handleRpsGame = (
     }
     io.to(getRoomId(socket)).emit("rps_choice", {
       id: player.id,
-      choice: player.move.choice,
+      move: {
+        choice: player.move.choice,
+      },
     });
   });
 };

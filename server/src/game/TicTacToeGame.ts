@@ -1,4 +1,4 @@
-import { RoundHandler } from "./rockpaperScissors";
+import { RoundHandler } from "../handlers/RoundHandler";
 import {
   GameNames,
   MoveChoice,
@@ -90,11 +90,9 @@ export class TicTacToeBoard extends Board<TTCBoardMove> {
     if (!board) return winner;
 
     for (let i = 0; i < board.length; i++) {
-      const elem = board[i];
-      if (!elem) continue;
-      if (this.checkLine(elem)) {
-        if (elem[0]!.id) winner.winner = elem[0]!.id;
-        winner.board = elem;
+      if (this.checkLine(board[i])) {
+        if (board[i][0]!.id) winner.winner = board[i][0]!.id;
+        winner.board = board[i];
       }
       let col = board.map((row) => row[i]).filter((i) => i) as TTCBoardMove[];
       if (this.checkLine(col)) {
@@ -120,11 +118,8 @@ export class TicTacToeBoard extends Board<TTCBoardMove> {
     let isFull = true;
     for (let i = 0; i < board.length; i++) {
       const elem = board[i];
-      if (!elem) break;
       for (let j = 0; j < elem.length; j++) {
-        const nelem = elem[j];
-        if (!nelem) break;
-        if (!nelem.move.choice) {
+        if (!board[i][j].move.choice) {
           isFull = false;
         }
       }

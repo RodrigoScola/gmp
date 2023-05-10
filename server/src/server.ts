@@ -57,9 +57,10 @@ io.on("connection", (socket: MySocket) => {
       socketId: socket.id,
     },
   };
+  // console.log(socket.handshake.auth["user"]);
   socket.on("join_room", async (roomId: string) => {
     roomHandler.addUserToRoom(roomId, connInfo.user);
-    console.log(room);
+    // console.log(room);
     socket.join(roomId);
     room = roomHandler.getRoom(getRoomId(socket));
 
@@ -70,10 +71,10 @@ io.on("connection", (socket: MySocket) => {
 
     io.to(roomId).emit("get_players", game!.getPlayers());
     console.log("gampe");
-    console.log(game.getPlayers());
+    // console.log(game.getPlayers());
   });
   socket.on("get_state", (callback) => {
-    callback(game);
+    callback(game.getState());
   });
   socket.on("player_ready", () => {
     if (game?.isReady()) {

@@ -8,7 +8,7 @@ import {
   ConnectChoices,
 } from "../../../web/types";
 import { PlayerHandler } from "../handlers/usersHandler";
-import { RoundHandler } from "./rockpaperScissors";
+import { RoundHandler, RoundType } from "../handlers/RoundHandler";
 export abstract class Board<T> {
   abstract generateBoard(): void;
   abstract board: T[][];
@@ -78,16 +78,17 @@ export class CFBoard extends Board<CFBoardMove> {
     // console.log(this.board);
   }
   checkBoard(): boolean {
-    // help
-    for (let j = 0; j < this.rows; j++) {
-      const elem = this.board[j];
-      if (!elem) continue;
-      for (let i = 0; i <= this.cols - 4; i++) {
-        const test = elem[i];
+    const board = this.board;
+    const rows = this.rows;
+    const cols = this.cols;
+    // Test Horizontal
+    for (let j = 0; j < rows; j++) {
+      for (let i = 0; i <= cols - 4; i++) {
+        const test = board[j][i].id;
         if (test) {
           let temp = true;
           for (let k = 0; k < 4; k++) {
-            if (elem[i + k]!.id !== test.id) {
+            if (board[j][i + k].id !== test) {
               temp = false;
             }
           }
@@ -97,17 +98,14 @@ export class CFBoard extends Board<CFBoardMove> {
         }
       }
     }
-    for (let j = 0; j <= this.rows - 4; j++) {
-      const elem = this.board[j];
-      if (!elem) break;
-      for (let i = 0; i < this.cols; i++) {
-        const test = elem[i];
+    // Test Vertical
+    for (let j = 0; j <= rows - 4; j++) {
+      for (let i = 0; i < cols; i++) {
+        const test = board[j][i].id;
         if (test) {
           let temp = true;
           for (let k = 0; k < 4; k++) {
-            const ele = this.board[j + k];
-            if (!ele) continue;
-            if (ele[i]!.id !== test.id) {
+            if (board[j + k][i].id !== test) {
               temp = false;
             }
           }
@@ -116,17 +114,15 @@ export class CFBoard extends Board<CFBoardMove> {
           }
         }
       }
-
-      for (let i = 0; i <= this.cols - 4; i++) {
-        const board = this.board[j];
-        if (!board) break;
-        const test = board[i];
+    }
+    // Test Diagonal
+    for (let j = 0; j <= rows - 4; j++) {
+      for (let i = 0; i <= cols - 4; i++) {
+        const test = board[j][i].id;
         if (test) {
           let temp = true;
           for (let k = 0; k < 4; k++) {
-            const board = this.board[j + k];
-            if (!board) continue;
-            if (board[i + k]?.id !== test.id) {
+            if (board[j + k][i + k].id !== test) {
               temp = false;
             }
           }
@@ -135,18 +131,18 @@ export class CFBoard extends Board<CFBoardMove> {
           }
         }
       }
+    }
 
-      for (let i = 3; i <= this.cols; i++) {
-        const board = this.board[j];
-        if (!board) break;
-        const test = board[i];
+    // Test Antidiagnol
+    for (let j = 0; j <= rows - 3; j++) {
+      console.log(rows - 4);
+      for (let i = 4; i < cols; i++) {
+        const test = board[j][i].id;
         if (test) {
           let temp = true;
           for (let k = 0; k < 4; k++) {
-            const elem = this.board[j + k];
-            if (!elem) continue;
-            if (elem[i - k]?.id !== test.id) {
-              return true;
+            if (board[j + k][i - k].id !== test) {
+              temp = false;
             }
           }
           if (temp == true) {
@@ -158,13 +154,21 @@ export class CFBoard extends Board<CFBoardMove> {
 
     return false;
   }
-  checkLine(): void {}
+
+  isTie() {
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.cols; j++) {
+        if (!this.board[i][j].id) return false;
+      }
+    }
+    return true;
+  }
   isValid(board: CFBoardMove[][], x: number, y: number): boolean {
     if (!board) return false;
-    if (x < 0 || x > board.length || y < 0 || y > board.length) {
+    if (x < 0 || x > board[0].length || y < 0 || y > board.length) {
       return false;
     }
-    if (board[x][y]?.id) return false;
+    if (board[x][y].id) return false;
 
     return true;
   }
@@ -184,9 +188,7 @@ export class CFGame implements Game {
   players: PlayerHandler<CFplayer> = new PlayerHandler<CFplayer>();
 
   addPlayer(player: User) {
-    // red blue choice
     const choice = this.players.getPlayers().length == 1 ? "red" : "blue";
-
     this.players.addPlayer({
       id: player.id,
       choice,
@@ -208,7 +210,7 @@ export class CFGame implements Game {
       currentPlayerTurn: this.players.getPlayers()[0],
       moves: this.board.moves,
       name: this.name,
-      players: this.players.getPlayers().players,
+      players: this.players.getPlayers(),
       rounds: {
         count: 0,
         rounds: [],
@@ -237,8 +239,21 @@ export class CFGame implements Game {
     }
     return this.board.moves[this.board.moves.length - 1];
   }
+  getWinner(): RoundType<CFRound> | null {
+    const hasWin = this.board.checkBoard();
+
+    console.log(hasWin);
+    if (!hasWin) return null;
+    const winner = this.moves[this.moves.length - 1];
+
+    return {
+      isTie: this.board.isTie(),
+      moves: this.moves,
+      winner: winner,
+    };
+  }
   play(move: MoveChoice<CFMove>): void {
-    console.log(this.moves);
+    // console.log(this.moves);
     this.board.addMove(move);
     this.moves.push(move);
   }
