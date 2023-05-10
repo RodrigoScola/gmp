@@ -258,12 +258,14 @@ export interface MoveChoice<T> {
   move: T;
 }
 
+type callbacktype = (...args: any) => void;
 export interface ServerToClientEvents {
   join_room: (roomId: string) => void;
   rps_choice: (player: MoveChoice<RPSMove>) => void;
   rps_game_winner: (winner: User | null) => void;
   ttc_game_winner: (winner: TTCCombination) => void;
   start_game: () => void;
+  rematch: (callback?: callbacktype) => void;
   round_winner: (round: RPSRound | null) => void;
   connect_choice: (move: MoveChoice<CFMove>) => void;
   connect_game_winner(winner: RoundType<MoveChoice<CFMove>>): void;
@@ -278,6 +280,7 @@ export interface ServerToClientEvents {
 
 export interface ClientToServerEvents {
   join_room: (roomId: string) => void;
+  rematch: (callback?: callbacktype) => void;
   get_players: (players: any[]) => void;
   connect_choice: (params: {
     move: MoveChoice<CFMove>;

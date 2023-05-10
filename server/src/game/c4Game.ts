@@ -78,6 +78,7 @@ export class CFBoard extends Board<CFBoardMove> {
     // console.log(this.board);
   }
   checkBoard(): boolean {
+    return true;
     for (let j = 0; j < this.rows; j++) {
       for (let i = 0; i <= this.cols - 4; i++) {
         const test = this.board[j][i];
@@ -97,6 +98,7 @@ export class CFBoard extends Board<CFBoardMove> {
     for (let j = 0; j <= this.rows - 4; j++) {
       for (let i = 0; i < this.cols; i++) {
         const test = this.board[j][i];
+        if (!test) return false;
         if (test.id) {
           let temp = true;
           for (let k = 0; k < 4; k++) {
@@ -110,8 +112,9 @@ export class CFBoard extends Board<CFBoardMove> {
         }
       }
 
-      for (let i = 0; i <= this.cols - 4; i++) {
+      for (let i = 0; i < this.cols - 4; i++) {
         const test = this.board[j][i];
+        if (!test) continue;
         if (test.id) {
           let temp = true;
           for (let k = 0; k < 4; k++) {
@@ -125,7 +128,7 @@ export class CFBoard extends Board<CFBoardMove> {
         }
       }
 
-      for (let i = 3; i <= this.cols; i++) {
+      for (let i = 3; i < this.cols; i++) {
         const test = this.board[j][i];
         if (!test) continue;
         if (test.id) {
@@ -158,6 +161,7 @@ export class CFBoard extends Board<CFBoardMove> {
     if (x < 0 || x > board[0].length || y < 0 || y > board.length) {
       return false;
     }
+    if (!board[x][y]) return false;
     if (board[x][y].id) return false;
 
     return true;
@@ -202,19 +206,21 @@ export class CFGame implements Game {
       name: this.name,
       players: this.players.getPlayers(),
       rounds: {
-        count: 0,
-        rounds: [],
+        count: this.round.count,
+        rounds: this.round.rounds,
       },
     };
   }
   newRound(): void {
     this.round.addRound({
       winner: {
-        id: "",
+        id: this.moves[this.moves.length - 1].id,
       },
       moves: [this.moves],
       isTie: false,
     });
+    this.moves = [];
+    this.board = new CFBoard();
   }
 
   isPlayerTurn(playerId: string): boolean {

@@ -136,12 +136,13 @@ export default function TicTacToeGameComponent() {
         setPlayer(player);
       }
       socket.on("ttc_choice", (move) => {
+        console.log(move);
         setMoves((current) => ({
           ...current,
 
           moves: [...current.moves, move.move],
         }));
-
+        console.log(move.board);
         setBoard(move.board);
       });
 
@@ -161,11 +162,13 @@ export default function TicTacToeGameComponent() {
     });
     socket.on("start_game", () => {
       socket.emit("get_state", (state: any) => {
+        console.log(user.id);
         console.log(state);
       });
     });
     socket.on("ttc_game_winner", (winner: TTCCombination) => {
       if (!winner) return;
+
       setMoves((current) => ({
         ...current,
         winner: {

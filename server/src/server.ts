@@ -10,7 +10,7 @@ import { User } from "../../web/types";
 import { ServerToClientEvents, ClientToServerEvents } from "../../web/types";
 
 import { roomHandler } from "./handlers/room";
-import { GameHandler } from "./handlers/Handlers";
+import { MatchHandler, MatchPlayerState } from "./handlers/Handlers";
 import { getGame } from "./handlers/Handlers";
 export const io = new Server<ServerToClientEvents, ClientToServerEvents>(
   server
@@ -33,8 +33,6 @@ export type MySocket = Socket<
   any
 >;
 
-const gameHandler = new GameHandler();
-
 export const getRoomId = (socket: MySocket) => socket.handshake.auth["roomId"];
 
 io.on("connection", (socket: MySocket) => {
@@ -46,8 +44,8 @@ io.on("connection", (socket: MySocket) => {
     room = roomHandler.createRoom(getRoomId(socket), [], Games);
   }
   var game: Game;
-  if (room?.game) {
-    game = room.game;
+  if (room?.match?.game) {
+    game = room.match.game;
   }
 
   const connInfo = {
@@ -64,25 +62,30 @@ io.on("connection", (socket: MySocket) => {
     socket.join(roomId);
     room = roomHandler.getRoom(getRoomId(socket));
 
-    if (room?.game) {
-      game = room.game;
+    if (room?.match?.game) {
+      game = room.match.game;
     }
-    game?.addPlayer(connInfo.user);
+    room?.match.addPlayer(connInfo.user);
 
     io.to(roomId).emit("get_players", game!.getPlayers());
-    console.log("gampe");
-    // console.log(game.getPlayers());
   });
   socket.on("get_state", (callback) => {
     callback(game.getState());
   });
   socket.on("player_ready", () => {
-    if (game?.isReady()) {
-      io.to(getRoomId(socket)).emit("start_game");
-      gameHandler.playGame(io, socket, game);
-    }
+    // if (game?.isReady()) {
+    io.to(getRoomId(socket)).emit("start_game");
+    room?.match.playGame(io, socket, game);
+    // }
   });
 
+  socket.on("rematch", (callback) => {
+    // check if other player has rematched
+
+    if (callback) {
+      callback();
+    }
+  });
   socket.on("disconnect", () => {
     const roomId = getRoomId(socket);
     io.in(roomId).emit("user_disconnected", roomId);

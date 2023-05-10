@@ -3,15 +3,15 @@ import {
   GameNames,
   MoveChoice,
   RPSMove,
-  TTCMove,
   Game,
-  gameNames,
   Coords,
+  User,
 } from "../../../web/types";
 import { TicTacToeGame } from "../game/TicTacToeGame";
 import { MyIo, MySocket, getRoomId } from "../server";
 import { Room, getRoom } from "./room";
 import { CFGame } from "../game/c4Game";
+import { PlayerHandler } from "./usersHandler";
 
 const handleConnectGame = (
   io: MyIo,
@@ -23,6 +23,7 @@ const handleConnectGame = (
     io.to(getRoomId(socket)).emit("c_player_move", move);
   });
   socket.on("connect_choice", (move) => {
+    console.log("connect choice");
     if (game.isPlayerTurn(move.id)) {
       game.play(move);
       io.to(getRoomId(socket)).emit("connect_choice", {
@@ -34,6 +35,10 @@ const handleConnectGame = (
       if (winner) {
         io.to(getRoomId(socket)).emit("connect_game_winner", winner);
         console.log(winner);
+        setTimeout(() => {
+          io.to(getRoomId(socket)).emit("new_round");
+          game.newRound();
+        }, 1000);
       }
     }
   });
@@ -50,7 +55,7 @@ const handleTTCGame = (
     if (game.isPlayerTurn(move.id)) {
       console.log(move);
       game.play(move);
-      socket.broadcast.to(getRoomId(socket)).emit("ttc_choice", {
+      io.to(getRoomId(socket)).emit("ttc_choice", {
         board: game.board.board,
         move: move.move,
       });
@@ -73,6 +78,7 @@ const handleRpsGame = (
   room: Room
 ) => {
   // player move
+
   socket.on("rps_choice", (player: MoveChoice<RPSMove>) => {
     console.log(player);
     game?.play(
@@ -104,8 +110,31 @@ const handleRpsGame = (
     });
   });
 };
-export class GameHandler {
-  getGameHandler(gamename: GameNames) {
+
+export enum MatchPlayerState {
+  playing,
+  waiting_rematch,
+}
+type MatchPlayer = {
+  id: string;
+  state: MatchPlayerState;
+};
+export class MatchHandler {
+  game: Game;
+  players: PlayerHandler<MatchPlayer> = new PlayerHandler<MatchPlayer>();
+  constructor(game: Game) {
+    this.game = game;
+  }
+
+  addPlayer(player: User) {
+    this.players.addPlayer({
+      id: player.id,
+      state: MatchPlayerState.playing,
+    });
+    this.game.addPlayer(player);
+  }
+
+  private getGameHandler(gamename: GameNames) {
     switch (gamename) {
       case "Rock Paper Scissors":
         return handleRpsGame;
@@ -120,6 +149,15 @@ export class GameHandler {
   getGame(gameName: GameNames) {
     return getGame(gameName);
   }
+  rematch() {
+    saveGame(this.game);
+  }
+  newGame(gameName: GameNames) {
+    const game = getGame(gameName);
+    if (!game) return;
+    saveGame(this.game);
+    this.game = game;
+  }
   playGame(io: MyIo, socket: MySocket, game: Game) {
     const handler = this.getGameHandler(game.name);
 
@@ -127,6 +165,10 @@ export class GameHandler {
     handler(io, socket, game, getRoom(getRoomId(socket)));
   }
 }
+
+const saveGame = <T extends Game>(game: T) => {
+  console.log("game saved");
+};
 
 export const getGame = (gameName: GameNames): Game | null => {
   switch (gameName) {
