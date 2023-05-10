@@ -78,7 +78,7 @@ io.on("connection", (socket: MySocket) => {
   });
   socket.on("player_ready", () => {
     if (game?.isReady()) {
-      socket.emit("start_game");
+      io.to(getRoomId(socket)).emit("start_game");
       gameHandler.playGame(io, socket, game);
     }
   });

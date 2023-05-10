@@ -21,6 +21,8 @@ let playerPos = 0;
 let prevPlayerPos = 0;
 let win = 0;
 let player = 1;
+const opponentName = "Opponent";
+var canStart = false;
 
 class Ball {
   speed: number = 5;
@@ -61,14 +63,15 @@ class PlayerBall {
 class GameState {
   moves: MoveChoice<CFMove>[] = [];
   board: (Ball | null)[][];
-  players: CFplayer[] = [];
+  players: (CFplayer & { name: string })[] = [];
+  game_winner: string = "";
   constructor() {
     this.board = [];
     for (let j = 0; j < rows; j++) {
       this.board[j] = new Array(cols).fill(null);
     }
   }
-  addPlayer(player: CFplayer) {
+  addPlayer(player: CFplayer & { name: string }) {
     if (Object.values(this.players).find((i) => i.id == player.id)) return;
 
     this.players.push(player);
@@ -99,7 +102,7 @@ class GameState {
   }
   currentPlayer() {
     if (this.moves.length == 0) {
-      return Object.values(this.players).find((x) => x.choice == "blue");
+      return Object.values(this.players)[0];
     }
     return Object.values(this.players).find(
       (x) => x.id !== this.moves[this.moves.length - 1].id
@@ -107,7 +110,11 @@ class GameState {
   }
   handleWin(winner: RoundType<CFRound>) {
     const colorWon = winner.winner.id;
-    const name = this.players.find((player) => player.id == colorWon)?.choice;
+    console.log(winner);
+    const name = this.players.find((player) => player.id == colorWon)?.name;
+    this.game_winner = name || "";
+  }
+  showWin() {
     p5.noStroke();
     p5.fill(0);
     if (win == 2) {
@@ -122,7 +129,7 @@ class GameState {
     } else if (win == 3) {
       p5.text("It is a tie.", width / 2, w / 2);
     } else {
-      p5.text(`${name} won!`, width / 2, w / 2);
+      p5.text(`${this.game_winner} won!`, width / 2, w / 2);
     }
     p5.noLoop();
   }
@@ -183,15 +190,21 @@ export default function CONNECTFOURPAGE() {
         const firstPlayer = state.currentPlayerTurn.id;
         const pl = state.players.find((player) => player.id == firstPlayer);
         if (pl) {
-          g.addPlayer(pl);
+          g.addPlayer({
+            ...pl,
+            name: user.name as string,
+          });
         }
         const spl = state.players.find((player) => player.id != firstPlayer);
         if (spl) {
-          g.addPlayer(spl);
+          g.addPlayer({
+            ...spl,
+            name: opponentName,
+          });
         }
         console.log("state", state.players);
       });
-      setAbleToStart(true);
+      canStart = true;
     });
     socket.on("user_disconnected", () => {
       window.location.reload();
@@ -201,17 +214,14 @@ export default function CONNECTFOURPAGE() {
     });
 
     socket.on("connect_choice", (move) => {
+      console.log(move.move);
       g.addPiece(move.move.move.coords.x, {
-        choice: move.move.move.color,
+        choice: move.move.id == user.id ? "blue" : "red",
         id: move.move.id,
       });
     });
     socket.on("connect_game_winner", (winner) => {
       g.handleWin(winner);
-      console.log(winner);
-      console.log(winner);
-      console.log(winner);
-      console.log(winner);
     });
     return () => {
       if (socket) {
@@ -226,8 +236,7 @@ export default function CONNECTFOURPAGE() {
 
   const sendMouse = useCallback(
     (playerPos: number) => {
-      console.log(g.currentPlayer());
-      if (ableToStart == false) return;
+      if (canStart == false) return;
       console.log(user.id);
       socket.emit("connect_choice", {
         id: user.id,
@@ -275,9 +284,12 @@ export default function CONNECTFOURPAGE() {
       const playerBall = new PlayerBall(
         playerPos,
         0,
-        cplayer?.choice == "blue" ? [0, 0, 255] : [255, 0, 0]
+        cplayer?.choice == player.choice ? [0, 0, 255] : [255, 0, 0]
       );
       playerBall.show();
+    }
+    if (g.game_winner) {
+      g.showWin();
     }
   }
 

@@ -78,12 +78,71 @@ export class CFBoard extends Board<CFBoardMove> {
     // console.log(this.board);
   }
   checkBoard(): boolean {
-    if (this.moves.length < 7) return false;
-    const lastMove = this.moves[this.moves.length - 1];
-    const { x, y } = lastMove.move.coords;
-    const id = lastMove.id;
+    for (let j = 0; j < this.rows; j++) {
+      for (let i = 0; i <= this.cols - 4; i++) {
+        const test = this.board[j][i];
+        if (test.id) {
+          let temp = true;
+          for (let k = 0; k < 4; k++) {
+            if (this.board[j][i + k]?.id !== test.id) {
+              temp = false;
+            }
+          }
+          if (temp == true) {
+            return true;
+          }
+        }
+      }
+    }
+    for (let j = 0; j <= this.rows - 4; j++) {
+      for (let i = 0; i < this.cols; i++) {
+        const test = this.board[j][i];
+        if (test.id) {
+          let temp = true;
+          for (let k = 0; k < 4; k++) {
+            if (this.board[j + k][i]?.id !== test.id) {
+              temp = false;
+            }
+          }
+          if (temp == true) {
+            return true;
+          }
+        }
+      }
 
-    ocnst;
+      for (let i = 0; i <= this.cols - 4; i++) {
+        const test = this.board[j][i];
+        if (test.id) {
+          let temp = true;
+          for (let k = 0; k < 4; k++) {
+            if (this.board[j + k][i + k]?.id !== test.id) {
+              temp = false;
+            }
+          }
+          if (temp == true) {
+            return true;
+          }
+        }
+      }
+
+      for (let i = 3; i <= this.cols; i++) {
+        const test = this.board[j][i];
+        if (!test) continue;
+        if (test.id) {
+          let temp = true;
+          for (let k = 0; k < 4; k++) {
+            if (this.board[j + k][i - k]?.id !== test.id) {
+              return true;
+            }
+          }
+          if (temp == true) {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
   }
 
   isTie() {
@@ -129,7 +188,7 @@ export class CFGame implements Game {
     return this.players.getPlayers();
   }
   isReady() {
-    return true;
+    return this.getPlayers().length == 2;
   }
   constructor() {
     this.board = new CFBoard();
@@ -173,7 +232,6 @@ export class CFGame implements Game {
   getWinner(): RoundType<CFRound> | null {
     const hasWin = this.board.checkBoard();
 
-    console.log(hasWin);
     if (!hasWin) return null;
     const winner = this.moves[this.moves.length - 1];
 

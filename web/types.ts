@@ -266,7 +266,7 @@ export interface ServerToClientEvents {
   start_game: () => void;
   round_winner: (round: RPSRound | null) => void;
   connect_choice: (move: MoveChoice<CFMove>) => void;
-  connect_game_winner(winner: RoundType<CFRound>): void;
+  connect_game_winner(winner: RoundType<MoveChoice<CFMove>>): void;
   player_ready: () => void;
   new_round: () => void;
   get_players: (players: User[]) => void;
@@ -288,7 +288,7 @@ export interface ClientToServerEvents {
   rps_choice: (player: MoveChoice<RPSMove>) => void;
   rps_game_winner: (winner: User) => void;
   ttc_game_winner: (winner: TTCCombination) => void;
-  connect_game_winner(winner: RoundType<CFRound>): void;
+  connect_game_winner(winner: RoundType<MoveChoice<CFMove>>): void;
   user_connected: (roomId: string) => void;
   get_state: (callback: (...args: any) => void) => void;
   start_game: () => void;

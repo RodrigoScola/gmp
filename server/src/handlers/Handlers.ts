@@ -32,10 +32,7 @@ const handleConnectGame = (
       const winner = game.getWinner();
 
       if (winner) {
-        io.to(getRoomId(socket)).emit("connect_game_winner", {
-          board: game.board.board,
-          move: move,
-        });
+        io.to(getRoomId(socket)).emit("connect_game_winner", winner);
         console.log(winner);
       }
     }
