@@ -8,7 +8,7 @@ import { useDisclosure } from "@/hooks/useDisclosure";
 import { AiOutlineMenu } from "react-icons/ai";
 
 export const Nav = () => {
-  const user = useUser();
+  const { user } = useUser();
   const { isOpen, onClose, onOpen } = useDisclosure();
   return (
     <div className="flex justify-between px-5 w-screen ">

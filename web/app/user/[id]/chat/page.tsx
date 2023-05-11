@@ -1,6 +1,5 @@
-import { RenderChatMesages } from "@/Components/RenderChatMessages";
+import { RenderChatMesages } from "@/Components/RenderChat2";
 import { getUserByUsername } from "@/db/User";
-import { getFromFile } from "@/lib/utils";
 import { ChatConversationType } from "@/types";
 
 export default async function CHATPAGE({
@@ -16,11 +15,7 @@ export default async function CHATPAGE({
 
   return (
     <div id="chatlog">
-      <RenderChatMesages
-        user={user}
-        username={id}
-        chatMessages={conversation}
-      />
+      <RenderChatMesages user={user} chatMessages={conversation} />
     </div>
   );
 }

@@ -1,14 +1,18 @@
-import { io, Socket } from "socket.io-client";
+import { io, Socket as SC } from "socket.io-client";
 import {
   User,
   ServerToClientEvents,
   ClientToServerEvents,
   GameNames,
   ExtendedUser,
+  ChatClientEvents,
+  ChatServerEvents,
 } from "@/types";
 
-export const socket: Socket<ClientToServerEvents, ServerToClientEvents> = io(
-  "ws://localhost:3001",
+const socketUrl = "ws://localhost:3001";
+
+export const socket: SC<ClientToServerEvents, ServerToClientEvents> = io(
+  socketUrl,
   {
     transports: ["websocket"],
     autoConnect: false,
@@ -20,6 +24,14 @@ export type SocketAuth = {
   roomId: string;
   gameName: GameNames;
 };
+
+export const chatSocket: SC<ChatServerEvents, ChatClientEvents> = io(
+  `${socketUrl}/chat`,
+  {
+    transports: ["websocket"],
+    autoConnect: false,
+  }
+);
 
 export const newSocketAuth = (params: SocketAuth): SocketAuth => {
   return {

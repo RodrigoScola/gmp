@@ -1,8 +1,8 @@
 "use client";
 
-import { getGameData } from "@/data/games";
+import { getGameData } from "../../../server/src/game/gameUtils";
 import { useUser } from "@/hooks/useUser";
-import { GameNames, GameType, gameNames } from "@/types";
+import { GameNames, gameNames } from "@/types";
 import Link from "next/link";
 import { useState } from "react";
 

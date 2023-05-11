@@ -6,7 +6,7 @@ import { useRefetch } from "@/hooks/useRefetch";
 import { useUser } from "@/hooks/useUser";
 import { ChatConversationType, ChatMessageType, ReturnUserType } from "@/types";
 import { Popover, PopoverContent, PopoverTrigger } from "@chakra-ui/react";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useUpdateEffect } from "usehooks-ts";
 
 const newMessage = (content: string, userId: string): ChatMessageType => {
@@ -22,16 +22,25 @@ export const RenderChatMesages = (props: {
   chatMessages: ChatConversationType;
   user: ReturnUserType;
 }) => {
-  const friend = useFriend(
-    props.chatMessages.users.filter((i) => i.id == useUser().id)[0].id
-  );
-  const user = useUser();
-  const [currentChat, setCurrentChat] = useState<string>("");
+  const { user } = useUser();
+  const friend = useFriend();
 
+  useEffect(() => {
+    if (user) {
+      const friendId = props.chatMessages.users.find((i) => i.id != user.id);
+      if (friendId) {
+        friend.setFriendId(friendId.id);
+        setAllChat(props.chatMessages);
+      }
+    }
+  }, [user.id]);
+  const [currentChat, setCurrentChat] = useState<string>("");
   const documentRef = useRef<HTMLFormElement>(null);
-  const [allChat, setAllChat] = useObject<ChatConversationType>(
-    props.chatMessages
-  );
+  const [allChat, setAllChat] = useState<ChatConversationType>({
+    id: "string",
+    messages: [],
+    users: [],
+  });
   const [currentPage, setCurrentPage] = useState<number>(1);
   const d = useRefetch<ChatConversationType>(
     `http://localhost:3000/api/chat/snuffy/?page=${currentPage}`
@@ -51,9 +60,10 @@ export const RenderChatMesages = (props: {
     if (lmessage.data.messages[0]) {
       const m = lmessage.data.messages[0];
 
-      setAllChat({
+      setAllChat((curr) => ({
+        ...curr,
         messages: [...allChat.messages, m],
-      });
+      }));
     }
   }, [currentPage]);
 
@@ -61,12 +71,14 @@ export const RenderChatMesages = (props: {
     if (!d?.data) return;
     if (d.data.messages[0].id == allChat.messages[0].id) return;
     const m = d.data.messages.concat(allChat.messages);
-    setAllChat({
+    setAllChat((current) => ({
+      ...current,
       messages: m,
-    });
+    }));
   }, [d]);
 
   const lastMessage = useMemo(() => {
+    if (!allChat?.messages.length) return;
     return allChat.messages[allChat.messages.length - 1];
   }, [allChat]);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -74,9 +86,10 @@ export const RenderChatMesages = (props: {
   const handleNewMessage = (e: HTMLFormElement) => {
     e.preventDefault();
     const message = newMessage(currentChat, user.id);
-    setAllChat({
+    setAllChat((current) => ({
+      ...current,
       messages: [...allChat.messages, message],
-    });
+    }));
     setCurrentPage((curr) => curr + 1);
     setCurrentChat("");
   };
@@ -121,8 +134,8 @@ export const RenderChatMesages = (props: {
         </Popover>
       </div>
       <div className="space-y-2 px-6 text-white">
-        {allChat.messages.map((message, i) => {
-          if (user.id == message.userId) {
+        {allChat?.messages.map((message, i) => {
+          if (allChat.messages[0].userId !== message.userId) {
             return (
               <div key={i + message.created} className="flex justify-end">
                 <div className=" bg-blue-700 flex items-center p-1 rounded-full right-0 w-fit space-x-2">

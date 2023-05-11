@@ -25,8 +25,8 @@ export type CFBoardMove = MoveChoice<CFMove>;
 export class CFBoard extends Board<CFBoardMove> {
   board: CFBoardMove[][];
   moves: CFBoardMove[] = [];
-  rows: number = 6;
-  cols: number = 7;
+  rows: number = 7;
+  cols: number = 6;
 
   constructor() {
     super();
@@ -78,7 +78,6 @@ export class CFBoard extends Board<CFBoardMove> {
     // console.log(this.board);
   }
   checkBoard(): boolean {
-    return true;
     for (let j = 0; j < this.rows; j++) {
       for (let i = 0; i <= this.cols - 4; i++) {
         const test = this.board[j][i];
@@ -161,7 +160,10 @@ export class CFBoard extends Board<CFBoardMove> {
     if (x < 0 || x > board[0].length || y < 0 || y > board.length) {
       return false;
     }
-    if (!board[x][y]) return false;
+    console.log(board.length, board[0].length, x);
+    const pos = board[y][x];
+    if (!pos) return false;
+
     if (board[x][y].id) return false;
 
     return true;
@@ -199,6 +201,12 @@ export class CFGame implements Game {
   }
 
   getState(): CFState {
+    let playerWins: Record<string, number> = {};
+
+    for (const p of this.players.getPlayers()) {
+      playerWins[p.id] = this.round.countWins(p.id);
+    }
+
     return {
       board: this.board.board,
       currentPlayerTurn: this.players.getPlayers()[0],
@@ -208,10 +216,15 @@ export class CFGame implements Game {
       rounds: {
         count: this.round.count,
         rounds: this.round.rounds,
+        wins: {
+          ...playerWins,
+          ties: this.round.rounds.filter((i) => i.isTie).length,
+        },
       },
     };
   }
   newRound(): void {
+    if (this.moves.length == 0) return;
     this.round.addRound({
       winner: {
         id: this.moves[this.moves.length - 1].id,

@@ -1,9 +1,7 @@
 import { SocketUser } from "../server";
-import { TicTacToeGame } from "../game/TicTacToeGame";
-import { RockPaperScissorsGame } from "../game/rockpaperScissors";
 import { Game } from "../../../web/types";
-import { Match } from "./Match";
-import { MatchHandler } from "./Handlers";
+import { MatchHandler, getGame } from "./Handlers";
+import { RockPaperScissorsGame } from "../game/rockpaperScissors";
 export class RoomHandler {
   rooms: Map<string, Room>;
 
@@ -28,6 +26,7 @@ export class RoomHandler {
 
     this.rooms.delete(roomId);
   }
+
   addUserToRoom(roomId: string, user: SocketUser) {
     if (!this.roomExists(roomId)) {
       this.createRoom(roomId);
@@ -48,7 +47,7 @@ export const getRoom = (roomId: string) => {
 export class Room {
   id: string;
   users: SocketUser[];
-  match: MatchHandler = new MatchHandler();
+  match: MatchHandler = new MatchHandler(new RockPaperScissorsGame());
   constructor(id: string, users: [], game?: Game) {
     this.id = id;
     this.users = users;

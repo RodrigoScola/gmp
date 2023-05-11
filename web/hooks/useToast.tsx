@@ -4,20 +4,20 @@ import { createContext, useContext } from "react";
 import toast, { Toaster } from "react-hot-toast";
 
 type ToastContextType = {
-  addToast: (message: string, options: newToastType | null) => void;
+  addToast: (message: string, options?: newToastType) => void;
 };
 
 export const ToastContext = createContext<ToastContextType | null>(null);
 
 export const ToastProvider = ({ children }: { children: ChildrenType }) => {
-  const addToast = (message: string, newOptions: newToastType | null) => {
+  const addToast = (message: string, newOptions?: newToastType) => {
     const options = Object.assign<ToastType, newToastType | undefined>(
       {
         duration: 3000,
         className: "bg-gray-800 text-white",
         message,
         style: {
-          "z-index": "99",
+          zIndex: "99",
         },
         position: "top-center",
       },

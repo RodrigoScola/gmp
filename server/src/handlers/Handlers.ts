@@ -133,7 +133,20 @@ export class MatchHandler {
     });
     this.game.addPlayer(player);
   }
-
+  changePlayerState(
+    playerId: string,
+    state: MatchPlayerState
+  ): MatchPlayer | null {
+    const player = this.players.getPlayer(playerId);
+    if (!player) return null;
+    player.state = state;
+    return player;
+  }
+  canRematch(): boolean {
+    return this.players
+      .getPlayers()
+      .every((i) => i.state === MatchPlayerState.waiting_rematch);
+  }
   private getGameHandler(gamename: GameNames) {
     switch (gamename) {
       case "Rock Paper Scissors":
@@ -151,6 +164,22 @@ export class MatchHandler {
   }
   rematch() {
     saveGame(this.game);
+    const players = this.game.getPlayers();
+    const g = this.getGame(this.game.name);
+
+    if (g) {
+      for (const player of players) {
+        g.addPlayer(player);
+      }
+
+      this.game = g;
+    }
+
+    this.players.getPlayers().forEach((player) => {
+      this.changePlayerState(player.id, MatchPlayerState.playing);
+    });
+    console.log(this.game.players);
+    return this.game;
   }
   newGame(gameName: GameNames) {
     const game = getGame(gameName);
@@ -180,25 +209,5 @@ export const getGame = (gameName: GameNames): Game | null => {
       return new CFGame();
     default:
       return null;
-  }
-};
-
-export const games: Record<number, { id: number; name: GameNames }> = {
-  0: { id: 0, name: "connect Four" },
-  1: { id: 1, name: "Tic Tac Toe" },
-  2: { id: 2, name: "Rock Paper Scissors" },
-  3: { id: 3, name: "Simon Says" },
-};
-export const getGameData = (gameIdOrName: GameNames | number) => {
-  if (typeof gameIdOrName === "number") {
-    const game = games[gameIdOrName];
-    if (game) return game;
-    else throw new Error("Game not found");
-  } else {
-    const game = Object.values(games).find(
-      (game) => game.name === gameIdOrName
-    );
-    if (game) return game;
-    else throw new Error("Game not found");
   }
 };

@@ -126,7 +126,7 @@ export abstract class Game {
   abstract play(...args: any): void;
   abstract newRound(): void;
   abstract addPlayer(player: User): void;
-  abstract getState(): void;
+  abstract getState(): any;
   // isPlayerTurn(playerId: string): boolean;
 }
 export interface TTCState {
@@ -149,6 +149,10 @@ export interface CFState {
   rounds: {
     count: number;
     rounds: CFBoardMove[];
+    wins: {
+      [key: string]: number;
+      ties: number;
+    };
   };
 }
 
@@ -264,7 +268,7 @@ export interface ServerToClientEvents {
   rps_choice: (player: MoveChoice<RPSMove>) => void;
   rps_game_winner: (winner: User | null) => void;
   ttc_game_winner: (winner: TTCCombination) => void;
-  start_game: () => void;
+  start_game: (gameState?: CFState | RPSstate | TTCState) => void;
   rematch: (callback?: callbacktype) => void;
   round_winner: (round: RPSRound | null) => void;
   connect_choice: (move: MoveChoice<CFMove>) => void;
@@ -280,7 +284,8 @@ export interface ServerToClientEvents {
 
 export interface ClientToServerEvents {
   join_room: (roomId: string) => void;
-  rematch: (callback?: callbacktype) => void;
+  rematch: () => void;
+  rematch_accept: (state: any) => void;
   get_players: (players: any[]) => void;
   connect_choice: (params: {
     move: MoveChoice<CFMove>;
@@ -294,9 +299,24 @@ export interface ClientToServerEvents {
   connect_game_winner(winner: RoundType<MoveChoice<CFMove>>): void;
   user_connected: (roomId: string) => void;
   get_state: (callback: (...args: any) => void) => void;
-  start_game: () => void;
+  start_game: (gameState?: CFState | RPSstate | TTCState) => void;
   round_winner: (round: RPSRound) => void;
   player_ready: () => void;
   new_round: () => void;
   user_disconnected: (roomId: string) => void;
+}
+
+export type Message = {
+  message: string;
+};
+export enum ChatUserState {
+  typing,
+  inChat,
+}
+
+export interface ChatServerEvents {}
+export interface ChatClientEvents {
+  join_room: (roomId: string) => void;
+  send_message: (message: Message) => void;
+  state_change: (state: ChatUserState) => void;
 }

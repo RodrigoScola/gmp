@@ -1,6 +1,6 @@
 "use client";
 import { baseUser } from "@/constants";
-import { checkBoard } from "@/lib/TicTacToe";
+import { checkBoard } from "../../../../../server/src/game/TicTacToeGame";
 import { Coords, TicTacToeGameState } from "@/types";
 import { useMemo, useState } from "react";
 import { useEffectOnce, useUpdateEffect } from "usehooks-ts";

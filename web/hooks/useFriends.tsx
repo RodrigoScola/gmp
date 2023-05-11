@@ -76,12 +76,13 @@ export const useFriends = (initialState: Friend[]) => {
   return friendContext;
 };
 
-export const useFriend = (id: string) => {
+export const useFriend = (id?: string) => {
   const [friendId, setFriendId] = useState<string>(id);
 
   const friendContext = useContext(FriendsContext);
   const t = useToast();
   return {
+    setFriendId,
     id: friendId,
     friend: friendContext?.getFriend(friendId),
     sendInvite: (gameName: number | GameNames) => {

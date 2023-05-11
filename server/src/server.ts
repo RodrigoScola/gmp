@@ -10,8 +10,7 @@ import { User } from "../../web/types";
 import { ServerToClientEvents, ClientToServerEvents } from "../../web/types";
 
 import { roomHandler } from "./handlers/room";
-import { MatchHandler, MatchPlayerState } from "./handlers/Handlers";
-import { getGame } from "./handlers/Handlers";
+import { MatchPlayerState, getGame } from "./handlers/Handlers";
 export const io = new Server<ServerToClientEvents, ClientToServerEvents>(
   server
 );
@@ -66,7 +65,6 @@ io.on("connection", (socket: MySocket) => {
       game = room.match.game;
     }
     room?.match.addPlayer(connInfo.user);
-
     io.to(roomId).emit("get_players", game!.getPlayers());
   });
   socket.on("get_state", (callback) => {
@@ -81,17 +79,30 @@ io.on("connection", (socket: MySocket) => {
 
   socket.on("rematch", (callback) => {
     // check if other player has rematched
-
-    if (callback) {
-      callback();
+    console.log(
+      room?.match.players.getPlayer(connInfo.user.id).state ==
+        MatchPlayerState.playing
+    );
+    room?.match.changePlayerState(
+      connInfo.user.id,
+      MatchPlayerState.waiting_rematch
+    );
+    console.log(room?.match.canRematch());
+    if (room?.match.canRematch()) {
+      console.log("rematchh");
+      const state = room?.match.rematch();
+      io.to(getRoomId(socket)).emit("rematch_accept", state);
+    } else {
+      socket.broadcast.to(getRoomId(socket)).emit("rematch");
     }
   });
-  socket.on("disconnect", () => {
+  socket.on("disconnecting", () => {
     const roomId = getRoomId(socket);
     io.in(roomId).emit("user_disconnected", roomId);
     io.in(roomId).socketsLeave(roomId);
     roomHandler.deleteRoom(roomId);
-
+  });
+  socket.on("disconnect", () => {
     console.log("user disconnected");
   });
 });
