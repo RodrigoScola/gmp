@@ -1,27 +1,18 @@
 import {
-  Coords,
   Game,
   MoveChoice,
   GameNames,
   CFState,
   User,
-  ConnectChoices,
+  CFBoardMove,
+  Board,
+  CFMove,
+  CFRound,
+  CFplayer,
 } from "../../../web/types";
 import { PlayerHandler } from "../handlers/usersHandler";
 import { RoundHandler, RoundType } from "../handlers/RoundHandler";
-export abstract class Board<T> {
-  abstract generateBoard(): void;
-  abstract board: T[][];
-  abstract moves: T[];
-  abstract addMove(move: T): void;
-  abstract isValid(board: T[][], x: number, y: number): void;
-}
 
-export type CFMove = {
-  color: ConnectChoices;
-  coords: Coords;
-};
-export type CFBoardMove = MoveChoice<CFMove>;
 export class CFBoard extends Board<CFBoardMove> {
   board: CFBoardMove[][];
   moves: CFBoardMove[] = [];
@@ -170,12 +161,6 @@ export class CFBoard extends Board<CFBoardMove> {
   }
 }
 
-export type CFplayer = {
-  id: string;
-  choice: ConnectChoices;
-};
-
-export type CFRound = {};
 export class CFGame implements Game {
   name: GameNames = "connect Four";
   board: CFBoard;

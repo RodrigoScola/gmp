@@ -2,7 +2,9 @@
 import { ChildrenType, Friend, GameNames } from "@/types";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useMap } from "usehooks-ts";
-import { useToast } from "./useToast";
+import { useNotification } from "./useToast";
+import { userSocket } from "@/lib/socket";
+import { GameInviteComponent } from "@/Components/Notifications/GameInvite";
 
 export type FriendsContext = {
   friends: Friend[];
@@ -80,18 +82,24 @@ export const useFriend = (id?: string) => {
   const [friendId, setFriendId] = useState<string>(id);
 
   const friendContext = useContext(FriendsContext);
-  const t = useToast();
+  const t = useNotification();
   return {
     setFriendId,
     id: friendId,
     friend: friendContext?.getFriend(friendId),
-    sendInvite: (gameName: number | GameNames) => {
-      const game = getGameData(gameName);
-      if (!game) {
-        throw new Error("Game not found");
-      }
-      console.log(`Invite ${friendId} to ${game.name}`);
-      t.addToast("Invite sent");
+    sendInvite: (gameName: GameNames) => {
+      // const game = getGameData(gameName);
+      console.log(friendId);
+      // if (!game) {
+      //   throw new Error("Game not found");
+      // }
+      userSocket.emit(
+        "game_invite",
+        gameName.toString() as GameNames,
+        friendId
+      );
+      console.log(`Invite ${friendId} to ${gameName}`);
+      t.addNotification("Invite sent");
     },
   };
 };

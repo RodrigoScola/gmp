@@ -5,11 +5,14 @@ import {
   CFBoard,
   CFBoardMove,
   CFMove,
-  CFRound,
   CFplayer,
 } from "@/../server/dist/game/c4Game";
 import { RoundType } from "@/../server/dist/game/rockpaperScissors";
-import { RoundHandler } from "@/../server/dist/handlers/RoundHandler";
+import { UseToastOptions } from "@chakra-ui/react";
+
+export interface SocketUser extends User {
+  socketId: string;
+}
 
 export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 export type OmitBy<T, K extends keyof T> = Omit<T, K>;
@@ -33,6 +36,27 @@ export type Badges = {
   badges: Badge[];
 };
 
+export type CFRound = {
+  isTie: boolean;
+  winner: CFplayer;
+  moves: CFBoardMove[];
+};
+export abstract class Board<T> {
+  abstract generateBoard(): void;
+  abstract board: T[][];
+  abstract moves: T[];
+  abstract addMove(move: T): void;
+  abstract isValid(board: T[][], x: number, y: number): void;
+}
+export type CFplayer = {
+  id: string;
+  choice: ConnectChoices;
+};
+export type CFMove = {
+  color: ConnectChoices;
+  coords: Coords;
+};
+export type CFBoardMove = MoveChoice<CFMove>;
 export type Badge = {
   id: number;
   name: string;
@@ -186,6 +210,7 @@ export type ChatMessageType = {
   created: string;
   id: string;
 };
+export type NewChatChatMessageType = Omit<ChatMessageType, "id" | "created">;
 export type ChatConversationType = {
   id: string;
   users: Partial<User> & { id: string }[];
@@ -212,7 +237,7 @@ export type ToastType = {
   icon?: string;
   iconTheme?: ToastThemeType;
 };
-export type newToastType = Partial<ToastType>;
+export type newToastType = Partial<UseToastOptions>;
 
 export type ReturnUserType = User | User<Partial<ExtendedUser>>;
 
@@ -306,17 +331,44 @@ export interface ClientToServerEvents {
   user_disconnected: (roomId: string) => void;
 }
 
-export type Message = {
-  message: string;
-};
 export enum ChatUserState {
-  typing,
-  inChat,
+  typing = "typing",
+  inChat = "inChat",
+  online = "online",
+}
+export enum UserGameState {
+  playing = "playing",
+  waiting = "waiting",
+  selecting = "selecting",
+  idle = "idle",
 }
 
-export interface ChatServerEvents {}
+export type GameInviteOptions = "accepted" | "declined" | "pending";
+export type GameInvite = {
+  from: User;
+  to: User;
+  inviteId: string;
+  gameName: GameNames;
+  roomId: string;
+  state: GameInviteOptions;
+};
+
+export interface ChatServerEvents {
+  receive_message: (message: ChatMessageType) => void;
+  user_joined: (user: SocketUser[]) => void;
+  state_change: (state: ChatUserState) => void;
+  game_invite: (gameInvite: GameInvite) => void;
+  game_invite_response: (gameInvite: string) => void;
+  game_invite_accepted: (invite: GameInvite) => void;
+}
 export interface ChatClientEvents {
   join_room: (roomId: string) => void;
-  send_message: (message: Message) => void;
+  send_message: (message: NewChatChatMessageType) => void;
   state_change: (state: ChatUserState) => void;
+  game_invite: (gameName: GameNames, userId: string) => void;
+  game_invite_response: (
+    action: GameInviteOptions,
+    invite: GameInvite,
+    callback: (invite: GameInvite) => void
+  ) => void;
 }

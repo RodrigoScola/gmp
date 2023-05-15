@@ -9,9 +9,9 @@ import {
   Game,
   TTCState,
   TTCOptions,
+  Board,
 } from "../../../web/types";
 import { PlayerHandler } from "../handlers/usersHandler";
-import { Board } from "./c4Game";
 
 export type TTCBoardMove = MoveChoice<TTCMove>;
 

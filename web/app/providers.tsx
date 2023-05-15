@@ -1,6 +1,6 @@
 "use client";
 
-import { ToastProvider } from "@/hooks/useToast";
+import { NotificationProvider } from "@/hooks/useToast";
 import { UserProvider } from "@/hooks/useUser";
 import { ChildrenType } from "@/types";
 import { CacheProvider } from "@chakra-ui/next-js";
@@ -10,9 +10,9 @@ export function Providers({ children }: { children: ChildrenType }) {
   return (
     <CacheProvider>
       <ChakraProvider>
-        <UserProvider>
-          <ToastProvider>{children}</ToastProvider>
-        </UserProvider>
+        <NotificationProvider>
+          <UserProvider>{children}</UserProvider>
+        </NotificationProvider>
       </ChakraProvider>
     </CacheProvider>
   );

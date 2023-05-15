@@ -1,11 +1,30 @@
+// 'use client'
+import { GameRoom, Room, RoomHandler } from "@/../server/src/handlers/room";
 import ConnectFourComponent from "@/Components/games/Connectcomponent";
 import RPSComponent from "@/Components/games/RPSGameComponent";
 import TicTacToeGameComponent from "@/Components/games/TicTacToeComponent";
 
-export default function RenderGame({ params: { id } }) {
+export default async function RenderGame({ params: { id } }) {
   // return <TicTacToeGameComponent />
+  const data = await fetch(`http://localhost:3001/${id}`);
+  const jsondata = (await data.json()) as GameRoom;
+  console.log(jsondata);
 
-  if (id >= 200 && id <= 300) return <RPSComponent />;
-  else if (id > 300 && id < 400) return <TicTacToeGameComponent />;
-  else if (id > 400 && id < 500) return <ConnectFourComponent />;
+  console.log(jsondata.match.game.name);
+  switch (jsondata.match.game.name) {
+    case "Rock Paper Scissors":
+      return <RPSComponent />;
+    case "Tic Tac Toe":
+      return <TicTacToeGameComponent />;
+    case "connect Four":
+      return <ConnectFourComponent />;
+    case "Simon Says":
+      return <div>Simon Says</div>;
+    default:
+      return <div>hello there</div>;
+  }
+  // if (id >= 200 && id <= 300) return <RPSComponent />;
+  // else if (id > 300 && id < 400) return <TicTacToeGameComponent />;
+  // else if (id > 400 && id < 500) return <ConnectFourComponent />;
+  return <div>hello there</div>;
 }

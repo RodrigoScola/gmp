@@ -1,8 +1,6 @@
 "use client";
 
 import { useFriend } from "@/hooks/useFriends";
-import { useObject } from "@/hooks/useObject";
-import { useRefetch } from "@/hooks/useRefetch";
 import { useUser } from "@/hooks/useUser";
 import { chatSocket, socket } from "@/lib/socket";
 import {
@@ -12,8 +10,7 @@ import {
   ReturnUserType,
 } from "@/types";
 import { Popover, PopoverContent, PopoverTrigger } from "@chakra-ui/react";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useUpdateEffect } from "usehooks-ts";
+import { useEffect, useRef, useState } from "react";
 
 const newMessage = (content: string, userId: string): ChatMessageType => {
   return {
@@ -24,6 +21,7 @@ const newMessage = (content: string, userId: string): ChatMessageType => {
   };
 };
 
+var timer: NodeJS.Timeout;
 export const RenderChatMesages = (props: {
   chatMessages: ChatConversationType;
   user: ReturnUserType;
@@ -32,14 +30,15 @@ export const RenderChatMesages = (props: {
   const friend = useFriend();
 
   useEffect(() => {
-    if (user) {
+    if (user.id) {
+      console.log(props.chatMessages);
       const friendId = props.chatMessages.users.find((i) => i.id != user.id);
       if (friendId) {
         friend.setFriendId(friendId.id);
         setAllChat(props.chatMessages);
       }
     }
-  }, [user.id]);
+  }, [user?.id]);
   const [currentChat, setCurrentChat] = useState<string>("");
   const documentRef = useRef<HTMLFormElement>(null);
   const [allChat, setAllChat] = useState<ChatConversationType>({
@@ -47,21 +46,49 @@ export const RenderChatMesages = (props: {
     messages: [],
     users: [],
   });
-
+  const [receiverState, setReceiverState] = useState<ChatUserState>({});
   useEffect(() => {
+    chatSocket.auth = {
+      user: user,
+      roomId: "aoaoidfjoiasjdf",
+    };
     chatSocket.connect();
-    chatSocket.emit("join_room", allChat.id);
-
+    console.log(user.id);
+    chatSocket.emit("join_room", chatSocket.auth.roomId);
+    chatSocket.on("user_joined", (data) => {
+      console.log(data);
+    });
+    chatSocket.on("state_change", (data: ChatUserState) => {
+      console.log(data);
+      setReceiverState(data);
+    });
+    chatSocket.on("receive_message", (data: ChatMessageType) => {
+      setAllChat((prev) => {
+        return {
+          ...prev,
+          messages: [
+            ...prev.messages,
+            {
+              created: new Date().toISOString(),
+              userId: data.userId,
+              id: data.id,
+              message: data.message,
+            },
+          ],
+        };
+      });
+    });
     return () => {
       if (chatSocket) {
         chatSocket.disconnect();
       }
     };
   }, [socket]);
-  const lastMessage = useMemo(() => {
-    if (!allChat?.messages.length) return;
-    return allChat.messages[allChat.messages.length - 1];
-  }, [allChat]);
+
+  // const lastMessage = useMemo(() => {
+  //   if (!allChat?.messages.length) return;
+  //   return allChat.messages[allChat.messages.length - 1];
+  // }, [allChat]);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleNewMessage = (e: HTMLFormElement) => {
@@ -69,30 +96,44 @@ export const RenderChatMesages = (props: {
     if (currentChat.length < 1) return;
     chatSocket.emit("send_message", {
       message: currentChat,
+      userId: user.id,
     });
-    const message = newMessage(currentChat, user.id);
-    setAllChat((current) => ({
-      ...current,
-      messages: [...allChat.messages, message],
-    }));
-
     setCurrentChat("");
+
+    chatSocket.emit("state_change", ChatUserState.online);
   };
   const handleChange = (e: string) => {
     setCurrentChat(e);
     chatSocket.emit("state_change", ChatUserState.typing);
   };
 
-  useUpdateEffect(() => {
-    window.scrollTo({
-      top: inputRef.current?.offsetTop,
-    });
-  }, [lastMessage]);
+  useEffect(() => {
+    let es = currentChat;
+    if (timer) {
+      clearTimeout(timer);
+    }
+    timer = setTimeout(() => {
+      if (es == currentChat) {
+        chatSocket.emit("state_change", ChatUserState.online);
+      }
+    }, 1000);
+  }, [currentChat]);
 
+  // useUpdateEffect(() => {
+  //   window.scrollTo({
+  //     top: inputRef.current?.offsetTop,
+  //   });
+  // }, [lastMessage]);
   return (
     <div>
       <div className="sticky top-0 flex justify-between bg-red-300">
-        <p>{props.user.username}</p>
+        <div className="flex gap-2">
+          <p>{props.user.username}</p>
+          {receiverState.toString() !== "[Object Object]" && (
+            <div>{receiverState.toString()}</div>
+          )}
+        </div>
+
         <Popover>
           <PopoverTrigger>
             <div>Invite to game</div>
@@ -124,8 +165,7 @@ export const RenderChatMesages = (props: {
       </div>
       <div className="space-y-2 px-6 text-white">
         {allChat?.messages.map((message, i) => {
-          console.log(message.created);
-          if (allChat.messages[0].userId !== message.userId) {
+          if (message.userId === user.id) {
             return (
               <div key={i + message.created} className="flex justify-end">
                 <div className=" bg-blue-700 flex items-center p-1 rounded-full right-0 w-fit space-x-2">
@@ -139,7 +179,7 @@ export const RenderChatMesages = (props: {
             );
           } else {
             return (
-              <div key={i} className="flex justify-start">
+              <div className="flex justify-start">
                 <div className=" bg-blue-700 flex items-center p-1 rounded-full right-0 w-fit space-x-2">
                   <div className="flex text-sm text-gray-400/50">
                     <p>{new Date(message.created).getHours()} : </p>
@@ -149,6 +189,7 @@ export const RenderChatMesages = (props: {
                 </div>
               </div>
             );
+            // }
           }
         })}
       </div>

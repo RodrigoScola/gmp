@@ -20,9 +20,11 @@ export const Nav = () => {
         isOpen={isOpen}
         TriggerElement={<AiOutlineMenu size={30} />}
       >
-        <Link onClick={onClose} href={`/user/${user.username}`}>
-          Profile
-        </Link>
+        {user && (
+          <Link onClick={onClose} href={`/user/${user.username}`}>
+            Profile
+          </Link>
+        )}
         <FriendsMenu
           disclosure={{
             onClose,

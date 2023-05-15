@@ -11,7 +11,7 @@ import {
   GamePlayState,
   MoveChoice,
 } from "@/types";
-import { useToast } from "../../hooks/useToast";
+import { useNotification } from "../../hooks/useToast";
 import dynamic from "next/dynamic";
 
 const Sketch = dynamic(() => import("react-p5"), { ssr: false });
@@ -167,7 +167,7 @@ export default function CONNECTFOURPAGE() {
   );
 
   const ref = useRef(null);
-  const toast = useToast();
+  const toast = useNotification();
   const handleRematch = () => {
     socket.emit("rematch", () => {});
   };
@@ -211,7 +211,7 @@ export default function CONNECTFOURPAGE() {
     });
 
     socket.on("rematch", () => {
-      toast.addToast("Opponent wants a rematch");
+      toast.addNotification("Opponent wants a rematch");
     });
     socket.on("rematch_accept", (state: CFState) => {
       console.log("rematch accept");
@@ -346,8 +346,8 @@ export default function CONNECTFOURPAGE() {
       <div className="text-6xl">
         <button onClick={handleRematch}>rematch</button>
       </div>
-      <div>your wins: {gameState?.rounds?.wins[user.id]}</div>
-      <div>your opponent wins: {gameState?.rounds?.wins[opponent.id]}</div>
+      <div>your wins: {gameState?.rounds?.wins[user?.id]}</div>
+      <div>your opponent wins: {gameState?.rounds?.wins[opponent?.id]}</div>
     </div>
   );
 }

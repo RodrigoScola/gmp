@@ -32,6 +32,13 @@ export const chatSocket: SC<ChatServerEvents, ChatClientEvents> = io(
     autoConnect: false,
   }
 );
+export const userSocket: SC<ChatServerEvents, ChatClientEvents> = io(
+  `${socketUrl}/user`,
+  {
+    transports: ["websocket"],
+    autoConnect: false,
+  }
+);
 
 export const newSocketAuth = (params: SocketAuth): SocketAuth => {
   return {
