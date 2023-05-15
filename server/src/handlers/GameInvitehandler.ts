@@ -11,12 +11,7 @@ export class GameInviteHandler {
     this.invites = new Map<string, GameInvite>();
   }
   addInvite(from: User, to: User, gameName: GameNames): undefined | GameInvite {
-    const a = uhandler.getUser(to.id);
-    if (!a) return;
-    if (a.game.state !== "idle") return;
-
     const inviteId = Date.now().toString();
-    console.log("this are the u sers", uhandler);
     const gameInvite: GameInvite = {
       gameName: gameName,
       roomId: "a0s9df0a9sdjf",
@@ -25,14 +20,12 @@ export class GameInviteHandler {
       to: to,
       state: "pending",
     };
-
     this.invites.set(inviteId, gameInvite);
     return gameInvite;
   }
   removeInvite() {}
   acceptInvite(inviteId: string): GameInvite | undefined {
     let invite = this.invites.get(inviteId);
-
     if (!invite) return;
     invite.state = "accepted";
 

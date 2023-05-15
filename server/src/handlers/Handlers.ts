@@ -199,7 +199,7 @@ const saveGame = <T extends Game>(game: T) => {
   console.log("game saved");
 };
 
-export const getGame = (gameName: GameNames): Game | null => {
+export const getGame = (gameName: GameNames): Game => {
   switch (gameName) {
     case "Tic Tac Toe":
       return new TicTacToeGame();

@@ -10,6 +10,7 @@ import {
   ReturnUserType,
 } from "@/types";
 import { Popover, PopoverContent, PopoverTrigger } from "@chakra-ui/react";
+import { stat } from "fs";
 import { useEffect, useRef, useState } from "react";
 
 const newMessage = (content: string, userId: string): ChatMessageType => {
@@ -54,6 +55,7 @@ export const RenderChatMesages = (props: {
     };
     chatSocket.connect();
     console.log(user.id);
+
     chatSocket.emit("join_room", chatSocket.auth.roomId);
     chatSocket.on("user_joined", (data) => {
       console.log(data);
@@ -62,7 +64,10 @@ export const RenderChatMesages = (props: {
       console.log(data);
       setReceiverState(data);
     });
-    chatSocket.on("receive_message", (data: ChatMessageType) => {
+    chatSocket.on("receive_message", (data: ChatMessageType, status) => {
+      status({
+        received: true,
+      });
       setAllChat((prev) => {
         return {
           ...prev,

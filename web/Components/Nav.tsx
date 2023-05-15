@@ -6,10 +6,14 @@ import FriendsMenu from "./Menu/FriendsMenu";
 import { Drawer } from "./Drawer/Drawer";
 import { useDisclosure } from "@/hooks/useDisclosure";
 import { AiOutlineMenu } from "react-icons/ai";
+import { useEffect } from "react";
+import { useEffectOnce } from "usehooks-ts";
+import { useNotifications } from "@/hooks/useToast";
 
 export const Nav = () => {
   const { user } = useUser();
   const { isOpen, onClose, onOpen } = useDisclosure();
+  useNotifications();
   return (
     <div className="flex justify-between px-5 w-screen ">
       <Link href={`/`}>click me to go back</Link>

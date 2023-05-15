@@ -1,8 +1,8 @@
 import { SocketUser } from "../server";
-import { Game, User, gameNames } from "../../../web/types";
+import { Game, User, UserGameState, gameNames } from "../../../web/types";
 import { MatchHandler, getGame } from "./Handlers";
 import { RockPaperScissorsGame } from "../game/rockpaperScissors";
-import { UsersHandlers } from "./usersHandler";
+import { MainUser, UsersHandlers, uhandler } from "./usersHandler";
 import { MessageHandler } from "./MessageHandler";
 export class RoomHandler {
   rooms: Map<string, IRoom>;
@@ -25,6 +25,9 @@ export class RoomHandler {
   }
   deleteRoom(roomId: string) {
     if (!this.roomExists(roomId)) return;
+    const room = this.rooms.get(roomId);
+    if (!room) return;
+    room.delete();
     this.rooms.delete(roomId);
   }
 
@@ -49,6 +52,7 @@ export interface IRoom {
   id: string;
   users: UsersHandlers;
   addUser(user: SocketUser): void;
+  delete(): void;
 }
 
 export class Room implements Room {
@@ -68,7 +72,7 @@ export class Room implements Room {
 export class ChatRoom implements IRoom {
   id: string;
   users: UsersHandlers = new UsersHandlers();
-  messages: MessageHandler;
+  messages: MessageHandler = new MessageHandler();
   addUser(user: SocketUser): void {
     this.users.addUser(user);
     this.messages.addUser(user.id);
@@ -83,6 +87,7 @@ export class ChatRoom implements IRoom {
       });
     }
   }
+  delete(): void {}
 }
 export class GameRoom implements IRoom {
   id: string;
@@ -101,5 +106,15 @@ export class GameRoom implements IRoom {
   }
   addUser(user: SocketUser): void {
     this.users.addUser(user);
+  }
+  delete(): void {
+    this.users.getUsers().forEach((user: MainUser) => {
+      // uhandler.updateUser(user.id, {
+      //   game: {
+      //     state: UserGameState.idle,
+      //     gameId: null,
+      //   },
+      // });
+    });
   }
 }

@@ -93,6 +93,7 @@ export const useFriend = (id?: string) => {
       // if (!game) {
       //   throw new Error("Game not found");
       // }
+
       userSocket.emit(
         "game_invite",
         gameName.toString() as GameNames,

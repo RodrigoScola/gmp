@@ -110,9 +110,20 @@ export const FriendCard = (props: ComponentProps<"div"> & FriendCardProps) => {
 
 export const FriendsList = ({ friends }: FriendsListProps) => {
   const currentFriends = useFriends(friends ?? []);
-
+  const afriend: Friend = {
+    email: "defaultEmail@gmail.com",
+    id: "a59y3tnebboqbp2",
+    username: "snuffy",
+    verified: false,
+    avatar: "",
+    name: "snuffy",
+    created: "2023-04-06T18:49:31.552Z",
+    updated: "2023-04-06T18:49:31.552Z",
+    status: "online",
+  };
   return (
     <div className="space-y-3">
+      <FriendCard friend={afriend} />
       {currentFriends?.friends?.map((friend) => {
         return <FriendCard key={friend.id} friend={friend} />;
       })}

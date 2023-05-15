@@ -23,6 +23,7 @@ import { MatchPlayerState, getGame } from "./handlers/Handlers";
 import { uhandler } from "./handlers/usersHandler";
 import { getRoom } from "./handlers/room";
 import { RockPaperScissorsGame } from "./game/rockpaperScissors";
+import { stat } from "fs";
 export const io = new Server<
   ServerToClientEvents,
   ClientToServerEvents,
@@ -78,15 +79,17 @@ userHandler.on("connection", (socket) => {
     ...user,
     socketId: socket.id,
   } as SocketUser;
-
+  // console.log(socketUser);
   uhandler.addUser(socketUser);
   if (user) {
     socket.data.user = user;
   }
+
   socket.on("game_invite", (gameName: GameNames, userId: string) => {
     const user = uhandler.getUser(userId);
+
     const mainUser = uhandler.getUser(getUserFromSocket(socket)?.id as string);
-    console.log("asdf");
+
     if (!user || !mainUser) return;
 
     const gameInvite = uhandler.invites.addInvite(
@@ -95,8 +98,11 @@ userHandler.on("connection", (socket) => {
       gameName
     );
     if (!gameInvite) return;
-    console.log(gameInvite);
-    userHandler.to(user.socketId).emit("game_invite", gameInvite);
+    // console.log(gameInvite);
+    // console.log(user.socketId);
+    userHandler.to(user.user.socketId).emit("game_invite", gameInvite);
+
+    console.log("aaaaaa");
   });
   socket.on(
     "game_invite_response",
@@ -112,6 +118,7 @@ userHandler.on("connection", (socket) => {
           new GameRoom(ninvite?.roomId, getGame(ninvite?.gameName as GameNames))
         );
         if (!ninvite) return;
+        console.log("acce");
         userHandler
           .to(uhandler.getUser(ninvite.to.id)?.socketId)
           .emit("game_invite_accepted", ninvite);
@@ -124,7 +131,6 @@ userHandler.on("connection", (socket) => {
     }
   );
 });
-
 chatHandler.on("connection", (socket) => {
   var room: ChatRoom;
   socket.on("join_room", (roomId) => {
@@ -137,7 +143,6 @@ chatHandler.on("connection", (socket) => {
     };
     try {
       roomHandler.addUserToRoom(roomId, connInfo.user);
-
       room = roomHandler.getRoom<ChatRoom>(getRoomId(socket)) as ChatRoom;
     } catch (e) {
       room = roomHandler.createRoom<ChatRoom>(
@@ -150,7 +155,10 @@ chatHandler.on("connection", (socket) => {
     if (room) {
       chatHandler.to(roomId).emit("user_joined", room.users.getUsers());
     }
+    console.log(room);
     socket.join(roomId);
+    console.log(uhandler.getUser(connInfo.user.id));
+    console.log(connInfo.user.socketId);
 
     const hasRoom = roomHandler.getRoom<ChatRoom>(getRoomId(socket));
     if (hasRoom) {
@@ -162,10 +170,21 @@ chatHandler.on("connection", (socket) => {
   });
   socket.on("send_message", (message) => {
     const nmessage = room.messages.newMessage(message.userId, message.message);
-    console.log(room.messages);
+    const users = room.users.getUsers();
+
+    users.forEach((user) => {
+      // console.log(socket.id);
+      // if (user.user.id !== message.userId) {
+      chatHandler
+        .to(user.socketId)
+        .emit("receive_message", nmessage, (err, status) => {
+          console.log(status);
+        });
+      // } else {
+      // chatHandler.to(user.socketId).emit("receive_message", nmessage);
+      // }
+    });
     room.messages.addMessage(nmessage);
-    console.log(room.messages);
-    chatHandler.to(getRoomId(socket)).emit("receive_message", nmessage);
   });
 });
 
@@ -256,6 +275,7 @@ io.on("connection", (socket: MySocket) => {
     if (room?.match.canRematch()) {
       console.log("rematchh");
       const state = room?.match.rematch();
+
       io.to(getRoomId(socket)).emit("rematch_accept", state);
     } else {
       socket.broadcast.to(getRoomId(socket)).emit("rematch");

@@ -287,7 +287,7 @@ export interface MoveChoice<T> {
   move: T;
 }
 
-type callbacktype = (...args: any) => void;
+type callbacktype<T = any> = (err: T) => void;
 export interface ServerToClientEvents {
   join_room: (roomId: string) => void;
   rps_choice: (player: MoveChoice<RPSMove>) => void;
@@ -354,7 +354,11 @@ export type GameInvite = {
 };
 
 export interface ChatServerEvents {
-  receive_message: (message: ChatMessageType) => void;
+  receive_message: (
+    message: ChatMessageType,
+    callback: (status: { received: boolean }) => void
+  ) => void;
+
   user_joined: (user: SocketUser[]) => void;
   state_change: (state: ChatUserState) => void;
   game_invite: (gameInvite: GameInvite) => void;
