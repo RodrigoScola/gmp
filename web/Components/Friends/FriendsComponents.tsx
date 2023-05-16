@@ -1,13 +1,15 @@
 "use client";
 import { Friend } from "@/types";
 import { Popover, PopoverTrigger, PopoverContent } from "@chakra-ui/react";
-import { ComponentProps } from "react";
+import { ComponentProps, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Profile from "@/images/profile.webp";
 import { useFriend, useFriends } from "@/hooks/useFriends";
 import { useDrawer } from "@/hooks/useDrawer";
 import { Drawer } from "../Drawer/Drawer";
+import { chatSocket, userSocket } from "@/lib/socket";
+import { useUser } from "@/hooks/useUser";
 export interface FriendsListProps {
   friends?: Friend[];
 }
@@ -20,6 +22,32 @@ const FriendCardOpen = ({
 }: ComponentProps<"div"> & FriendCardProps) => {
   const drawer = useDrawer();
   const handleFriend = useFriend(friend.id);
+  const { user } = useUser();
+  console.log(user);
+  const [message, setMessage] = useState<string>("");
+  const handleNewMessage = (e) => {
+    e.preventDefault();
+    if (!chatSocket.connected) {
+      chatSocket.auth = {
+        roomId: "aoaoidfjoiasjdf",
+        user: user,
+      };
+      chatSocket.connect();
+    }
+    console.log(friend.id);
+    chatSocket.emit(
+      "send_message",
+      {
+        message,
+        userId: user.id,
+      },
+      (data) => {
+        if (data.received == true) {
+          window.location.pathname = `user/${friend.id}/chat`;
+        }
+      }
+    );
+  };
 
   return (
     <div {...props} className=" bg-blue-200 z-10 ">
@@ -87,7 +115,13 @@ const FriendCardOpen = ({
         <p>{friend.expand?.note}</p>
       </div>
       <div>
-        <input placeholder={`message @${friend.username}`} />
+        <form onSubmit={handleNewMessage}>
+          <input
+            onChange={(e) => setMessage(e.target.value)}
+            value={message}
+            placeholder={`message @${friend.username}`}
+          />
+        </form>
       </div>
     </div>
   );

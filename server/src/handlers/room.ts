@@ -1,9 +1,18 @@
 import { SocketUser } from "../server";
-import { Game, User, UserGameState, gameNames } from "../../../web/types";
+import {
+  ChatConversationType,
+  ChatUser,
+  ChatUserState,
+  Game,
+  User,
+  UserGameState,
+  gameNames,
+} from "../../../web/types";
 import { MatchHandler, getGame } from "./Handlers";
 import { RockPaperScissorsGame } from "../game/rockpaperScissors";
 import { MainUser, UsersHandlers, uhandler } from "./usersHandler";
-import { MessageHandler } from "./MessageHandler";
+import { ConversationHandler } from "./ConversationHandler";
+import { getFromFile } from "../utlils";
 export class RoomHandler {
   rooms: Map<string, IRoom>;
 
@@ -31,7 +40,7 @@ export class RoomHandler {
     this.rooms.delete(roomId);
   }
 
-  addUserToRoom(roomId: string, user: SocketUser) {
+  addUserToRoom<T>(roomId: string, user: T) {
     if (!this.roomExists(roomId)) {
       throw new Error("Room doesn't exist");
     }
@@ -50,7 +59,7 @@ export const getRoom = (roomId: string) => {
 
 export interface IRoom {
   id: string;
-  users: UsersHandlers;
+  users: UsersHandlers<any>;
   addUser(user: SocketUser): void;
   delete(): void;
 }
@@ -71,21 +80,27 @@ export class Room implements Room {
 
 export class ChatRoom implements IRoom {
   id: string;
-  users: UsersHandlers = new UsersHandlers();
-  messages: MessageHandler = new MessageHandler();
-  addUser(user: SocketUser): void {
+  users: UsersHandlers<ChatUser> = new UsersHandlers<ChatUser>();
+  messages: ConversationHandler = new ConversationHandler();
+
+  addUser(user: ChatUser): void {
+    if (!this.messages.users.has(user.id)) {
+      throw new Error("User doesn't exist in conversation");
+    }
     this.users.addUser(user);
-    this.messages.addUser(user.id);
   }
   constructor(id: string, users?: SocketUser[]) {
-    this.messages = new MessageHandler();
+    this.messages = new ConversationHandler();
     this.id = id;
     if (users?.length) {
       users.forEach((user) => {
         this.users.addUser(user);
-        this.messages.addUser(user.id);
+        // this.messages.addUser(user.id.toString());
       });
     }
+  }
+  async getConversation() {
+    await this.messages.getConversation(this.id);
   }
   delete(): void {}
 }

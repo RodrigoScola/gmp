@@ -47,7 +47,9 @@ export const RenderChatMesages = (props: {
     messages: [],
     users: [],
   });
-  const [receiverState, setReceiverState] = useState<ChatUserState>({});
+  const [receiverState, setReceiverState] = useState<ChatUserState>(
+    ChatUserState.offline
+  );
   useEffect(() => {
     chatSocket.auth = {
       user: user,
@@ -60,14 +62,16 @@ export const RenderChatMesages = (props: {
     chatSocket.on("user_joined", (data) => {
       console.log(data);
     });
-    chatSocket.on("state_change", (data: ChatUserState) => {
-      console.log(data);
-      setReceiverState(data);
+    chatSocket.on("state_change", (data) => {
+      setReceiverState(data.state);
     });
-    chatSocket.on("receive_message", (data: ChatMessageType, status) => {
-      status({
-        received: true,
-      });
+    chatSocket.on("receive_message", (data: ChatMessageType, callback) => {
+      if (callback) {
+        callback(null, {
+          received: true,
+        });
+      }
+      console.log("asdf");
       setAllChat((prev) => {
         return {
           ...prev,
@@ -184,7 +188,7 @@ export const RenderChatMesages = (props: {
             );
           } else {
             return (
-              <div className="flex justify-start">
+              <div key={i + message.created} className="flex justify-start">
                 <div className=" bg-blue-700 flex items-center p-1 rounded-full right-0 w-fit space-x-2">
                   <div className="flex text-sm text-gray-400/50">
                     <p>{new Date(message.created).getHours()} : </p>

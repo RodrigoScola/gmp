@@ -331,13 +331,27 @@ export interface ClientToServerEvents {
   user_disconnected: (roomId: string) => void;
 }
 
+export enum CurrentUserState {
+  online = "online",
+  offline = "offline",
+  away = "away",
+  playing = "playing",
+}
+
 export enum ChatUserState {
   typing = "typing",
   inChat = "inChat",
   online = "online",
+  offline = "offline",
 }
+export type ChatUser = {
+  state: ChatUserState;
+  id: string;
+  socketId: string;
+};
 export enum UserGameState {
   playing = "playing",
+  offline = "offline",
   waiting = "waiting",
   selecting = "selecting",
   idle = "idle",
@@ -356,19 +370,22 @@ export type GameInvite = {
 export interface ChatServerEvents {
   receive_message: (
     message: ChatMessageType,
-    callback: (status: { received: boolean }) => void
+    callback?: (err: Error | null, data: any) => void
   ) => void;
-
+  notification_message: (params: { user: SocketUser }) => void;
   user_joined: (user: SocketUser[]) => void;
-  state_change: (state: ChatUserState) => void;
+  state_change: (state: ChatUser) => void;
   game_invite: (gameInvite: GameInvite) => void;
   game_invite_response: (gameInvite: string) => void;
   game_invite_accepted: (invite: GameInvite) => void;
 }
 export interface ChatClientEvents {
   join_room: (roomId: string) => void;
-  send_message: (message: NewChatChatMessageType) => void;
-  state_change: (state: ChatUserState) => void;
+  send_message: (
+    message: NewChatChatMessageType,
+    callback?: (params: { received: boolean }) => void
+  ) => void;
+  state_change: (state: any) => void;
   game_invite: (gameName: GameNames, userId: string) => void;
   game_invite_response: (
     action: GameInviteOptions,

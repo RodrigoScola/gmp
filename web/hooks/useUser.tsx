@@ -52,10 +52,11 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
       user: currentUser,
     };
     userSocket.connect();
-
+    userSocket.on("notification_message", (data) => {
+      toast.addNotification(`${data.user.username} sent you a message`);
+    });
     console.log(currentUser.id);
     userSocket.on("game_invite", (data) => {
-      console.log("asdfasdf");
       toast.addNotification("Game Request", {
         duration: 15000,
         render: () => <GameInviteComponent gameInvite={data} />,

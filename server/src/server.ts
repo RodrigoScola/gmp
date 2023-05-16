@@ -7,6 +7,8 @@ import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import {
   ChatClientEvents,
   ChatServerEvents,
+  ChatUser,
+  ChatUserState,
   Game,
   GameInvite,
   GameInviteOptions,
@@ -15,15 +17,11 @@ import {
   UserGameState,
 } from "../../web/types";
 import { User } from "../../web/types";
-
 import { ServerToClientEvents, ClientToServerEvents } from "../../web/types";
-
 import { ChatRoom, GameRoom, roomHandler } from "./handlers/room";
 import { MatchPlayerState, getGame } from "./handlers/Handlers";
 import { uhandler } from "./handlers/usersHandler";
 import { getRoom } from "./handlers/room";
-import { RockPaperScissorsGame } from "./game/rockpaperScissors";
-import { stat } from "fs";
 export const io = new Server<
   ServerToClientEvents,
   ClientToServerEvents,
@@ -133,7 +131,7 @@ userHandler.on("connection", (socket) => {
 });
 chatHandler.on("connection", (socket) => {
   var room: ChatRoom;
-  socket.on("join_room", (roomId) => {
+  socket.on("join_room", async (roomId) => {
     const connInfo = {
       roomId: socket.handshake.auth["roomId"] as string,
       user: {
@@ -142,23 +140,32 @@ chatHandler.on("connection", (socket) => {
       },
     };
     try {
-      roomHandler.addUserToRoom(roomId, connInfo.user);
+      roomHandler.addUserToRoom<ChatUser>(roomId, {
+        id: connInfo.user.id,
+        state: ChatUserState.online,
+        socketId: connInfo.user.socketId,
+      });
       room = roomHandler.getRoom<ChatRoom>(getRoomId(socket)) as ChatRoom;
     } catch (e) {
       room = roomHandler.createRoom<ChatRoom>(
         getRoomId(socket),
         new ChatRoom(getRoomId(socket))
       );
-      roomHandler.addUserToRoom(roomId, connInfo.user);
+      await room.getConversation();
+      roomHandler.addUserToRoom<ChatUser>(roomId, {
+        id: connInfo.user.id,
+        state: ChatUserState.online,
+        socketId: connInfo.user.socketId,
+      });
       room = roomHandler.getRoom<ChatRoom>(getRoomId(socket)) as ChatRoom;
     }
     if (room) {
       chatHandler.to(roomId).emit("user_joined", room.users.getUsers());
     }
-    console.log(room);
+    // console.log(room);
     socket.join(roomId);
-    console.log(uhandler.getUser(connInfo.user.id));
-    console.log(connInfo.user.socketId);
+    // console.log(uhandler.getUser(connInfo.user.id));
+    // console.log(connInfo.user.socketId);
 
     const hasRoom = roomHandler.getRoom<ChatRoom>(getRoomId(socket));
     if (hasRoom) {
@@ -166,25 +173,50 @@ chatHandler.on("connection", (socket) => {
     }
   });
   socket.on("state_change", (state) => {
-    socket.broadcast.to(getRoomId(socket)).emit("state_change", state);
+    room = roomHandler.getRoom<ChatRoom>(getRoomId(socket)) as ChatRoom;
+    const user = room.users.getUser(getUserFromSocket(socket)?.id as string);
+
+    console.log(user?.state);
+    room.users.updateUser(getUserFromSocket(socket)?.id as string, {
+      state,
+    });
+    socket.broadcast
+      .to(getRoomId(socket))
+      .emit(
+        "state_change",
+        room.users.users.get(getUserFromSocket(socket)?.id as string)
+      );
   });
-  socket.on("send_message", (message) => {
+  socket.on("send_message", (message, callback) => {
+    room = roomHandler.getRoom<ChatRoom>(getRoomId(socket)) as ChatRoom;
     const nmessage = room.messages.newMessage(message.userId, message.message);
+    const conversationUsers = room.messages.users;
     const users = room.users.getUsers();
 
-    users.forEach((user) => {
-      // console.log(socket.id);
-      // if (user.user.id !== message.userId) {
-      chatHandler
-        .to(user.socketId)
-        .emit("receive_message", nmessage, (err, status) => {
-          console.log(status);
+    conversationUsers.forEach((user) => {
+      const muser = uhandler.getUser(user.id);
+      const inChannel = room.users.users.has(user.id);
+      if (!inChannel && muser) {
+        userHandler.to(muser.user.socketId).emit("notification_message", {
+          user: uhandler.getUser(message.userId)?.user as SocketUser,
         });
-      // } else {
-      // chatHandler.to(user.socketId).emit("receive_message", nmessage);
-      // }
+      }
+    });
+    users.forEach((user) => {
+      chatHandler.to(user.socketId).emit("receive_message", nmessage);
+      console.log(user.socketId);
     });
     room.messages.addMessage(nmessage);
+    if (callback) {
+      callback({
+        received: true,
+      });
+    }
+  });
+  socket.on("disconnecting", () => {
+    if (room) {
+      room.users.deleteUser(getUserFromSocket(socket)?.id as string);
+    }
   });
 });
 

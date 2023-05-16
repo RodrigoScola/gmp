@@ -1,19 +1,16 @@
 import {
-  ChatUserState,
-  GameInvite,
-  GameNames,
-  GamePlayState,
+  CurrentUserState,
   SocketUser,
   User,
   UserGameState,
 } from "../../../web/types";
 import { GameInviteHandler } from "./GameInvitehandler";
-import { Room } from "./room";
 
 export type MainUser = {
   user: SocketUser;
   id: string;
-  chatState: ChatUserState;
+
+  currentState: CurrentUserState;
   game?: {
     state: UserGameState;
     gameId: string | null;
@@ -30,7 +27,11 @@ class MainUserHandler {
   }
   addUser(user: SocketUser) {
     this.users.set(user.id, {
-      chatState: ChatUserState.online,
+      currentState: CurrentUserState.online,
+      game: {
+        gameId: null,
+        state: UserGameState.waiting,
+      },
       user,
       id: user.id,
       socketId: user.socketId,
@@ -60,40 +61,28 @@ export type RoomUser = {
   user: MainUser;
   socketId: string;
 };
-export class UsersHandlers {
-  users: Map<
-    string,
-    {
-      socketId: string;
-      userId: string;
-    }
-  >;
+export class UsersHandlers<T = { socketId: string }> {
+  users: Map<string, T & { id: string }>;
 
   constructor() {
-    this.users = new Map<string, { socketId: string; userId: string }>();
+    this.users = new Map<string, T & { id: string }>();
   }
-  addUser(user: SocketUser) {
+  addUser(user: T & { id: string }) {
     // if (!user.id) return;
-    this.users.set(user.id, {
-      socketId: user.socketId,
-      userId: user.id,
-    });
+    this.users.set(user.id, user);
   }
-  getUsers(): RoomUser[] {
-    let users: RoomUser[] = [];
-    this.users.forEach((userId) => {
-      const u = uhandler.getUser(userId.userId);
-      users.push({
-        socketId: userId.socketId,
-        user: u as MainUser,
-      });
-    });
-    return users;
+  updateUser(userId: string, info: Partial<T>) {
+    const user = this.users.get(userId);
+    if (!user) return;
+    const nuser: T & { id: string } = { ...user, ...info };
+    this.users.set(userId, nuser);
+  }
+  getUsers(): (T & { id: string })[] {
+    return Array.from(this.users.values());
   }
   getUser(id: string) {
-    const user = uhandler.getUser(id);
-    console.log(user);
-    return uhandler.getUser(id);
+    const user = this.users.get(id);
+    return user;
   }
   deleteUser(id: string) {
     this.users.delete(id);
