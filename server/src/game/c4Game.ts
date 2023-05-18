@@ -3,7 +3,7 @@ import {
   MoveChoice,
   GameNames,
   CFState,
-  User,
+  IUser,
   CFBoardMove,
   Board,
   CFMove,
@@ -168,7 +168,7 @@ export class CFGame implements Game {
   moves: CFBoardMove[] = [];
   players: PlayerHandler<CFplayer> = new PlayerHandler<CFplayer>();
 
-  addPlayer(player: User) {
+  addPlayer(player: IUser) {
     const choice = this.players.getPlayers().length == 1 ? "red" : "blue";
     this.players.addPlayer({
       id: player.id,

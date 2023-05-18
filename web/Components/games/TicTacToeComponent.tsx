@@ -8,7 +8,7 @@ import {
   TTCOptions,
   TTCPlayer,
   TicTacToeGameState,
-  User,
+  IUser,
 } from "@/types";
 import { useEffect, useMemo, useState } from "react";
 import { useEffectOnce } from "usehooks-ts";
@@ -48,7 +48,7 @@ export default function TicTacToeGameComponent() {
   const { user } = useUser();
 
   const [player, setPlayer] = useState<
-    | (User & { choice: TTCOptions | null })
+    | (IUser & { choice: TTCOptions | null })
     | { id: string; choice: TTCOptions | null }
   >({
     choice: null,
@@ -56,7 +56,7 @@ export default function TicTacToeGameComponent() {
   });
 
   const [opponent, setOpponent] = useState<
-    (User & { choice: TTCOptions | null }) | { id: string }
+    (IUser & { choice: TTCOptions | null }) | { id: string }
   >({
     id: "string",
   });

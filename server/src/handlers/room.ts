@@ -6,15 +6,14 @@ import {
   Game,
   GameType,
   QueueRoomuser,
-  User,
+  IUser,
   UserGameState,
   gameNames,
 } from "../../../web/types";
 import { MatchHandler, getGame } from "./Handlers";
 import { RockPaperScissorsGame } from "../game/rockpaperScissors";
-import { MainUser, UsersHandlers, uhandler } from "./usersHandler";
+import { IMainUser, UsersHandlers, uhandler } from "./usersHandler";
 import { ConversationHandler } from "./ConversationHandler";
-import { getFromFile } from "../utlils";
 import { MatchQueue, gameQueue } from "../matchQueue";
 export class RoomHandler {
   rooms: Map<string, IRoom>;
@@ -143,7 +142,7 @@ export class GameRoom implements IRoom {
     this.users.addUser(user);
   }
   delete(): void {
-    this.users.getUsers().forEach((user: MainUser) => {
+    this.users.getUsers().forEach((user: IMainUser) => {
       // uhandler.updateUser(user.id, {
       //   game: {
       //     state: UserGameState.idle,

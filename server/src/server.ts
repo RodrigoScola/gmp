@@ -19,7 +19,7 @@ import {
   GameType,
   SocketUser,
   UserGameState,
-  User,
+  IUser,
 } from "../../web/types";
 import { ServerToClientEvents, ClientToServerEvents } from "../../web/types";
 import { ChatRoom, GameRoom, QueueRoom, roomHandler } from "./handlers/room";
@@ -37,7 +37,7 @@ export const io = new Server<
 type InterServerEvents = {};
 
 type SocketData = {
-  user: User;
+  user: IUser;
   roomId: string;
 };
 
@@ -69,12 +69,12 @@ const userHandler: Namespace<
   SocketData
 > = io.of("/user");
 
-const getUserFromSocket = (socket: MySocket): User | undefined => {
+const getUserFromSocket = (socket: MySocket): IUser | undefined => {
   const u = socket.handshake.auth["user"];
   if (!u) {
     return;
   }
-  return u as User;
+  return u as IUser;
 };
 type QueueSocketData = {
   userId: string;
@@ -140,7 +140,6 @@ gamequeueHandler.on("connection", (socket) => {
       });
     }
   });
-
   socket.on("disconnect", () => {
     gameQueue.removePlayer(connInfo.user.id);
   });

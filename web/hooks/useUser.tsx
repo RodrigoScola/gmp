@@ -7,7 +7,7 @@ import {
   ChatServerEvents,
   ChildrenType,
   ExtendedUser,
-  User,
+  IUser,
 } from "@/types";
 import { useNotification } from "./useToast";
 import { Admin, RecordAuthResponse } from "pocketbase";
@@ -23,8 +23,8 @@ import { GameInviteComponent } from "@/Components/Notifications/GameInvite";
 import { Socket } from "socket.io-client";
 
 interface UserContext {
-  user: User<ExtendedUser>;
-  setCurrentUser: (user: User) => void;
+  user: IUser<ExtendedUser>;
+  setCurrentUser: (user: IUser) => void;
   login: (
     email: string,
     password: string
@@ -36,8 +36,8 @@ export const UserContext = createContext<UserContext | null>(null);
 
 export const UserProvider = ({ children }: { children: ChildrenType }) => {
   const [token, setTOken] = useState(pb.authStore.token);
-  const [currentUser, setCurrentUser] = useState<User<ExtendedUser>>(
-    pb.authStore.model as User<ExtendedUser>
+  const [currentUser, setCurrentUser] = useState<IUser<ExtendedUser>>(
+    pb.authStore.model as IUser<ExtendedUser>
   );
   const toast = useNotification();
   useUpdateEffect(() => {

@@ -1,6 +1,6 @@
 import { io, Socket as SC } from "socket.io-client";
 import {
-  User,
+  IUser,
   ServerToClientEvents,
   ClientToServerEvents,
   GameNames,
@@ -22,7 +22,7 @@ export const socket: SC<ClientToServerEvents, ServerToClientEvents> = io(
 );
 
 export type SocketAuth = {
-  user: User | User<ExtendedUser>;
+  user: IUser | IUser<ExtendedUser>;
   roomId: string;
   gameName: GameNames;
 };

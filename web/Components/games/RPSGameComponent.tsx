@@ -8,7 +8,7 @@ import {
   RPSOptionsValues,
   RPSRound,
   Rounds,
-  User,
+  IUser,
 } from "@/types";
 import { useUser } from "@/hooks/useUser";
 import { RockPaperScissorsGame } from "@/../server/src/game/rockpaperScissors";
@@ -20,7 +20,7 @@ const { getWinner } = new RockPaperScissorsGame();
 
 export default function RockPaperScissorGameComponent() {
   const [opponent, setOpponent] = useState<
-    (User & { choice: RPSOptions | null }) | { id: string }
+    (IUser & { choice: RPSOptions | null }) | { id: string }
   >({
     id: "string",
   });
@@ -32,7 +32,7 @@ export default function RockPaperScissorGameComponent() {
   const { user } = useUser();
 
   const [currentPlayer, setCurrentPlayer] = useState<
-    (User & { choice: RPSOptions | null }) | { id: string }
+    (IUser & { choice: RPSOptions | null }) | { id: string }
   >({
     choice: null,
     id: "string2",
@@ -63,7 +63,7 @@ export default function RockPaperScissorGameComponent() {
     socket.connect();
     socket.emit("join_room", gameId);
 
-    socket.on("get_players", (players: User[]) => {
+    socket.on("get_players", (players: IUser[]) => {
       console.log(players);
       console.log(players);
       const opponent = players.find((player) => player.id != user.id);
@@ -127,7 +127,7 @@ export default function RockPaperScissorGameComponent() {
 
       console.log(rounds, "this is the round");
     });
-    socket.on("rps_game_winner", (winner: User | null) => {
+    socket.on("rps_game_winner", (winner: IUser | null) => {
       if (winner) {
         setGameState(GamePlayState.end);
       }

@@ -11,14 +11,14 @@ import { RoundType } from "@/../server/dist/game/rockpaperScissors";
 import { UseToastOptions } from "@chakra-ui/react";
 import { RoundHandler } from "@/../server/dist/handlers/RoundHandler";
 
-export interface SocketUser extends User {
+export interface SocketUser extends IUser {
   socketId: string;
 }
 
 export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 export type OmitBy<T, K extends keyof T> = Omit<T, K>;
 
-export type User<T = never> = Omit<
+export type IUser<T = never> = Omit<
   UsersResponse<T>,
   "emailVisibility" | "collectionId" | "collectionName" | "updated" | "created"
 > &
@@ -160,7 +160,7 @@ export abstract class Game {
   abstract players: PlayerHandler;
   abstract play(...args: any): void;
   abstract newRound(): void;
-  abstract addPlayer(player: User): void;
+  abstract addPlayer(player: IUser): void;
   abstract getState(): any;
   // isPlayerTurn(playerId: string): boolean;
 }
@@ -210,7 +210,7 @@ export type SMSState = {
 };
 
 export interface RPSstate {
-  players: User[];
+  players: IUser[];
   moves: MoveChoice<RPSMove>[];
   name: GameNames;
   rounds: {
@@ -229,7 +229,7 @@ export interface ExtendedFriend extends ExtendedUser {
 
 export type OnlineStatusType = "online" | "offline" | "away";
 
-export interface Friend extends User<ExtendedFriend> {
+export interface Friend extends IUser<ExtendedFriend> {
   status: OnlineStatusType;
 }
 
@@ -242,7 +242,7 @@ export type ChatMessageType = {
 export type NewChatChatMessageType = Omit<ChatMessageType, "id" | "created">;
 export type ChatConversationType = {
   id: string;
-  users: Partial<User> & { id: string }[];
+  users: Partial<IUser> & { id: string }[];
   messages: ChatMessageType[];
 };
 export type ToastPositions =
@@ -268,7 +268,7 @@ export type ToastType = {
 };
 export type newToastType = Partial<UseToastOptions>;
 
-export type ReturnUserType = User | User<Partial<ExtendedUser>>;
+export type ReturnUserType = IUser | IUser<Partial<ExtendedUser>>;
 
 export const RPSOptionsValues = ["rock", "paper", "scissors"] as const;
 export type RPSOptions = (typeof RPSOptionsValues)[number];
@@ -297,7 +297,7 @@ export interface RPSPlayer {
 export type TTCOptions = "X" | "O";
 export type ConnectChoices = "red" | "blue";
 
-export interface TTCPlayer extends Partial<User> {
+export interface TTCPlayer extends Partial<IUser> {
   id: string;
   choice?: TTCOptions;
 }
@@ -321,7 +321,7 @@ export interface ServerToClientEvents {
   join_room: (roomId: string) => void;
   rps_choice: (player: MoveChoice<RPSMove>) => void;
   sms_move: (move: MoveChoice<SMSMove>) => void;
-  rps_game_winner: (winner: User | null) => void;
+  rps_game_winner: (winner: IUser | null) => void;
   ttc_game_winner: (winner: TTCCombination) => void;
   start_game: (gameState?: CFState | RPSstate | TTCState) => void;
   rematch: (callback?: callbacktype) => void;
@@ -330,7 +330,7 @@ export interface ServerToClientEvents {
   connect_game_winner(winner: RoundType<MoveChoice<CFMove>>): void;
   player_ready: () => void;
   new_round: () => void;
-  get_players: (players: User[]) => void;
+  get_players: (players: IUser[]) => void;
   get_state: (callback: (...args: any) => void) => void;
   ttc_choice: (params: { board: TTCBoardMove[][]; move: TTCBoardMove }) => void;
   user_disconnected: () => void;
@@ -350,7 +350,7 @@ export interface ClientToServerEvents {
   ttc_choice: (params: { board: TTCBoardMove[][]; move: TTCBoardMove }) => void;
   c_player_move: (c: Coords) => void;
   rps_choice: (player: MoveChoice<RPSMove>) => void;
-  rps_game_winner: (winner: User) => void;
+  rps_game_winner: (winner: IUser) => void;
   ttc_game_winner: (winner: TTCCombination) => void;
   connect_game_winner(winner: RoundType<MoveChoice<CFMove>>): void;
   user_connected: (roomId: string) => void;
@@ -398,8 +398,8 @@ export enum UserGameState {
 
 export type GameInviteOptions = "accepted" | "declined" | "pending";
 export type GameInvite = {
-  from: User;
-  to: User;
+  from: IUser;
+  to: IUser;
   inviteId: string;
   gameName: GameNames;
   roomId: string;

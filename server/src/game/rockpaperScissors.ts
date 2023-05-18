@@ -3,7 +3,7 @@ import { Game, RPSMove, RPSstate } from "../../../web/types";
 import {
   RPSPlayer,
   RPSWinCombination,
-  User,
+  IUser,
   MoveChoice,
   RPSRound,
   RPSOptions,
@@ -30,13 +30,13 @@ export class RockPaperScissorsGame extends Game {
     console.log(this.currentChoice);
     return;
   }
-  addPlayer(player: User) {
+  addPlayer(player: IUser) {
     this.players.addPlayer(player);
   }
   isReady(): boolean {
     return this.getPlayers().length == 2;
   }
-  getPlayers(): User[] {
+  getPlayers(): IUser[] {
     return this.players.getPlayers();
   }
   hasRoundWinner() {

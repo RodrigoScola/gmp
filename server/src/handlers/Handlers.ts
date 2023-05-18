@@ -5,7 +5,7 @@ import {
   RPSMove,
   Game,
   Coords,
-  User,
+  IUser,
   SMSMove,
 } from "../../../web/types";
 import { TicTacToeGame } from "../game/TicTacToeGame";
@@ -148,7 +148,7 @@ export class MatchHandler {
     this.game = game;
   }
 
-  addPlayer(player: User) {
+  addPlayer(player: IUser) {
     this.players.addPlayer({
       id: player.id,
       state: MatchPlayerState.playing,

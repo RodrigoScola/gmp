@@ -4,7 +4,7 @@ import {
   MoveChoice,
   TTCPlayer,
   TTCCombination as TTCCombination,
-  User,
+  IUser,
   TTCMove,
   Game,
   TTCState,
@@ -181,7 +181,7 @@ export class TicTacToeGame extends Game {
   isReady(): boolean {
     return true;
   }
-  addPlayer(player: User) {
+  addPlayer(player: IUser) {
     let choice;
     if (this.players.getPlayers().length == 0) {
       choice = Math.random() > 0.5 ? "X" : "O";

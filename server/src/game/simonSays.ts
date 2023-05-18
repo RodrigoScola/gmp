@@ -7,7 +7,7 @@ import {
   SMSPlayer,
   SMSRound,
   SMSState,
-  User,
+  IUser,
 } from "../../../web/types";
 import { RoundHandler } from "../handlers/RoundHandler";
 import { PlayerHandler, uhandler } from "../handlers/usersHandler";

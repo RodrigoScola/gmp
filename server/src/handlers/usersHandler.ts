@@ -1,15 +1,14 @@
 import {
   CurrentUserState,
   SocketUser,
-  User,
+  IUser,
   UserGameState,
 } from "../../../web/types";
 import { GameInviteHandler } from "./GameInvitehandler";
 
-export type MainUser = {
+export type IMainUser = {
   user: SocketUser;
   id: string;
-
   currentState: CurrentUserState;
   game?: {
     state: UserGameState;
@@ -17,6 +16,33 @@ export type MainUser = {
   };
   socketId: string;
 };
+class MainUser implements IMainUser {
+  user: SocketUser;
+  id: string;
+  currentState: CurrentUserState;
+  game?: { state: UserGameState; gameId: string | null };
+  socketId: string;
+
+  constructor(user: IMainUser) {
+    this.currentState = user.currentState;
+    if (user.game) {
+      this.game = user.game;
+    }
+    this.id = user.id;
+    this.socketId = user.socketId;
+    this.user = user.user;
+  }
+  get state(): IMainUser {
+    return {
+      currentState: this.currentState,
+      game: this.game,
+      id: this.id,
+      socketId: this.socketId,
+      user: this.user,
+    };
+  }
+  getFriends() {}
+}
 class MainUserHandler {
   users: Map<string, MainUser>;
   invites: GameInviteHandler;
@@ -36,21 +62,27 @@ class MainUserHandler {
       id: user.id,
       socketId: user.socketId,
     };
-    this.users.set(user.id, mainUser);
+    this.users.set(user.id, new MainUser(mainUser));
     return mainUser;
   }
-  updateUser(userId: string, info: Partial<MainUser>) {
+  updateUser(userId: string, info: Partial<IMainUser>): IMainUser | undefined {
     const user = this.users.get(userId);
     if (!user) return;
-    const nuser: MainUser = { ...user, ...info, socketId: user.socketId };
-    this.users.set(userId, nuser);
+    const nuser: IMainUser = { ...user, ...info, socketId: user.socketId };
+    this.users.set(userId, new MainUser(nuser));
+    return this.getUser(userId);
   }
   getUsers() {
-    return Array.from(this.users.values());
+    const users = Array.from(this.users.values());
+    return users.map((user) => user.state);
   }
   getUser(id: string) {
     // console.log(this.users.get(id));
-    return this.users.get(id);
+    const user = this.users.get(id);
+    if (user) {
+      return user.state;
+    }
+    return;
   }
   deleteUser(id: string) {
     this.users.delete(id);
@@ -60,7 +92,7 @@ class MainUserHandler {
 export const uhandler = new MainUserHandler();
 
 export type RoomUser = {
-  user: MainUser;
+  user: IMainUser;
   socketId: string;
 };
 export class UsersHandlers<T = { socketId: string }> {
@@ -90,7 +122,7 @@ export class UsersHandlers<T = { socketId: string }> {
     this.users.delete(id);
   }
 }
-export class PlayerHandler<T = User> {
+export class PlayerHandler<T = IUser> {
   players: Record<string, T & { id: string }> = {};
   addPlayer(player: T & { id: string }) {
     if (this.players[player.id]) return;

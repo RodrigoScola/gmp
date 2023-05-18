@@ -1,4 +1,4 @@
-import { GameInvite, GameNames, User } from "../../../web/types";
+import { GameInvite, GameNames, IUser } from "../../../web/types";
 import { getGame } from "./Handlers";
 import { GameRoom, roomHandler } from "./room";
 import { uhandler } from "./usersHandler";
@@ -10,7 +10,11 @@ export class GameInviteHandler {
   constructor() {
     this.invites = new Map<string, GameInvite>();
   }
-  addInvite(from: User, to: User, gameName: GameNames): undefined | GameInvite {
+  addInvite(
+    from: IUser,
+    to: IUser,
+    gameName: GameNames
+  ): undefined | GameInvite {
     const inviteId = Date.now().toString();
     const gameInvite: GameInvite = {
       gameName: gameName,

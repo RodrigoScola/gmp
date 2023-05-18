@@ -4,7 +4,7 @@ import {
   ChatUserState,
 } from "../../../web/types";
 import { getFromFile } from "../utlils";
-import { MainUser, uhandler } from "./usersHandler";
+import { IMainUser, uhandler } from "./usersHandler";
 
 type MessageUser = {
   id: string;
@@ -59,11 +59,11 @@ export class ConversationHandler {
 
     // console.log(file);
   }
-  getUsers(): MainUser[] {
-    let users: MainUser[] = [];
+  getUsers(): IMainUser[] {
+    let users: IMainUser[] = [];
     this.users.forEach((value, key) => {
       if (uhandler.getUser(key)) {
-        const user = uhandler.getUser(key) as MainUser;
+        const user = uhandler.getUser(key) as IMainUser;
         if (user) users.push(user);
       }
     });

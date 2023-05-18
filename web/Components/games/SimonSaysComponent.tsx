@@ -10,7 +10,6 @@ import {
 import { useUpdateEffect } from "usehooks-ts";
 import { newSocketAuth, socket } from "@/lib/socket";
 import { useUser } from "@/hooks/useUser";
-import { SimonSaysGame } from "@/../server/src/game/simonSays";
 
 type ColorRefs = {
   red: React.RefObject<HTMLButtonElement | null>;
