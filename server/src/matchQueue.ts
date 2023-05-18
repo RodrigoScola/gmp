@@ -40,12 +40,8 @@ export class MatchQueue {
     if (!player) return;
     const queues = Object.values(this.gamesQueue).filter((queue) => {
       const gamedata = getGameData(queue.gameName);
-      console.log(queue.players);
       const includes = !!queue.players.find((x) => x.id == player.id);
-
       const l = queue.length >= gamedata.playerCount;
-
-      console.log(queue.gameName, includes, l);
       return includes && l;
     });
     return queues[Math.floor(Math.random() * queues.length)];

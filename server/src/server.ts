@@ -9,6 +9,7 @@ import {
   ChatServerEvents,
   ChatUser,
   ChatUserState,
+  CurrentUserState,
   Game,
   GameInvite,
   GameInviteOptions,
@@ -18,8 +19,8 @@ import {
   GameType,
   SocketUser,
   UserGameState,
+  User,
 } from "../../web/types";
-import { User } from "../../web/types";
 import { ServerToClientEvents, ClientToServerEvents } from "../../web/types";
 import { ChatRoom, GameRoom, QueueRoom, roomHandler } from "./handlers/room";
 import { MatchPlayerState, getGame } from "./handlers/Handlers";
@@ -140,9 +141,6 @@ gamequeueHandler.on("connection", (socket) => {
     }
   });
 
-  // TODO: start queue, games
-  // TODO: find game
-  // TODO: move player to game
   socket.on("disconnect", () => {
     gameQueue.removePlayer(connInfo.user.id);
   });
@@ -159,6 +157,9 @@ userHandler.on("connection", (socket) => {
     socket.data.user = user;
   }
   // console.log(socketUser.socketId);
+
+  // socket.on("friend_invite")
+  // socket.on("friend_invite_response")
 
   socket.on("game_invite", (gameName: GameNames, userId: string) => {
     const user = uhandler.getUser(userId);
@@ -202,6 +203,14 @@ userHandler.on("connection", (socket) => {
       }
     }
   );
+
+  socket.on("disconnect", () => {
+    if (socket.data.user) {
+      uhandler.updateUser(socket.data.user?.id, {
+        currentState: CurrentUserState.offline,
+      });
+    }
+  });
 });
 chatHandler.on("connection", (socket) => {
   var room: ChatRoom;
