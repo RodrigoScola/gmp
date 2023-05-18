@@ -1,7 +1,16 @@
 "use client";
-import { useMemo, useRef, useState } from "react";
-import { ColorType, SimonGameState } from "@/types";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  ColorType,
+  MoveChoice,
+  SMSMove,
+  SMSState,
+  SimonGameState,
+} from "@/types";
 import { useUpdateEffect } from "usehooks-ts";
+import { newSocketAuth, socket } from "@/lib/socket";
+import { useUser } from "@/hooks/useUser";
+import { SimonSaysGame } from "@/../server/src/game/simonSays";
 
 type ColorRefs = {
   red: React.RefObject<HTMLButtonElement | null>;
@@ -9,40 +18,26 @@ type ColorRefs = {
   green: React.RefObject<HTMLButtonElement | null>;
   yellow: React.RefObject<HTMLButtonElement | null>;
 };
-const genRandomSequence = (num: number): ColorType[] => {
-  const colors: ColorType[] = ["blue", "green", "yellow", "red"];
+export const gameId = "a0s9df0a9sdjf";
 
-  const sequence: ColorType[] = [];
-  for (let i = 0; i < num; i++) {
-    const randomColor = colors[Math.floor(Math.random() * colors.length)];
-    sequence.push(randomColor);
-  }
-  return sequence;
-};
-
-const getSpeed = (round: number) => {
-  if (round < 5) {
-    return 900;
-  }
-  if (round < 10) {
-    return 700;
-  }
-  if (round < 15) {
-    return 500;
-  }
-  if (round < 20) {
-    return 250;
-  }
-  return 100;
-};
-
-export default function SimonSaysPAGE() {
+export const SimonSaysComponent = () => {
   const [colors, _] = useState(["blue", "green", "yellow", "red"]);
-  const [gameState, setGameState] = useState<SimonGameState>(
+  const [gamePlayState, setGamePlayState] = useState<SimonGameState>(
     SimonGameState.WAITING
   );
-  const [sequence, setSequence] = useState<ColorType[]>(genRandomSequence(2));
-  const [playerSequence, setPlayerSequence] = useState<string[]>([]);
+  const [gameState, setGameState] = useState<SMSState>({
+    sequence: [],
+    name: "Simon Says",
+    players: [],
+    speed: 1000,
+    rounds: {
+      count: 0,
+      rounds: [],
+    },
+  });
+  const [playerSequence, setPlayerSequence] = useState<MoveChoice<SMSMove>[]>(
+    []
+  );
   const [round, setRound] = useState<number>(0);
   const [maxRound, setMaxRound] = useState<number>(
     parseInt(localStorage.getItem("simon_max_score") ?? ("1" as string)) ?? 0
@@ -55,13 +50,14 @@ export default function SimonSaysPAGE() {
     yellow: useRef<HTMLButtonElement | null>(null),
   });
   const canPlay = useMemo(() => {
-    if (gameState == SimonGameState.PLAYING) {
+    if (gamePlayState == SimonGameState.PLAYING) {
       return true;
     }
     return false;
-  }, [gameState]);
+  }, [gamePlayState]);
   const gameLost = () => {
-    setGameState(SimonGameState.END);
+    console.log("you lost");
+    setGamePlayState(SimonGameState.END);
   };
 
   const setMaxScore = (score: number) => {
@@ -71,39 +67,41 @@ export default function SimonSaysPAGE() {
 
   const addToSequence = (color: ColorType) => {
     if (!canPlay) return;
+    socket.emit("sms_move", {
+      id: user.id,
+      move: {
+        color: color,
+      },
+    });
+
     blink(refs[color].current as HTMLButtonElement, 1);
-    setPlayerSequence([...playerSequence, color]);
+    setPlayerSequence([
+      ...playerSequence,
+      {
+        id: user.id,
+        move: {
+          color: color,
+        },
+      },
+    ]);
   };
   const startGame = () => {
-    setGameState(SimonGameState.START);
-    setSequence(genRandomSequence(1));
+    socket.emit("player_ready");
+    setGamePlayState(SimonGameState.START);
     setRound(0);
     setPlayerSequence([]);
   };
 
   useUpdateEffect(() => {
-    if (
-      playerSequence[playerSequence.length - 1] ==
-      sequence[playerSequence.length - 1]
-    ) {
-      console.log("same");
-    } else {
-      gameLost();
-    }
-    if (playerSequence.length == sequence.length) {
-      setPlayerSequence([]);
-      setSequence([...sequence, ...genRandomSequence(1)]);
-    }
-  }, [playerSequence]);
-
-  useUpdateEffect(() => {
-    const ncolors: ColorType[] = [...sequence];
-    setGameState(SimonGameState.WAITING);
+    const ncolors: ColorType[] = gameState.sequence.map(
+      (move) => move.move.color
+    );
+    console.log(ncolors);
     const intervaliId = setInterval(() => {
       const color = ncolors.shift();
       if (!color) {
         clearInterval(intervaliId);
-        setGameState(SimonGameState.PLAYING);
+        setGamePlayState(SimonGameState.PLAYING);
         setRound((curr) => curr + 1);
         if (round > maxRound) {
           setMaxScore(round);
@@ -111,8 +109,8 @@ export default function SimonSaysPAGE() {
         return;
       }
       blink(refs[color].current as HTMLButtonElement, 1);
-    }, getSpeed(round));
-  }, [sequence]);
+    }, gameState.speed);
+  }, [gameState.sequence]);
 
   const blink = (ref: HTMLButtonElement, time: number) => {
     const color = ref.name;
@@ -121,6 +119,35 @@ export default function SimonSaysPAGE() {
       ref?.classList.remove(`simon_${color}_blink`);
     }, 100 * time);
   };
+  const { user } = useUser();
+  useEffect(() => {
+    socket.auth = newSocketAuth({
+      gameName: "Simon Says",
+      roomId: gameId,
+      user: user,
+    });
+    socket.connect();
+    socket.emit("join_room", gameId);
+    socket.on("sms_new_round", (state: SMSState) => {
+      setGameState(state);
+      setPlayerSequence([]);
+    });
+    socket.on("sms_game_lost", () => {
+      gameLost();
+    });
+    socket.on("start_game", () => {
+      socket.emit("get_state", (state: SMSState) => {
+        console.log(state);
+        setGameState(state);
+      });
+    });
+    return () => {
+      if (socket.connected) {
+        socket.disconnect();
+      }
+    };
+  }, []);
+
   return (
     <div className="w-fit m-auto">
       <div className="flex  justify-around pb-10 ">
@@ -148,11 +175,11 @@ export default function SimonSaysPAGE() {
         })}
       </div>
       <div className="flex justify-center pt-12 self-center">
-        {(gameState == SimonGameState.END ||
-          gameState == SimonGameState.PLAYING) && (
+        {(gamePlayState == SimonGameState.END ||
+          gamePlayState == SimonGameState.PLAYING) && (
           <button onClick={() => startGame()}>Restart</button>
         )}
-        {gameState == SimonGameState.WAITING && (
+        {gamePlayState == SimonGameState.WAITING && (
           <button
             onClick={() => {
               startGame();
@@ -164,4 +191,4 @@ export default function SimonSaysPAGE() {
       </div>
     </div>
   );
-}
+};

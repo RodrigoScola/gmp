@@ -7,6 +7,8 @@ import {
   ExtendedUser,
   ChatClientEvents,
   ChatServerEvents,
+  GameQueueClientEvents,
+  GameQueueServerEvents,
 } from "@/types";
 
 const socketUrl = "ws://localhost:3001";
@@ -40,6 +42,13 @@ export const userSocket: SC<ChatServerEvents, ChatClientEvents> = io(
   }
 );
 
+export const queueSocket: SC<GameQueueServerEvents, GameQueueClientEvents> = io(
+  `${socketUrl}/gamequeue`,
+  {
+    transports: ["websocket"],
+    autoConnect: false,
+  }
+);
 export const newSocketAuth = (params: SocketAuth): SocketAuth => {
   return {
     user: params.user,
