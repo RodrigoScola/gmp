@@ -26,7 +26,7 @@ class MainUserHandler {
     this.invites = new GameInviteHandler();
   }
   addUser(user: SocketUser) {
-    this.users.set(user.id, {
+    const mainUser = {
       currentState: CurrentUserState.online,
       game: {
         gameId: null,
@@ -35,7 +35,9 @@ class MainUserHandler {
       user,
       id: user.id,
       socketId: user.socketId,
-    });
+    };
+    this.users.set(user.id, mainUser);
+    return mainUser;
   }
   updateUser(userId: string, info: Partial<MainUser>) {
     const user = this.users.get(userId);

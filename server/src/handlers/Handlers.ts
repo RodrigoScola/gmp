@@ -6,12 +6,34 @@ import {
   Game,
   Coords,
   User,
+  SMSMove,
 } from "../../../web/types";
 import { TicTacToeGame } from "../game/TicTacToeGame";
 import { MyIo, MySocket, getRoomId } from "../server";
 import { Room, getRoom } from "./room";
 import { CFGame } from "../game/c4Game";
 import { PlayerHandler } from "./usersHandler";
+import { SimonSaysGame } from "../game/simonSays";
+
+const handleSimonSaysGame = (
+  io: MyIo,
+  socket: MySocket,
+  game: SimonSaysGame
+  // room: Room
+) => {
+  socket.on("sms_move", (move: MoveChoice<SMSMove>) => {
+    game.play(move);
+    if (game.hasLost) {
+      // handle loss
+      socket.emit("sms_game_lost");
+    }
+    if (game.sequenceComplete()) {
+      // handle new round
+      game.newRound();
+      socket.emit("sms_new_round", game.getState());
+    }
+  });
+};
 
 const handleConnectGame = (
   io: MyIo,
@@ -155,8 +177,8 @@ export class MatchHandler {
         return handleTTCGame;
       case "connect Four":
         return handleConnectGame;
-      default:
-        return null;
+      case "Simon Says":
+        return handleSimonSaysGame;
     }
   }
   getGame(gameName: GameNames) {
@@ -207,7 +229,7 @@ export const getGame = (gameName: GameNames): Game => {
       return new RockPaperScissorsGame();
     case "connect Four":
       return new CFGame();
-    default:
-      return null;
+    case "Simon Says":
+      return new SimonSaysGame();
   }
 };

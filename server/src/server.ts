@@ -13,15 +13,19 @@ import {
   GameInvite,
   GameInviteOptions,
   GameNames,
+  GameQueueClientEvents,
+  GameQueueServerEvents,
+  GameType,
   SocketUser,
   UserGameState,
 } from "../../web/types";
 import { User } from "../../web/types";
 import { ServerToClientEvents, ClientToServerEvents } from "../../web/types";
-import { ChatRoom, GameRoom, roomHandler } from "./handlers/room";
+import { ChatRoom, GameRoom, QueueRoom, roomHandler } from "./handlers/room";
 import { MatchPlayerState, getGame } from "./handlers/Handlers";
 import { uhandler } from "./handlers/usersHandler";
 import { getRoom } from "./handlers/room";
+import { gameQueue } from "./matchQueue";
 export const io = new Server<
   ServerToClientEvents,
   ClientToServerEvents,
@@ -71,17 +75,90 @@ const getUserFromSocket = (socket: MySocket): User | undefined => {
   }
   return u as User;
 };
+type QueueSocketData = {
+  userId: string;
+};
+const gamequeueHandler: Namespace<
+  GameQueueClientEvents,
+  GameQueueServerEvents,
+  DefaultEventsMap,
+  QueueSocketData
+> = io.of("/gamequeue");
+
+export const gameId = "a0s9df0a9sdjf";
+gamequeueHandler.on("connection", (socket) => {
+  const connInfo = {
+    roomId: socket.handshake.auth["roomId"] as string,
+    user: {
+      ...socket.handshake.auth["user"],
+      socketId: socket.id,
+    },
+  };
+
+  socket.on("join_queue", (games: GameType | GameType[]) => {
+    if (!roomHandler.roomExists("queueroom")) {
+      roomHandler.createRoom<QueueRoom>(
+        "queueroom",
+        new QueueRoom("queueroom")
+      );
+    }
+    const room = roomHandler.getRoom<QueueRoom>("queueroom") as QueueRoom;
+    if (!room) {
+      return;
+    }
+    let user = uhandler.getUser(getUserFromSocket(socket)?.id as string);
+    if (!user) {
+      user = uhandler.addUser(connInfo.user);
+    }
+    room.addUser({
+      games: games,
+      id: user.id,
+      socketId: connInfo.user.socketId,
+    });
+    gameQueue.addPlayer({
+      games: games,
+      id: user.id,
+    });
+    if (!user) return;
+    const match = gameQueue.findMatch(user.id);
+    if (!match) return;
+    const players = gameQueue.matchPlayer(match);
+    if (players) {
+      const gameRoom = roomHandler.createRoom<GameRoom>(
+        gameId,
+        new GameRoom(gameId, getGame(match.gameName as GameNames))
+      );
+      players.forEach((player) => {
+        const user = uhandler.getUser(player.id);
+        gameRoom.addUser(user);
+        const roomUser = room.users.getUser(player.id as string);
+
+        gamequeueHandler.to(roomUser?.socketId).emit("game_found", gameId);
+        gameQueue.removePlayer(player);
+        room.users.deleteUser(user?.id as string);
+      });
+    }
+  });
+
+  // TODO: start queue, games
+  // TODO: find game
+  // TODO: move player to game
+  socket.on("disconnect", () => {
+    gameQueue.removePlayer(connInfo.user.id);
+  });
+});
+
 userHandler.on("connection", (socket) => {
   const user = getUserFromSocket(socket);
   const socketUser = {
     ...user,
     socketId: socket.id,
   } as SocketUser;
-  // console.log(socketUser);
   uhandler.addUser(socketUser);
   if (user) {
     socket.data.user = user;
   }
+  // console.log(socketUser.socketId);
 
   socket.on("game_invite", (gameName: GameNames, userId: string) => {
     const user = uhandler.getUser(userId);
@@ -99,8 +176,6 @@ userHandler.on("connection", (socket) => {
     // console.log(gameInvite);
     // console.log(user.socketId);
     userHandler.to(user.user.socketId).emit("game_invite", gameInvite);
-
-    console.log("aaaaaa");
   });
   socket.on(
     "game_invite_response",
@@ -116,7 +191,6 @@ userHandler.on("connection", (socket) => {
           new GameRoom(ninvite?.roomId, getGame(ninvite?.gameName as GameNames))
         );
         if (!ninvite) return;
-        console.log("acce");
         userHandler
           .to(uhandler.getUser(ninvite.to.id)?.socketId)
           .emit("game_invite_accepted", ninvite);
@@ -157,6 +231,8 @@ chatHandler.on("connection", (socket) => {
         state: ChatUserState.online,
         socketId: connInfo.user.socketId,
       });
+      socket.data.roomId = roomId;
+
       room = roomHandler.getRoom<ChatRoom>(getRoomId(socket)) as ChatRoom;
     }
     if (room) {
@@ -173,10 +249,11 @@ chatHandler.on("connection", (socket) => {
     }
   });
   socket.on("state_change", (state) => {
-    room = roomHandler.getRoom<ChatRoom>(getRoomId(socket)) as ChatRoom;
-    const user = room.users.getUser(getUserFromSocket(socket)?.id as string);
+    if (!room && socket.data.roomId) {
+      room = roomHandler.getRoom<ChatRoom>(socket.data.roomId) as ChatRoom;
+    }
+    if (!room?.users) return;
 
-    console.log(user?.state);
     room.users.updateUser(getUserFromSocket(socket)?.id as string, {
       state,
     });
@@ -188,8 +265,14 @@ chatHandler.on("connection", (socket) => {
       );
   });
   socket.on("send_message", (message, callback) => {
-    room = roomHandler.getRoom<ChatRoom>(getRoomId(socket)) as ChatRoom;
-    const nmessage = room.messages.newMessage(message.userId, message.message);
+    if (socket.data.roomId) {
+      room = roomHandler.getRoom<ChatRoom>(socket.data.roomId) as ChatRoom;
+    }
+
+    const nmessage = room?.messages?.newMessage(
+      message.userId,
+      message.message
+    );
     const conversationUsers = room.messages.users;
     const users = room.users.getUsers();
 
@@ -204,7 +287,7 @@ chatHandler.on("connection", (socket) => {
     });
     users.forEach((user) => {
       chatHandler.to(user.socketId).emit("receive_message", nmessage);
-      console.log(user.socketId);
+      // console.log(user.socketId);
     });
     room.messages.addMessage(nmessage);
     if (callback) {
@@ -223,10 +306,11 @@ chatHandler.on("connection", (socket) => {
 export const getRoomId = (socket: MySocket) => socket.handshake.auth["roomId"];
 
 io.on("connection", (socket: MySocket) => {
+  console.log("connected");
   // TODO:change it to be in socket.data
   const gameStr = socket.handshake.auth;
   var room = roomHandler.getRoom(getRoomId(socket)) as GameRoom;
-  console.log(roomHandler);
+  // console.log(roomHandler);
   // if (!room) {
   //   const Games = getGame(gameStr["gameName"] as GameNames);
   //   if (!Games) return;

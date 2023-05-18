@@ -4,6 +4,8 @@ import {
   ChatUser,
   ChatUserState,
   Game,
+  GameType,
+  QueueRoomuser,
   User,
   UserGameState,
   gameNames,
@@ -13,6 +15,7 @@ import { RockPaperScissorsGame } from "../game/rockpaperScissors";
 import { MainUser, UsersHandlers, uhandler } from "./usersHandler";
 import { ConversationHandler } from "./ConversationHandler";
 import { getFromFile } from "../utlils";
+import { MatchQueue, gameQueue } from "../matchQueue";
 export class RoomHandler {
   rooms: Map<string, IRoom>;
 
@@ -22,13 +25,13 @@ export class RoomHandler {
   roomExists(roomId: string) {
     return this.rooms.has(roomId);
   }
-  createRoom<T extends GameRoom | ChatRoom>(roomId: string, room: IRoom): T {
+  createRoom<T extends IRoom>(roomId: string, room: IRoom): T {
     if (!this.roomExists(roomId)) {
       this.rooms.set(roomId, room);
     }
     return this.rooms.get(roomId) as T;
   }
-  getRoom<T extends GameRoom | ChatRoom>(roomId: string): T | undefined {
+  getRoom<T extends IRoom>(roomId: string): T | undefined {
     if (!this.rooms.has(roomId)) return;
     return this.rooms.get(roomId) as T;
   }
@@ -60,7 +63,7 @@ export const getRoom = (roomId: string) => {
 export interface IRoom {
   id: string;
   users: UsersHandlers<any>;
-  addUser(user: SocketUser): void;
+  addUser(user: any): void;
   delete(): void;
 }
 
@@ -104,12 +107,29 @@ export class ChatRoom implements IRoom {
   }
   delete(): void {}
 }
+export class QueueRoom implements IRoom {
+  id: string;
+
+  gameQueue: MatchQueue = gameQueue;
+  users: UsersHandlers<QueueRoomuser>;
+  constructor(id: string) {
+    this.id = id;
+    this.users = new UsersHandlers();
+  }
+
+  addUser(user: QueueRoomuser): QueueRoomuser {
+    this.users.addUser(user);
+    return user;
+  }
+  delete(): void {}
+}
 export class GameRoom implements IRoom {
   id: string;
   users: UsersHandlers;
   match: MatchHandler = new MatchHandler(new RockPaperScissorsGame());
   constructor(id: string, game: Game, users?: SocketUser[]) {
     this.id = id;
+
     this.users = new UsersHandlers();
     if (users?.length) {
       users.forEach((user) => {
