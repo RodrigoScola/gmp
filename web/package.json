@@ -6,7 +6,7 @@
 		"dev": "next dev ",
 		"build": "next build && tsc --build . ",
 		"start": "next start",
-		"typegen": "npx pocketbase-typegen --db ./pb_data/data.db --out pocketbase-types.ts",
+		"typegen": "supabase gen types typescript --linked > supabasetypes.ts",
 		"lint": "next lint"
 	},
 	"dependencies": {
@@ -15,6 +15,9 @@
 		"@emotion/react": "^11.10.6",
 		"@emotion/styled": "^11.10.6",
 		"@headlessui/react": "^1.7.13",
+		"@supabase/auth-helpers-nextjs": "^0.6.1",
+		"@supabase/auth-helpers-react": "^0.3.1",
+		"@supabase/supabase-js": "^2.22.0",
 		"@types/node": "18.15.11",
 		"@types/react": "18.0.31",
 		"@types/react-dom": "18.0.11",

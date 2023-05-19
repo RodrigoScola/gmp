@@ -1,4 +1,4 @@
-import { pb } from "@/db/pocketbase";
+import { db } from "@/db/pocketbase";
 import { getQueryParameters } from "@/lib/UrlUtils";
 import { getFromFile } from "@/lib/utils";
 import { ChatConversationType } from "@/types";

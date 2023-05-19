@@ -2,7 +2,7 @@
 
 import { useFriend } from "@/hooks/useFriends";
 import { useUser } from "@/hooks/useUser";
-import { chatSocket, socket } from "@/lib/socket";
+import { chatSocket, socket, userSocket } from "@/lib/socket";
 import {
   ChatConversationType,
   ChatMessageType,
@@ -10,7 +10,6 @@ import {
   ReturnUserType,
 } from "@/types";
 import { Popover, PopoverContent, PopoverTrigger } from "@chakra-ui/react";
-import { stat } from "fs";
 import { useEffect, useRef, useState } from "react";
 
 const newMessage = (content: string, userId: string): ChatMessageType => {
@@ -31,7 +30,7 @@ export const RenderChatMesages = (props: {
   const friend = useFriend();
 
   useEffect(() => {
-    if (user.id) {
+    if (user) {
       console.log(props.chatMessages);
       const friendId = props.chatMessages.users.find((i) => i.id != user.id);
       if (friendId) {
@@ -39,7 +38,7 @@ export const RenderChatMesages = (props: {
         setAllChat(props.chatMessages);
       }
     }
-  }, [user?.id]);
+  }, [user]);
   const [currentChat, setCurrentChat] = useState<string>("");
   const documentRef = useRef<HTMLFormElement>(null);
   const [allChat, setAllChat] = useState<ChatConversationType>({
@@ -128,6 +127,12 @@ export const RenderChatMesages = (props: {
     }, 1000);
   }, [currentChat]);
 
+  const handleAddFriend = () => {
+    userSocket.emit("add_friend", friend.id, (data) => {
+      console.log(data);
+    });
+  };
+
   // useUpdateEffect(() => {
   //   window.scrollTo({
   //     top: inputRef.current?.offsetTop,
@@ -138,6 +143,9 @@ export const RenderChatMesages = (props: {
       <div className="sticky top-0 flex justify-between bg-red-300">
         <div className="flex gap-2">
           <p>{props.user.username}</p>
+          <div>
+            <button onClick={handleAddFriend}>add friend</button>
+          </div>
           {receiverState.toString() !== "[Object Object]" && (
             <div>{receiverState.toString()}</div>
           )}

@@ -5,7 +5,6 @@ import { useUser } from "@/hooks/useUser";
 import { queueSocket } from "@/lib/socket";
 import { GameType } from "@/types";
 import { useEffect, useState } from "react";
-import { useEffectOnce } from "usehooks-ts";
 
 export default function QueueHoldingPage({ searchParams }) {
   const { user } = useUser();
@@ -28,6 +27,7 @@ export default function QueueHoldingPage({ searchParams }) {
   }, []);
 
   useEffect(() => {
+    if (queueSocket.connected) return;
     queueSocket.auth = {
       user: user,
     };

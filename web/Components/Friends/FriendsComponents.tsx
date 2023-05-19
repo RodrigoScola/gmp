@@ -146,13 +146,9 @@ export const FriendsList = ({ friends }: FriendsListProps) => {
   const currentFriends = useFriends(friends ?? []);
   const afriend: Friend = {
     email: "defaultEmail@gmail.com",
-    id: "a59y3tnebboqbp2",
+    id: "fe6eb9bb-7c28-417e-8972-66fc2a2ee843",
     username: "snuffy",
-    verified: false,
-    avatar: "",
-    name: "snuffy",
-    created: "2023-04-06T18:49:31.552Z",
-    updated: "2023-04-06T18:49:31.552Z",
+    created_at: "2023-04-06T18:49:31.552Z",
     status: "online",
   };
   return (

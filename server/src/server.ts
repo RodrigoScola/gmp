@@ -159,6 +159,19 @@ userHandler.on("connection", (socket) => {
 
   // socket.on("friend_invite")
   // socket.on("friend_invite_response")
+  socket.on("add_friend", (friendId: string, callback) => {
+    console.log(friendId);
+    const user = uhandler.getUser(friendId);
+
+    if (!user) return;
+
+    socket.to(user?.socketId).emit("friend_request", "hello there", () => {});
+  });
+
+  socket.on("add_friend_response", async (response) => {
+    console.log(response);
+    // add to supabase
+  });
 
   socket.on("game_invite", (gameName: GameNames, userId: string) => {
     const user = uhandler.getUser(userId);

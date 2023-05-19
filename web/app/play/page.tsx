@@ -1,7 +1,6 @@
 "use client";
 
 import { getGameData } from "../../../server/src/game/gameUtils";
-import { useUser } from "@/hooks/useUser";
 import { GameNames, GameType, gameNames } from "@/types";
 import { useState } from "react";
 
@@ -38,8 +37,6 @@ export default function PLAYPAGE() {
     }
     setMultiplayergames((curr) => [...curr, game]);
   };
-  const user = useUser();
-  console.log(user.user.username);
   return (
     <div className="px-3">
       <div>

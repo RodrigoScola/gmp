@@ -1,5 +1,4 @@
 import { TTCBoardMove } from "@/../server/dist/game/TicTacToeGame";
-import { UsersResponse } from "./pocketbase-types";
 import { PlayerHandler } from "@/../server/dist/handlers/usersHandler";
 import {
   CFBoard,
@@ -9,7 +8,8 @@ import {
 } from "@/../server/dist/game/c4Game";
 import { RoundType } from "@/../server/dist/game/rockpaperScissors";
 import { UseToastOptions } from "@chakra-ui/react";
-import { RoundHandler } from "@/../server/dist/handlers/RoundHandler";
+import { type } from "os";
+import { Database } from "./supabasetypes";
 
 export interface SocketUser extends IUser {
   socketId: string;
@@ -18,16 +18,10 @@ export interface SocketUser extends IUser {
 export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 export type OmitBy<T, K extends keyof T> = Omit<T, K>;
 
-export type IUser<T = never> = Omit<
-  UsersResponse<T>,
-  "emailVisibility" | "collectionId" | "collectionName" | "updated" | "created"
-> &
-  Partial<
-    Pick<UsersResponse<T>, "verified" | "updated" | "created" | "expand">
-  >;
-
-export type ColorType = "blue" | "green" | "yellow" | "red";
-
+export type IUser<T = never> =
+  Database["public"]["Tables"]["profiles"]["Row"] & {
+    expand?: T;
+  };
 export type ChildrenType =
   | React.ReactNode
   | React.ReactNode[]
@@ -55,10 +49,6 @@ export type CFplayer = {
   id: string;
   choice: ConnectChoices;
 };
-export type SMSPlayer = {
-  id: string;
-};
-
 export type CFMove = {
   color: ConnectChoices;
   coords: Coords;
@@ -92,7 +82,6 @@ export enum GamePlayState {
   results,
   end,
 }
-
 export enum SimonGameState {
   START = "Start",
   PLAYING = "Playing",
@@ -117,9 +106,6 @@ export type Rounds = {
     [key: string]: number;
     ties: number;
   };
-};
-export type SMSMove = {
-  color: ColorType;
 };
 export enum TicTacToeGameState {
   START = "Start",
@@ -146,11 +132,17 @@ export interface RockPaperScissorsGameType extends Game {
 export interface TicTacToeGameType extends Game {
   name: "Tic Tac Toe";
 }
+
+export interface FriendGame {
+  played: number;
+  won: number;
+  id: number;
+  name: GameNames;
+  lost: number;
+}
+
 export type FriendsGamesType = {
-  simonSays: SimonSaysGameType;
-  connectFour: ConnectFourGameType;
-  rockPaperScissors: RockPaperScissorsGameType;
-  ticTacToe: TicTacToeGameType;
+  [key in GameNames]: FriendGame;
 };
 
 export abstract class Game {
@@ -164,11 +156,6 @@ export abstract class Game {
   abstract getState(): any;
   // isPlayerTurn(playerId: string): boolean;
 }
-
-export type GameType = {
-  id: number;
-  name: GameNames;
-};
 export interface TTCState {
   players: TTCPlayer[];
   board: TTCBoardMove[][];
@@ -195,19 +182,6 @@ export interface CFState {
     };
   };
 }
-export type SMSRound = {
-  sequence: MoveChoice<SMSMove>[];
-};
-export type SMSState = {
-  players: SMSPlayer[];
-  name: GameNames;
-  rounds: {
-    count: number;
-    rounds: RoundHandler<SMSRound>[];
-  };
-  speed: number;
-  sequence: MoveChoice<SMSMove>[];
-};
 
 export interface RPSstate {
   players: IUser[];
@@ -257,6 +231,7 @@ export type ToastThemeType = {
   primary: string;
   secondary: string;
 };
+
 export type ToastType = {
   message: string;
   duration: number;
@@ -320,7 +295,6 @@ type callbacktype<T = any> = (err: T) => void;
 export interface ServerToClientEvents {
   join_room: (roomId: string) => void;
   rps_choice: (player: MoveChoice<RPSMove>) => void;
-  sms_move: (move: MoveChoice<SMSMove>) => void;
   rps_game_winner: (winner: IUser | null) => void;
   ttc_game_winner: (winner: TTCCombination) => void;
   start_game: (gameState?: CFState | RPSstate | TTCState) => void;
@@ -339,7 +313,6 @@ export interface ServerToClientEvents {
 
 export interface ClientToServerEvents {
   join_room: (roomId: string) => void;
-  sms_new_round: (state: SMSState) => void;
   rematch: () => void;
   rematch_accept: (state: any) => void;
   get_players: (players: any[]) => void;
@@ -354,7 +327,6 @@ export interface ClientToServerEvents {
   ttc_game_winner: (winner: TTCCombination) => void;
   connect_game_winner(winner: RoundType<MoveChoice<CFMove>>): void;
   user_connected: (roomId: string) => void;
-  sms_game_lost: () => void;
   get_state: (callback: (...args: any) => void) => void;
   start_game: (gameState?: CFState | RPSstate | TTCState) => void;
   round_winner: (round: RPSRound) => void;
@@ -381,13 +353,6 @@ export type ChatUser = {
   id: string;
   socketId: string;
 };
-
-export type QueueRoomuser = {
-  id: string;
-  socketId: string;
-  games: GameType[] | GameType;
-};
-
 export enum UserGameState {
   playing = "playing",
   offline = "offline",
@@ -415,11 +380,17 @@ export interface ChatServerEvents {
   user_joined: (user: SocketUser[]) => void;
   state_change: (state: ChatUser) => void;
   game_invite: (gameInvite: GameInvite) => void;
+  friend_request: (friendid: string, callback: (...args: any) => void) => void;
   game_invite_response: (gameInvite: string) => void;
   game_invite_accepted: (invite: GameInvite) => void;
 }
 export interface ChatClientEvents {
   join_room: (roomId: string) => void;
+  add_friend: (friendid: string, callback: (...args: any) => void) => void;
+  add_friend_response: (
+    response: "accepted" | "declined",
+    callback: (...args: any) => void
+  ) => void;
   send_message: (
     message: NewChatChatMessageType,
     callback?: (params: { received: boolean }) => void
@@ -431,15 +402,4 @@ export interface ChatClientEvents {
     invite: GameInvite,
     callback: (invite: GameInvite) => void
   ) => void;
-}
-
-export interface GameQueueServerEvents {
-  game_found: (roomId: string) => void;
-}
-export type GameQueueState = {
-  totalPlayers: number;
-};
-export interface GameQueueClientEvents {
-  join_queue: (games: GameType | GameType[]) => void;
-  get_state: (queueState: GameQueueState) => void;
 }

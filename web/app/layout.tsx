@@ -4,6 +4,7 @@ import { Nav } from "@/Components/Nav";
 import { Friend } from "@/types";
 import { getFromFile } from "@/lib/utils";
 import { Providers } from "./providers";
+import SupabaseProvider from "./supabase-provider";
 const getFriends = async (): Promise<Friend[]> => {
   return await getFromFile<Friend[]>("data/friendsjson.json");
 };
@@ -15,20 +16,24 @@ export const metadata = {
 
 export default async function RootLayout({
   children,
+  ...props
 }: {
   children: React.ReactNode;
+  props: any;
 }) {
   const friends = await getFriends();
 
   return (
     <html lang="en">
       <body className="bg-gray-600 ">
-        <FriendsProvider baseFriends={friends}>
-          <Providers>
-            <Nav />
-            <div className="max-w-6xl m-auto">{children}</div>
-          </Providers>
-        </FriendsProvider>
+        <SupabaseProvider>
+          <FriendsProvider baseFriends={friends}>
+            <Providers {...props}>
+              <Nav />
+              <div className="max-w-6xl m-auto">{children}</div>
+            </Providers>
+          </FriendsProvider>
+        </SupabaseProvider>
       </body>
     </html>
   );

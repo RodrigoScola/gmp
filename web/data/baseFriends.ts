@@ -1,11 +1,4 @@
-import {
-  Badge,
-  ConnectFourGameType,
-  FriendsGamesType,
-  RockPaperScissorsGameType,
-  SimonSaysGameType,
-  TicTacToeGameType,
-} from "@/types";
+import { Badge, FriendsGamesType } from "@/types";
 import { basebadegeData } from "./baseBadges";
 import { getGameData } from "./games";
 
@@ -25,33 +18,33 @@ export const getBadges = (num: number) => {
 
 export const getFriendsGames = (num: number): FriendsGamesType => {
   return {
-    connectFour: {
+    "connect Four": {
       ...getGameData(0),
       played: Math.floor(Math.random() * num),
       won: Math.floor(Math.random() * num),
       lost: Math.floor(Math.random() * num),
-    } as ConnectFourGameType,
-    ticTacToe: {
+    },
+    "Tic Tac Toe": {
       id: 1,
       name: "Tic Tac Toe",
       played: Math.floor(Math.random() * num),
       won: Math.floor(Math.random() * num),
       lost: Math.floor(Math.random() * num),
-    } as TicTacToeGameType,
-    rockPaperScissors: {
+    },
+    "Rock Paper Scissors": {
       id: 2,
       name: "Rock Paper Scissors",
       played: Math.floor(Math.random() * num),
       won: Math.floor(Math.random() * num),
       lost: Math.floor(Math.random() * num),
-    } as RockPaperScissorsGameType,
-    simonSays: {
+    },
+    "Simon Says": {
       id: 3,
       name: "Simon Says",
       played: Math.floor(Math.random() * num),
       won: Math.floor(Math.random() * num),
       lost: Math.floor(Math.random() * num),
-    } as SimonSaysGameType,
+    },
   };
 };
 

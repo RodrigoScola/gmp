@@ -4,6 +4,7 @@ import {
   IUser,
   UserGameState,
 } from "../../../web/types";
+import { FriendHandler } from "./FriendHandler";
 import { GameInviteHandler } from "./GameInvitehandler";
 
 export type IMainUser = {
@@ -20,6 +21,7 @@ class MainUser implements IMainUser {
   user: SocketUser;
   id: string;
   currentState: CurrentUserState;
+  friends: FriendHandler;
   game?: { state: UserGameState; gameId: string | null };
   socketId: string;
 
@@ -31,6 +33,7 @@ class MainUser implements IMainUser {
     this.id = user.id;
     this.socketId = user.socketId;
     this.user = user.user;
+    this.friends = new FriendHandler(this.user.id);
   }
   get state(): IMainUser {
     return {

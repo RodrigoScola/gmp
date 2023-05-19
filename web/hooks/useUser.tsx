@@ -1,7 +1,6 @@
 "use client";
-import { pb } from "@/db/pocketbase";
+import { db } from "@/db/pocketbase";
 import { userSocket } from "@/lib/socket";
-import { UsersRecord, UsersResponse } from "@/pocketbase-types";
 import {
   ChatClientEvents,
   ChatServerEvents,
@@ -10,42 +9,50 @@ import {
   IUser,
 } from "@/types";
 import { useNotification } from "./useToast";
-import { Admin, RecordAuthResponse } from "pocketbase";
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import { createContext, useCallback, useContext, useState } from "react";
 import { useEffectOnce, useUpdateEffect } from "usehooks-ts";
 import { GameInviteComponent } from "@/Components/Notifications/GameInvite";
 import { Socket } from "socket.io-client";
-
+import { useSupabase } from "@/app/supabase-provider";
 interface UserContext {
   user: IUser<ExtendedUser>;
   setCurrentUser: (user: IUser) => void;
-  login: (
-    email: string,
-    password: string
-  ) => Promise<RecordAuthResponse<UsersRecord>>;
+  login: (email: string, password: string) => Promise<any>;
   logout: () => void;
   socket: Socket<ChatClientEvents, ChatServerEvents>;
 }
 export const UserContext = createContext<UserContext | null>(null);
 
 export const UserProvider = ({ children }: { children: ChildrenType }) => {
-  const [token, setTOken] = useState(pb.authStore.token);
-  const [currentUser, setCurrentUser] = useState<IUser<ExtendedUser>>(
-    pb.authStore.model as IUser<ExtendedUser>
+  // const [token, setTOken] = useState(db.authStore.token);
+  const [currentUser, setCurrentUser] = useState<IUser<ExtendedUser> | null>(
+    localStorage.getItem("user")
+      ? JSON.parse(localStorage.getItem("user"))
+      : null
   );
+  const { supabase, session } = useSupabase();
+
   const toast = useNotification();
-  useUpdateEffect(() => {
-    return pb.authStore.onChange((token, model) => {
-      setCurrentUser(model);
-      setTOken(token);
-    });
-  }, [pb.authStore]);
+
+  const handleFetch = async () => {
+    if (currentUser) return;
+    const localUser = localStorage.getItem("user");
+    if (localUser) {
+      setCurrentUser(JSON.parse(localUser));
+    } else {
+      const data = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", session?.user.id)
+        .single();
+
+      localStorage.setItem("user", JSON.stringify(data.data));
+      setCurrentUser(data.data);
+    }
+  };
+  useEffectOnce(() => {
+    handleFetch();
+  });
 
   useEffectOnce(() => {
     userSocket.auth = {
@@ -55,7 +62,6 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
     userSocket.on("notification_message", (data) => {
       toast.addNotification(`${data.user.username} sent you a message`);
     });
-    console.log(currentUser.id);
     userSocket.on("game_invite", (data) => {
       toast.addNotification("Game Request", {
         duration: 15000,
@@ -72,11 +78,19 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
       }
     };
   });
+
   const login = useCallback(async (email: string, password: string) => {
-    return await pb.collection("users").authWithPassword(email, password);
+    const { data } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (data?.user) {
+      setCurrentUser(data.user);
+    }
+    return data;
   }, []);
   const logout = useCallback(() => {
-    pb.authStore.clear();
+    db.auth.signOut();
   }, []);
   return (
     <UserContext.Provider
