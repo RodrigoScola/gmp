@@ -1,6 +1,6 @@
 import { RenderChatMesages } from "@/Components/RenderChat2";
 import { getUserByUsername } from "@/db/User";
-import { ChatConversationType } from "@/types";
+import { ChatConversationType } from "@/types/types";
 
 export default async function CHATPAGE({
   params: { id },

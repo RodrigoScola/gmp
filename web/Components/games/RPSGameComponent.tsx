@@ -9,7 +9,7 @@ import {
   RPSRound,
   Rounds,
   IUser,
-} from "@/types";
+} from "@/types/types";
 import { useUser } from "@/hooks/useUser";
 import { RockPaperScissorsGame } from "@/../server/src/game/rockpaperScissors";
 const maxWins = 5;

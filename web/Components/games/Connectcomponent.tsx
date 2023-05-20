@@ -10,7 +10,7 @@ import {
   GameNames,
   GamePlayState,
   MoveChoice,
-} from "@/types";
+} from "@/types/types";
 import { useNotification } from "../../hooks/useToast";
 import dynamic from "next/dynamic";
 

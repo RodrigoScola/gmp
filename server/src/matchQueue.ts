@@ -1,4 +1,4 @@
-import { GameNames, GameType, gameNames } from "../../web/types";
+import { GameNames, GameType, gameNames } from "../../web/types/types";
 import { getGameData } from "./game/gameUtils";
 import { PlayerHandler } from "./handlers/usersHandler";
 import { GameQueue } from "./lib/GamesQueue";

@@ -1,6 +1,6 @@
 "use client";
 import { useMemo, useRef, useState } from "react";
-import { ColorType, SimonGameState } from "@/types";
+import { ColorType, SimonGameState } from "@/types/types";
 import { useUpdateEffect } from "usehooks-ts";
 
 type ColorRefs = {

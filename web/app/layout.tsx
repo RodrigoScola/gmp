@@ -1,7 +1,7 @@
 import { FriendsProvider } from "@/hooks/useFriends";
 import "./globals.css";
 import { Nav } from "@/Components/Nav";
-import { Friend } from "@/types";
+import { Friend } from "@/types/types";
 import { getFromFile } from "@/lib/utils";
 import { Providers } from "./providers";
 import SupabaseProvider from "./supabase-provider";

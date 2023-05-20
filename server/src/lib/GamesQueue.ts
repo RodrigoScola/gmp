@@ -1,4 +1,4 @@
-import { GameNames } from "../../../web/types";
+import { GameNames } from "../../../web/types/types";
 import { MatchQueuePlayer } from "../matchQueue";
 
 export class GameQueue {

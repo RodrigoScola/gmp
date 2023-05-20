@@ -1,5 +1,5 @@
 import { getBadges, getFriendsGames } from "./data/baseFriends";
-import { ExtendedUser, IUser } from "./types";
+import { ExtendedUser, IUser } from "./types/types";
 
 export const baseUrl = "http://localhost:3000/";
 

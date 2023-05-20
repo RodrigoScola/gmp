@@ -1,5 +1,5 @@
 import { PlayerHandler } from "../handlers/usersHandler";
-import { Game, RPSMove, RPSstate } from "../../../web/types";
+import { Game, RPSMove, RPSstate } from "../../../web/types/types";
 import {
   RPSPlayer,
   RPSWinCombination,
@@ -8,7 +8,7 @@ import {
   RPSRound,
   RPSOptions,
   GameNames,
-} from "../../../web/types";
+} from "../../../web/types/types";
 import { RoundHandler } from "../handlers/RoundHandler";
 export const RockPaperScissorsMaxWins = 5;
 

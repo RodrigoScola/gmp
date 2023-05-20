@@ -9,7 +9,7 @@ import {
   CFMove,
   CFRound,
   CFplayer,
-} from "../../../web/types";
+} from "../../../web/types/types";
 import { PlayerHandler } from "../handlers/usersHandler";
 import { RoundHandler, RoundType } from "../handlers/RoundHandler";
 
@@ -161,10 +161,10 @@ export class CFBoard extends Board<CFBoardMove> {
   }
 }
 
-export class CFGame implements Game {
+export class CFGame extends Game<"connect Four"> {
   name: GameNames = "connect Four";
   board: CFBoard;
-  round: RoundHandler<CFRound> = new RoundHandler();
+  rounds: RoundHandler<CFRound> = new RoundHandler();
   moves: CFBoardMove[] = [];
   players: PlayerHandler<CFplayer> = new PlayerHandler<CFplayer>();
 
@@ -182,6 +182,7 @@ export class CFGame implements Game {
     return this.getPlayers().length == 2;
   }
   constructor() {
+    super();
     this.board = new CFBoard();
   }
 
@@ -189,7 +190,7 @@ export class CFGame implements Game {
     let playerWins: Record<string, number> = {};
 
     for (const p of this.players.getPlayers()) {
-      playerWins[p.id] = this.round.countWins(p.id);
+      playerWins[p.id] = this.rounds.countWins(p.id);
     }
 
     return {
@@ -199,18 +200,18 @@ export class CFGame implements Game {
       name: this.name,
       players: this.players.getPlayers(),
       rounds: {
-        count: this.round.count,
-        rounds: this.round.rounds,
+        count: this.rounds.count,
+        rounds: this.rounds.rounds,
         wins: {
           ...playerWins,
-          ties: this.round.rounds.filter((i) => i.isTie).length,
+          ties: this.rounds.rounds.filter((i) => i.isTie).length,
         },
       },
     };
   }
   newRound(): void {
     if (this.moves.length == 0) return;
-    this.round.addRound({
+    this.rounds.addRound({
       winner: {
         id: this.moves[this.moves.length - 1].id,
       },
@@ -233,7 +234,7 @@ export class CFGame implements Game {
     }
     return this.board.moves[this.board.moves.length - 1];
   }
-  getWinner(): RoundType<CFRound> | null {
+  getWinner(): CFRound | null {
     const hasWin = this.board.checkBoard();
 
     if (!hasWin) return null;

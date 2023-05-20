@@ -9,7 +9,7 @@ import {
   ChatServerEvents,
   GameQueueClientEvents,
   GameQueueServerEvents,
-} from "@/types";
+} from "@/types/types";
 
 const socketUrl = "ws://localhost:3001";
 

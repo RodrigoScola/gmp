@@ -2,7 +2,7 @@ import {
   ChatConversationType,
   ChatMessageType,
   ChatUserState,
-} from "../../../web/types";
+} from "../../../web/types/types";
 import { getFromFile } from "../utlils";
 import { IMainUser, uhandler } from "./usersHandler";
 

@@ -8,7 +8,7 @@ import {
   ChatMessageType,
   ChatUserState,
   ReturnUserType,
-} from "@/types";
+} from "@/types/types";
 import { Popover, PopoverContent, PopoverTrigger } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 

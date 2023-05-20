@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { MenuProps } from "../Menu/Menu";
 import { useOnClickOutside } from "usehooks-ts";
-import { Direction } from "@/types";
+import { Direction } from "@/types/types";
 import { DrawerContext } from "@/hooks/useDrawer";
 import {
   DrawerBody,

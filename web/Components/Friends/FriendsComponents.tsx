@@ -1,5 +1,5 @@
 "use client";
-import { Friend } from "@/types";
+import { Friend } from "@/types/types";
 import { Popover, PopoverTrigger, PopoverContent } from "@chakra-ui/react";
 import { ComponentProps, useState } from "react";
 import Image from "next/image";

@@ -3,7 +3,7 @@ import {
   Friend,
   ReturnUserType,
   IUser as UserType,
-} from "@/types";
+} from "@/types/types";
 import { getBadges, getFriendsGames } from "@/data/baseFriends";
 
 type UserClassConstructor = {

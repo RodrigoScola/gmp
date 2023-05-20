@@ -1,5 +1,5 @@
 "use client";
-import { db } from "@/db/pocketbase";
+import { db } from "@/db/supabase";
 import { userSocket } from "@/lib/socket";
 import {
   ChatClientEvents,
@@ -7,7 +7,7 @@ import {
   ChildrenType,
   ExtendedUser,
   IUser,
-} from "@/types";
+} from "@/types/types";
 import { useNotification } from "./useToast";
 import { createContext, useCallback, useContext, useState } from "react";
 import { useEffectOnce, useUpdateEffect } from "usehooks-ts";

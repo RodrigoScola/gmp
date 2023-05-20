@@ -1,15 +1,9 @@
-import { SocketUser } from "../server";
 import {
-  ChatConversationType,
   ChatUser,
-  ChatUserState,
   Game,
-  GameType,
   QueueRoomuser,
-  IUser,
-  UserGameState,
-  gameNames,
-} from "../../../web/types";
+  SocketUser,
+} from "../../../web/types/types";
 import { MatchHandler, getGame } from "./Handlers";
 import { RockPaperScissorsGame } from "../game/rockpaperScissors";
 import { IMainUser, UsersHandlers, uhandler } from "./usersHandler";

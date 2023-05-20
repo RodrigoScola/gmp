@@ -3,7 +3,7 @@
 import { getGameData } from "@/../server/src/game/gameUtils";
 import { useUser } from "@/hooks/useUser";
 import { queueSocket } from "@/lib/socket";
-import { GameType } from "@/types";
+import { GameType } from "@/types/types";
 import { useEffect, useState } from "react";
 
 export default function QueueHoldingPage({ searchParams }) {

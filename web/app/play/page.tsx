@@ -1,7 +1,7 @@
 "use client";
 
 import { getGameData } from "../../../server/src/game/gameUtils";
-import { GameNames, GameType, gameNames } from "@/types";
+import { GameNames, GameType, gameNames } from "@/types/types";
 import { useState } from "react";
 
 const cardClassName =

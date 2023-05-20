@@ -1,4 +1,4 @@
-import { Badge, FriendsGamesType } from "@/types";
+import { Badge, FriendsGamesType } from "@/types/types";
 import { basebadegeData } from "./baseBadges";
 import { getGameData } from "./games";
 

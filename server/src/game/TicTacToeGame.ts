@@ -10,10 +10,9 @@ import {
   TTCState,
   TTCOptions,
   Board,
-} from "../../../web/types";
+  GameInfo,
+} from "../../../web/types/types";
 import { PlayerHandler } from "../handlers/usersHandler";
-
-export type TTCBoardMove = MoveChoice<TTCMove>;
 
 export class TicTacToeBoard extends Board<TTCBoardMove> {
   board: TTCBoardMove[][] = [];
@@ -145,23 +144,15 @@ export class TicTacToeBoard extends Board<TTCBoardMove> {
 export const { generateBoard, isValid, newBlock, checkBoard, checkLine } =
   new TicTacToeBoard();
 
-export type TTCRound = {
-  winner: {
-    id: string;
-  };
-  loser: {
-    id: string;
-  };
-  isTie: boolean;
-  moves: TTCBoardMove[];
-};
-
-export class TicTacToeGame extends Game {
+export class TicTacToeGame extends Game<"Tic Tac Toe"> {
   name: GameNames = "Tic Tac Toe";
-  players: PlayerHandler<TTCPlayer> = new PlayerHandler<TTCPlayer>();
+  players: PlayerHandler<GameInfo<"Tic Tac Toe">["player"]> = new PlayerHandler<
+    GameInfo<"Tic Tac Toe">["player"]
+  >();
   board: TicTacToeBoard = new TicTacToeBoard();
-  rounds: RoundHandler<TTCBoardMove> = new RoundHandler<TTCBoardMove>();
-
+  round: RoundHandler<GameInfo<"Tic Tac Toe">["round"]> = new RoundHandler<
+    GameInfo<"Tic Tac Toe">["round"]
+  >();
   isPlayerTurn(playerId: string): boolean {
     if (this.board.moves.length == 0) {
       const player = this.players.getPlayers().filter((i) => i.choice == "X");

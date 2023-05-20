@@ -9,10 +9,10 @@ import {
   TTCPlayer,
   TicTacToeGameState,
   IUser,
-} from "@/types";
+} from "@/types/types";
 import { useEffect, useMemo, useState } from "react";
 import { useEffectOnce } from "usehooks-ts";
-import { TTCMove } from "@/types";
+import { TTCMove } from "@/types/types";
 import {
   generateBoard,
   isValid,

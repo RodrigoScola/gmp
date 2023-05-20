@@ -1,6 +1,6 @@
 "use client";
 
-import { RPSOptionsValues } from "@/types";
+import { RPSOptionsValues } from "@/types/types";
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 

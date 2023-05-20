@@ -20,13 +20,17 @@ import {
   SocketUser,
   UserGameState,
   IUser,
-} from "../../web/types";
-import { ServerToClientEvents, ClientToServerEvents } from "../../web/types";
+} from "../../web/types/types";
+import {
+  ServerToClientEvents,
+  ClientToServerEvents,
+} from "../../web/types/types";
 import { ChatRoom, GameRoom, QueueRoom, roomHandler } from "./handlers/room";
 import { MatchPlayerState, getGame } from "./handlers/Handlers";
 import { uhandler } from "./handlers/usersHandler";
 import { getRoom } from "./handlers/room";
 import { gameQueue } from "./matchQueue";
+import { db } from "./lib/db";
 export const io = new Server<
   ServerToClientEvents,
   ClientToServerEvents,
@@ -159,18 +163,29 @@ userHandler.on("connection", (socket) => {
 
   // socket.on("friend_invite")
   // socket.on("friend_invite_response")
-  socket.on("add_friend", (friendId: string, callback) => {
-    console.log(friendId);
+  socket.on("add_friend", async (friendId: string, callback) => {
+    // console.log(friendId);
     const user = uhandler.getUser(friendId);
 
     if (!user) return;
 
-    socket.to(user?.socketId).emit("friend_request", "hello there", () => {});
+    const currentUser = uhandler.getUser(
+      getUserFromSocket(socket)?.id as string
+    );
+
+    const isFriend = await currentUser?.friends.isFriend(user.id);
+    console.log(isFriend);
+    // add to database as pending
+
+    // socket.to(user?.socketId).emit("friend_request", "hello there", () => {});
   });
 
   socket.on("add_friend_response", async (response) => {
-    console.log(response);
-    // add to supabase
+    if (response == "accepted") {
+      // change definition to accepted
+    } else {
+      // change definition to declined
+    }
   });
 
   socket.on("game_invite", (gameName: GameNames, userId: string) => {

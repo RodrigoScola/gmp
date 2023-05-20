@@ -7,12 +7,11 @@ import {
   SMSPlayer,
   SMSRound,
   SMSState,
-  IUser,
-} from "../../../web/types";
+} from "../../../web/types/types";
 import { RoundHandler } from "../handlers/RoundHandler";
 import { PlayerHandler, uhandler } from "../handlers/usersHandler";
 
-export class SimonSaysGame extends Game {
+export class SimonSaysGame extends Game<"Simon Says"> {
   name: GameNames = "Simon Says";
   players: PlayerHandler;
   rounds: RoundHandler<SMSRound> = new RoundHandler<SMSRound>();

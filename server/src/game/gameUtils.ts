@@ -1,4 +1,4 @@
-import { GameNames } from "../../../web/types";
+import { GameNames } from "../../../web/types/types";
 
 export const games: Record<
   number,

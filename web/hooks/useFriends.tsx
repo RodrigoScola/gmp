@@ -1,5 +1,5 @@
 "use client";
-import { ChildrenType, Friend, GameNames } from "@/types";
+import { ChildrenType, Friend, GameNames } from "@/types/types";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useMap } from "usehooks-ts";
 import { useNotification } from "./useToast";

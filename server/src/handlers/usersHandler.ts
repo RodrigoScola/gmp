@@ -3,7 +3,7 @@ import {
   SocketUser,
   IUser,
   UserGameState,
-} from "../../../web/types";
+} from "../../../web/types/types";
 import { FriendHandler } from "./FriendHandler";
 import { GameInviteHandler } from "./GameInvitehandler";
 
@@ -35,16 +35,6 @@ class MainUser implements IMainUser {
     this.user = user.user;
     this.friends = new FriendHandler(this.user.id);
   }
-  get state(): IMainUser {
-    return {
-      currentState: this.currentState,
-      game: this.game,
-      id: this.id,
-      socketId: this.socketId,
-      user: this.user,
-    };
-  }
-  getFriends() {}
 }
 class MainUserHandler {
   users: Map<string, MainUser>;
@@ -83,7 +73,7 @@ class MainUserHandler {
     // console.log(this.users.get(id));
     const user = this.users.get(id);
     if (user) {
-      return user.state;
+      return user;
     }
     return;
   }

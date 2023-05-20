@@ -1,11 +1,3 @@
-export type RoundType<T> = {
-  winner: {
-    id: string;
-  };
-  isTie: boolean;
-  moves: T[];
-};
-
 export class RoundHandler<T> {
   count: number = 0;
   maxWins: number = 5;

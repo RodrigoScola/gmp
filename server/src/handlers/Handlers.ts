@@ -7,7 +7,7 @@ import {
   Coords,
   IUser,
   SMSMove,
-} from "../../../web/types";
+} from "../../../web/types/types";
 import { TicTacToeGame } from "../game/TicTacToeGame";
 import { MyIo, MySocket, getRoomId } from "../server";
 import { Room, getRoom } from "./room";

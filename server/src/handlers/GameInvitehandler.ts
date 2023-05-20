@@ -1,4 +1,4 @@
-import { GameInvite, GameNames, IUser } from "../../../web/types";
+import { GameInvite, GameNames, IUser } from "../../../web/types/types";
 import { getGame } from "./Handlers";
 import { GameRoom, roomHandler } from "./room";
 import { uhandler } from "./usersHandler";

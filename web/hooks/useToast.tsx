@@ -1,5 +1,5 @@
 "use client";
-import { ChildrenType, ToastType, newToastType } from "@/types";
+import { ChildrenType, ToastType, newToastType } from "@/types/types";
 import { createContext, useContext, useEffect } from "react";
 import { UseToastOptions, useToast } from "@chakra-ui/react";
 import { useUser } from "./useUser";

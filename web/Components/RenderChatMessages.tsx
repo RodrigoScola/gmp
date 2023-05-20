@@ -4,7 +4,11 @@ import { useFriend } from "@/hooks/useFriends";
 import { useObject } from "@/hooks/useObject";
 import { useRefetch } from "@/hooks/useRefetch";
 import { useUser } from "@/hooks/useUser";
-import { ChatConversationType, ChatMessageType, ReturnUserType } from "@/types";
+import {
+  ChatConversationType,
+  ChatMessageType,
+  ReturnUserType,
+} from "@/types/types";
 import { Popover, PopoverContent, PopoverTrigger } from "@chakra-ui/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useUpdateEffect } from "usehooks-ts";
