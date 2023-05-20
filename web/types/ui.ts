@@ -1,3 +1,5 @@
+import { UseToastOptions } from "@chakra-ui/react";
+
 export type ToastPositions =
   | "top-center"
   | "top-left"

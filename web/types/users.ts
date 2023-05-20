@@ -1,22 +1,33 @@
 import { Database } from "@/supabasetypes";
-import { GameNames } from "./game";
+import { GameNames, GameType } from "./game";
 import { Badges } from "./types";
 
-export interface SocketUser extends IUser {
+export type IUser = Database["public"]["Tables"]["profiles"]["Row"];
+
+export interface SocketUser {
   socketId: string;
+  id: string;
+  email?: string | null;
+  username?: string | null;
+  created_at?: string | null;
 }
 
 export type OnlineStatusType = "online" | "offline" | "away";
 
-export type IUser = Database["public"]["Tables"]["profiles"]["Row"];
 export type ChatUser = {
-  state: ChatUserState;
+  state: UserState;
   id: string;
   socketId: string;
 };
 
+export type MessageUser = {
+  id: string;
+  state: UserState;
+};
 export type QueueRoomuser = {
   id: string;
+  games: GameType[] | GameType;
+  socketId: string;
 };
 export type ChatMessageType = {
   userId: string;
@@ -32,6 +43,8 @@ export type ChatConversationType = {
 };
 
 export interface Friend extends IUser {
+  badges: Badges;
+  games: FriendsGamesType;
   status: OnlineStatusType;
   note?: string;
 }
@@ -63,7 +76,7 @@ export type FriendsGamesType = {
   [key in GameNames]: FriendGameType;
 };
 
-export enum ChatUserState {
+export enum UserState {
   typing = "typing",
   inChat = "inChat",
   online = "online",

@@ -1,4 +1,4 @@
-import { IUser, SocketUser } from "../../../web/types/types";
+import { IUser, SocketUser } from "../../../web/types/users";
 import { db } from "../lib/db";
 
 export class FriendHandler {
@@ -8,7 +8,7 @@ export class FriendHandler {
     this.friends = new Map();
     this.userId = userId;
   }
-  async friendRequest(user: string | SocketUser) {}
+  async friendRequest(_: string | SocketUser) {}
   async isFriend(userId: string): Promise<boolean> {
     const { error, data } = await db
       .from("connections")

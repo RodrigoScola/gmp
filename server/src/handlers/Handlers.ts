@@ -1,19 +1,20 @@
 import { RockPaperScissorsGame } from "../game/rockpaperScissors";
-import {
-  GameNames,
-  MoveChoice,
-  RPSMove,
-  Game,
-  Coords,
-  IUser,
-  SMSMove,
-} from "../../../web/types/types";
+import { Coords } from "../../../web/types/types";
 import { TicTacToeGame } from "../game/TicTacToeGame";
 import { MyIo, MySocket, getRoomId } from "../server";
 import { Room, getRoom } from "./room";
 import { CFGame } from "../game/c4Game";
 import { PlayerHandler } from "./usersHandler";
 import { SimonSaysGame } from "../game/simonSays";
+import {
+  GameNames,
+  SMSMove,
+  IGame,
+  CFMove,
+  RPSMove,
+  TTCMove,
+} from "../../../web/types/game";
+import { IUser } from "../../../web/types/users";
 
 const handleSimonSaysGame = (
   io: MyIo,
@@ -21,7 +22,7 @@ const handleSimonSaysGame = (
   game: SimonSaysGame
   // room: Room
 ) => {
-  socket.on("sms_move", (move: MoveChoice<SMSMove>) => {
+  socket.on("sms_move", (move: SMSMove) => {
     game.play(move);
     if (game.hasLost) {
       // handle loss
@@ -44,8 +45,9 @@ const handleConnectGame = (
   socket.on("c_player_move", (move: Coords) => {
     io.to(getRoomId(socket)).emit("c_player_move", move);
   });
-  socket.on("connect_choice", (move) => {
+  socket.on("connect_choice", (move: CFMove) => {
     console.log("connect choice");
+
     if (game.isPlayerTurn(move.id)) {
       game.play(move);
       io.to(getRoomId(socket)).emit("connect_choice", {
@@ -72,14 +74,14 @@ const handleTTCGame = (
   game: TicTacToeGame
   // room: Room
 ) => {
-  socket.on("ttc_choice", ({ move }) => {
+  socket.on("ttc_choice", ({ move }: { move: TTCMove }) => {
     console.log(game.isPlayerTurn(move.id));
     if (game.isPlayerTurn(move.id)) {
       console.log(move);
       game.play(move);
       io.to(getRoomId(socket)).emit("ttc_choice", {
         board: game.board.board,
-        move: move.move,
+        move: move,
       });
     }
     const winner = game.board.checkBoard(game.board.board);
@@ -96,19 +98,19 @@ const handleTTCGame = (
 const handleRpsGame = (
   io: MyIo,
   socket: MySocket,
-  game: RockPaperScissorsGame,
-  room: Room
+  game: RockPaperScissorsGame
+  // room: Room
 ) => {
   // player move
 
-  socket.on("rps_choice", (player: MoveChoice<RPSMove>) => {
+  socket.on("rps_choice", (player: RPSMove) => {
     console.log(player);
     game?.play(
       {
-        choice: player.move.choice,
+        choice: player.choice,
         id: player.id,
       },
-      player.move.choice
+      player.choice
     );
 
     const roundWinner = game?.hasRoundWinner();
@@ -126,9 +128,7 @@ const handleRpsGame = (
     }
     io.to(getRoomId(socket)).emit("rps_choice", {
       id: player.id,
-      move: {
-        choice: player.move.choice,
-      },
+      choice: player.choice,
     });
   });
 };
@@ -142,9 +142,9 @@ type MatchPlayer = {
   state: MatchPlayerState;
 };
 export class MatchHandler {
-  game: Game;
+  game: IGame;
   players: PlayerHandler<MatchPlayer> = new PlayerHandler<MatchPlayer>();
-  constructor(game: Game) {
+  constructor(game: IGame) {
     this.game = game;
   }
 
@@ -209,19 +209,21 @@ export class MatchHandler {
     saveGame(this.game);
     this.game = game;
   }
-  playGame(io: MyIo, socket: MySocket, game: Game) {
+  playGame(io: MyIo, socket: MySocket, game: IGame) {
     const handler = this.getGameHandler(game.name);
 
     if (!handler) return;
-    handler(io, socket, game, getRoom(getRoomId(socket)));
+    const room = getRoom(getRoomId(socket));
+    if (!room) return;
+    handler(io, socket, game, room);
   }
 }
 
-const saveGame = <T extends Game>(game: T) => {
+const saveGame = (_: IGame) => {
   console.log("game saved");
 };
 
-export const getGame = (gameName: GameNames): Game => {
+export const getGame = (gameName: GameNames): IGame => {
   switch (gameName) {
     case "Tic Tac Toe":
       return new TicTacToeGame();

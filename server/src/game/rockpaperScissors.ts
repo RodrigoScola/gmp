@@ -1,33 +1,36 @@
 import { PlayerHandler } from "../handlers/usersHandler";
-import { Game, RPSMove, RPSstate } from "../../../web/types/types";
 import {
   RPSPlayer,
   RPSWinCombination,
-  IUser,
-  MoveChoice,
   RPSRound,
+  Game,
   RPSOptions,
   GameNames,
-} from "../../../web/types/types";
+  RPSMove,
+  RPSstate,
+} from "../../../web/types/game";
+import { IUser } from "../../../web/types/users";
 import { RoundHandler } from "../handlers/RoundHandler";
 export const RockPaperScissorsMaxWins = 5;
 
-export class RockPaperScissorsGame extends Game {
+export class RockPaperScissorsGame extends Game<"Rock Paper Scissors"> {
   name: GameNames = "Rock Paper Scissors";
-  players: PlayerHandler = new PlayerHandler();
-  currentChoice: Record<string, MoveChoice<RPSMove>> = {};
-  rounds: RoundHandler<RPSRound> = new RoundHandler<RPSRound>();
+  players: PlayerHandler<RPSPlayer>;
+  currentChoice: Record<string, RPSMove> = {};
+  rounds: RoundHandler<RPSRound>;
+  constructor() {
+    super();
+    this.rounds = new RoundHandler<RPSRound>();
+    this.players = new PlayerHandler<RPSPlayer>();
+  }
   play(player: RPSPlayer, choice: RPSOptions) {
     if (this.rounds.hasGameWinner()) return;
     if (this.currentChoice[player.id] || !this.players.hasPlayer(player.id))
       return;
     this.currentChoice[player.id] = {
       id: player.id,
-      move: {
-        choice: choice,
-      },
+      choice: choice,
     };
-    console.log(this.currentChoice);
     return;
   }
   addPlayer(player: IUser) {
@@ -48,8 +51,8 @@ export class RockPaperScissorsGame extends Game {
     const player2Choice = this.currentChoice[player2.id];
     if (!player1Choice || !player2Choice) return null;
     return this.getWinner(
-      { ...player1, choice: player1Choice.move.choice },
-      { ...player2, choice: player2Choice.move.choice }
+      { ...player1, choice: player1Choice.choice },
+      { ...player2, choice: player2Choice.choice }
     );
   }
   isRoundWinner(player: RPSPlayer) {
@@ -60,7 +63,7 @@ export class RockPaperScissorsGame extends Game {
     return Object.values(this.currentChoice).filter((i) => i.id != player.id);
   }
   isTie() {
-    return Object.values(this.currentChoice).every((i) => i.move.choice);
+    return Object.values(this.currentChoice).every((i) => i.choice);
   }
   getWinnerCombination = (opt1: RPSOptions, opt2: RPSOptions): RPSOptions => {
     const combination = RPSWinCombination.find((combination) => {
@@ -77,17 +80,13 @@ export class RockPaperScissorsGame extends Game {
   getWinner = (player1: RPSPlayer, player2: RPSPlayer): RPSRound | null => {
     if (!player1 || !player2) return null;
     if (player1.choice == null || player2.choice == null) return null;
-    const player1Move: MoveChoice<RPSMove> = {
+    const player1Move: RPSMove = {
       id: player1.id,
-      move: {
-        choice: player1.choice,
-      },
+      choice: player1.choice,
     };
-    const player2Move: MoveChoice<RPSMove> = {
+    const player2Move: RPSMove = {
       id: player2.id,
-      move: {
-        choice: player2.choice,
-      },
+      choice: player2.choice,
     };
     if (player1.choice == player2.choice) {
       return {
@@ -120,7 +119,7 @@ export class RockPaperScissorsGame extends Game {
     if (!roundWinner) return;
     this.rounds.addRound({
       isTie: roundWinner.isTie,
-      moves: [roundWinner],
+      moves: roundWinner,
       winner: {
         id: roundWinner.winner.id,
       },

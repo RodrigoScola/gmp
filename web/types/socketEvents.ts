@@ -3,17 +3,21 @@ import {
   CFMove,
   CFRound,
   CFState,
+  GameNames,
   GameType,
   RPSMove,
   RPSRound,
   RPSstate,
   RoundType,
+  SMSMove,
+  SMState,
   TTCCombination,
   TTCMove,
   TTCState,
 } from "./game";
 import { Coords } from "./types";
 import {
+  ChatMessageType,
   ChatUser,
   GameInvite,
   GameInviteOptions,
@@ -26,9 +30,11 @@ import {
 export interface ServerToClientEvents {
   join_room: (roomId: string) => void;
   rps_choice: (player: RPSMove) => void;
+  sms_move: (move: SMSMove) => void;
+  sms_game_lost: () => void;
   rps_game_winner: (winner: IUser | null) => void;
   ttc_game_winner: (winner: TTCCombination) => void;
-  start_game: (gameState?: CFState | RPSstate | TTCState) => void;
+  start_game: (gameState?: CFState | RPSstate | TTCState | SMState) => void;
   rematch: (callback?: (...args: any) => void) => void;
   round_winner: (round: RPSRound | null) => void;
   connect_choice: (move: CFMove) => void;
@@ -44,6 +50,8 @@ export interface ServerToClientEvents {
 
 export interface ClientToServerEvents {
   join_room: (roomId: string) => void;
+  sms_game_lost: () => void;
+  sms_new_round: (state: CFState | RPSstate | TTCState | SMState) => void;
   rematch: () => void;
   rematch_accept: (state: any) => void;
   get_players: (players: any[]) => void;
@@ -56,7 +64,7 @@ export interface ClientToServerEvents {
   connect_game_winner(winner: RoundType<CFRound>): void;
   user_connected: (roomId: string) => void;
   get_state: (callback: (...args: any) => void) => void;
-  start_game: (gameState?: CFState | RPSstate | TTCState) => void;
+  start_game: (gameState?: CFState | RPSstate | TTCState | SMState) => void;
   round_winner: (round: RPSRound) => void;
   player_ready: () => void;
   new_round: () => void;
@@ -98,4 +106,6 @@ export interface ChatClientEvents {
 export type GameQueueClientEvents = {
   join_queue: (gameName: GameType | GameType[]) => void;
 };
-export type GameQueueServerEvents = {};
+export type GameQueueServerEvents = {
+  game_found: (gameid: string) => void;
+};

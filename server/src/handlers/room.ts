@@ -1,14 +1,15 @@
-import {
-  ChatUser,
-  Game,
-  QueueRoomuser,
-  SocketUser,
-} from "../../../web/types/types";
-import { MatchHandler, getGame } from "./Handlers";
+import { MatchHandler } from "./Handlers";
 import { RockPaperScissorsGame } from "../game/rockpaperScissors";
-import { IMainUser, UsersHandlers, uhandler } from "./usersHandler";
+import { UsersHandlers } from "./usersHandler";
 import { ConversationHandler } from "./ConversationHandler";
 import { MatchQueue, gameQueue } from "../matchQueue";
+import {
+  ChatUser,
+  QueueRoomuser,
+  SocketUser,
+  UserState,
+} from "../../../web/types/users";
+import { IGame } from "../../../web/types/game";
 export class RoomHandler {
   rooms: Map<string, IRoom>;
 
@@ -90,7 +91,11 @@ export class ChatRoom implements IRoom {
     this.id = id;
     if (users?.length) {
       users.forEach((user) => {
-        this.users.addUser(user);
+        this.users.addUser({
+          id: user.id.toString(),
+          state: UserState.online,
+          socketId: user.socketId,
+        });
         // this.messages.addUser(user.id.toString());
       });
     }
@@ -120,7 +125,7 @@ export class GameRoom implements IRoom {
   id: string;
   users: UsersHandlers;
   match: MatchHandler = new MatchHandler(new RockPaperScissorsGame());
-  constructor(id: string, game: Game, users?: SocketUser[]) {
+  constructor(id: string, game: IGame, users?: SocketUser[]) {
     this.id = id;
 
     this.users = new UsersHandlers();
@@ -136,8 +141,9 @@ export class GameRoom implements IRoom {
     this.users.addUser(user);
   }
   delete(): void {
-    this.users.getUsers().forEach((user: IMainUser) => {
+    this.users.getUsers().forEach((user) => {
       // uhandler.updateUser(user.id, {
+      console.log(user);
       //   game: {
       //     state: UserGameState.idle,
       //     gameId: null,

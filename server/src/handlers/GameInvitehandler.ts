@@ -1,7 +1,6 @@
-import { GameInvite, GameNames, IUser } from "../../../web/types/types";
-import { getGame } from "./Handlers";
-import { GameRoom, roomHandler } from "./room";
-import { uhandler } from "./usersHandler";
+import { GameNames } from "../../../web/types/game";
+import { GameInvite, IUser } from "../../../web/types/users";
+
 export class GameInviteHandler {
   invites: Map<string, GameInvite>;
   // private toInvites: Map<string, string>;

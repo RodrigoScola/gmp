@@ -3,19 +3,19 @@ import {
   MoveChoice,
   GameNames,
   CFState,
-  IUser,
-  CFBoardMove,
   Board,
   CFMove,
   CFRound,
   CFplayer,
-} from "../../../web/types/types";
+  RoundType,
+} from "../../../web/types/game";
+import { IUser } from "../../../web/types/users";
 import { PlayerHandler } from "../handlers/usersHandler";
-import { RoundHandler, RoundType } from "../handlers/RoundHandler";
+import { RoundHandler } from "../handlers/RoundHandler";
 
-export class CFBoard extends Board<CFBoardMove> {
-  board: CFBoardMove[][];
-  moves: CFBoardMove[] = [];
+export class CFBoard extends Board<CFMove> {
+  board: CFMove[][];
+  moves: CFMove[] = [];
   rows: number = 7;
   cols: number = 6;
 
@@ -24,8 +24,8 @@ export class CFBoard extends Board<CFBoardMove> {
     this.board = this.generateBoard();
   }
 
-  generateBoard(): CFBoardMove[][] {
-    let rows: CFBoardMove[][] = [];
+  generateBoard(): CFMove[][] {
+    let rows: CFMove[][] = [];
     for (let i = 0; i < this.rows; i++) {
       rows[i] = new Array(this.cols).fill({
         id: "",
@@ -40,26 +40,23 @@ export class CFBoard extends Board<CFBoardMove> {
     }
     return rows;
   }
-  addMove(move: MoveChoice<CFMove>): void {
-    if (!this.isValid(this.board, move.move.coords.x, move.move.coords.y))
-      return;
+  addMove(move: CFMove): void {
+    if (!this.isValid(this.board, move.coords.x, move.coords.y)) return;
     for (let i = this.rows - 1; i >= 0; i--) {
       const board = this.board;
 
       const pos = board[i];
       if (!pos) continue;
-      if (!pos[move.move.coords.x]?.id) {
+      if (!pos[move.coords.x]?.id) {
         const nmove = {
           id: move.id,
-          move: {
-            color: move.move.color,
-            coords: {
-              x: move.move.coords.x,
-              y: i,
-            },
+          color: move.color,
+          coords: {
+            x: move.coords.x,
+            y: i,
           },
         };
-        pos[move.move.coords.x] = nmove;
+        pos[move.coords.x] = nmove;
         this.moves.push(nmove);
         // console.log(this.board);
         break;
@@ -146,7 +143,7 @@ export class CFBoard extends Board<CFBoardMove> {
     }
     return true;
   }
-  isValid(board: CFBoardMove[][], x: number, y: number): boolean {
+  isValid(board: CFMove[][], x: number, y: number): boolean {
     if (!board) return false;
     if (x < 0 || x > board[0].length || y < 0 || y > board.length) {
       return false;
@@ -165,7 +162,7 @@ export class CFGame extends Game<"connect Four"> {
   name: GameNames = "connect Four";
   board: CFBoard;
   rounds: RoundHandler<CFRound> = new RoundHandler();
-  moves: CFBoardMove[] = [];
+  moves: CFMove[] = [];
   players: PlayerHandler<CFplayer> = new PlayerHandler<CFplayer>();
 
   addPlayer(player: IUser) {
@@ -211,12 +208,20 @@ export class CFGame extends Game<"connect Four"> {
   }
   newRound(): void {
     if (this.moves.length == 0) return;
+    let w = {
+      id: "",
+    };
+    let wi = this.getWinner();
+    if (wi?.winner) {
+      w.id = wi.winner.id;
+    }
+
     this.rounds.addRound({
-      winner: {
-        id: this.moves[this.moves.length - 1].id,
-      },
-      moves: [this.moves],
       isTie: false,
+      winner: w,
+      moves: {
+        moves: this.moves,
+      },
     });
     this.moves = [];
     this.board = new CFBoard();
@@ -234,16 +239,18 @@ export class CFGame extends Game<"connect Four"> {
     }
     return this.board.moves[this.board.moves.length - 1];
   }
-  getWinner(): CFRound | null {
+  getWinner(): RoundType<CFRound> | null {
     const hasWin = this.board.checkBoard();
 
     if (!hasWin) return null;
     const winner = this.moves[this.moves.length - 1];
 
     return {
-      isTie: this.board.isTie(),
-      moves: this.moves,
+      isTie: false,
       winner: winner,
+      moves: {
+        moves: this.moves,
+      },
     };
   }
   play(move: MoveChoice<CFMove>): void {

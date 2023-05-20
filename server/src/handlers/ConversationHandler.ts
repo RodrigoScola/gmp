@@ -1,15 +1,13 @@
 import {
   ChatConversationType,
   ChatMessageType,
-  ChatUserState,
-} from "../../../web/types/types";
+  IUser,
+  MessageUser,
+  UserState,
+} from "../../../web/types/users";
 import { getFromFile } from "../utlils";
 import { IMainUser, uhandler } from "./usersHandler";
 
-type MessageUser = {
-  id: string;
-  state: ChatUserState;
-};
 export class ConversationHandler {
   messages: ChatMessageType[] = [];
   users: Map<string, MessageUser>;
@@ -20,11 +18,18 @@ export class ConversationHandler {
     this.users = new Map<string, MessageUser>();
     if (users?.length) {
       users.forEach((user) => {
-        this.addUser(user);
+        this.addUser({
+          id: user,
+          state: UserState.inChat,
+        });
       });
     }
   }
-
+  addUser(user: MessageUser): void {
+    if (!this.users.has(user.id)) {
+      this.users.set(user.id, user);
+    }
+  }
   newMessage(userId: string, content: string): ChatMessageType {
     return {
       created: new Date().toISOString(),
@@ -37,21 +42,21 @@ export class ConversationHandler {
     this.messages.push(message);
   }
   // TODO: change this to get the actual conversation, this now just gets the conversation.json
-  async getConversation(conversationId: string) {
+  async getConversation(_: string) {
     const file = await getFromFile<ChatConversationType>(
       "../web/data/conversationjson.json"
     );
     this.conversation = file;
-    this.conversation.users.forEach((user) => {
+    this.conversation.users.forEach((user: Partial<IUser> & { id: string }) => {
       if (this.users.has(user.id)) {
         this.users.set(user.id, {
           id: user.id,
-          state: ChatUserState.online,
+          state: UserState.online,
         });
       } else {
         this.users.set(user.id, {
           id: user.id,
-          state: ChatUserState.offline,
+          state: UserState.offline,
         });
       }
       // console.log(this);
@@ -61,7 +66,7 @@ export class ConversationHandler {
   }
   getUsers(): IMainUser[] {
     let users: IMainUser[] = [];
-    this.users.forEach((value, key) => {
+    this.users.forEach((_, key) => {
       if (uhandler.getUser(key)) {
         const user = uhandler.getUser(key) as IMainUser;
         if (user) users.push(user);

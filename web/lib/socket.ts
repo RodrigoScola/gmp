@@ -1,15 +1,14 @@
 import { io, Socket as SC } from "socket.io-client";
 import {
-  IUser,
   ServerToClientEvents,
   ClientToServerEvents,
-  GameNames,
-  ExtendedUser,
   ChatClientEvents,
   ChatServerEvents,
   GameQueueClientEvents,
   GameQueueServerEvents,
-} from "@/types/types";
+} from "@/types/socketEvents";
+import { ExtendedUser, IUser } from "@/types/users";
+import { GameNames } from "@/types/game";
 
 const socketUrl = "ws://localhost:3001";
 
@@ -22,7 +21,7 @@ export const socket: SC<ClientToServerEvents, ServerToClientEvents> = io(
 );
 
 export type SocketAuth = {
-  user: IUser | IUser<ExtendedUser>;
+  user: IUser;
   roomId: string;
   gameName: GameNames;
 };

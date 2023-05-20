@@ -1,8 +1,8 @@
 "use client";
 
 import { baseUrl } from "@/constants";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useEventCallback, useUpdateEffect } from "usehooks-ts";
+import { useCallback, useState } from "react";
+import { useUpdateEffect } from "usehooks-ts";
 export type RefetchConfig = {
   persistent: boolean;
 };

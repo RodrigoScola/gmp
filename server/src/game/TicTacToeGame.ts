@@ -1,57 +1,49 @@
 import { RoundHandler } from "../handlers/RoundHandler";
 import {
   GameNames,
-  MoveChoice,
   TTCPlayer,
-  TTCCombination as TTCCombination,
-  IUser,
   TTCMove,
   Game,
   TTCState,
   TTCOptions,
   Board,
   GameInfo,
-} from "../../../web/types/types";
+  TTCCombination,
+} from "../../../web/types/game";
 import { PlayerHandler } from "../handlers/usersHandler";
 
-export class TicTacToeBoard extends Board<TTCBoardMove> {
-  board: TTCBoardMove[][] = [];
-  moves: TTCBoardMove[];
+export class TicTacToeBoard extends Board<TTCMove> {
+  board: TTCMove[][] = [];
+  moves: TTCMove[];
   constructor() {
     super();
     this.moves = [];
     this.board = this.generateBoard();
   }
-  addMove = (move: TTCBoardMove) => {
-    const p = this.board[move.move.coords.x];
+  addMove = (move: TTCMove) => {
+    const p = this.board[move.coords.x];
     if (!p) return;
-    if (isValid(this.board, move.move.coords.x, move.move.coords.y)) {
-      p[move.move.coords.y] = move;
+    if (isValid(this.board, move.coords.x, move.coords.y)) {
+      p[move.coords.y] = move;
       this.moves.push(move);
     }
     return this.board;
   };
-  generateBoard = (): TTCBoardMove[][] => {
-    let rows: TTCBoardMove[][] = [];
+  generateBoard = (): TTCMove[][] => {
+    let rows: TTCMove[][] = [];
     for (let i = 0; i < 3; i++) {
       rows[i] = new Array(3).fill({
         id: "",
-        move: {
-          choice: null,
-          coords: {
-            x: 0,
-            y: 0,
-          },
+        choice: null,
+        coords: {
+          x: 0,
+          y: 0,
         },
       });
     }
     return rows;
   };
-  isValid = (
-    board: TTCBoardMove[][],
-    x: number = -1,
-    y: number = -1
-  ): boolean => {
+  isValid = (board: TTCMove[][], x: number = -1, y: number = -1): boolean => {
     if (!board) return false;
 
     if (x < 0 || x > board.length || y < 0 || y > board.length) {
@@ -59,26 +51,24 @@ export class TicTacToeBoard extends Board<TTCBoardMove> {
     }
     const pos = board[x];
     if (!pos) return false;
-    if (pos[y]?.move.choice) {
+    if (pos[y]?.choice) {
       return false;
     }
     if (this.checkBoard(board).winner) return false;
     return true;
   };
-  newBlock = (params: MoveChoice<TTCMove>): MoveChoice<TTCMove> => {
+  newBlock = (params: TTCMove): TTCMove => {
     return {
       id: params.id,
-      move: {
-        choice: params.move?.choice,
-        coords: {
-          x: params.move?.coords.x,
-          y: params.move?.coords.y,
-        },
+      choice: params.choice,
+      coords: {
+        x: params?.coords.x,
+        y: params?.coords.y,
       },
     };
   };
 
-  checkBoard = (board: TTCBoardMove[][]): TTCCombination => {
+  checkBoard = (board: TTCMove[][]): TTCCombination => {
     let winner: TTCCombination = {
       winner: null,
       board: null,
@@ -93,14 +83,14 @@ export class TicTacToeBoard extends Board<TTCBoardMove> {
         if (board[i][0]!.id) winner.winner = board[i][0]!.id;
         winner.board = board[i];
       }
-      let col = board.map((row) => row[i]).filter((i) => i) as TTCBoardMove[];
+      let col = board.map((row) => row[i]).filter((i) => i) as TTCMove[];
       if (this.checkLine(col)) {
         winner.winner = col[0]!.id;
         winner.board = col;
       }
     }
 
-    let diag1 = board.map((row, index) => row[index]) as TTCBoardMove[];
+    let diag1 = board.map((row, index) => row[index]) as TTCMove[];
 
     if (this.checkLine(diag1)) {
       winner.winner = diag1[0]!.id;
@@ -108,7 +98,7 @@ export class TicTacToeBoard extends Board<TTCBoardMove> {
     }
     let diag2 = board.map(
       (row, index) => row[board.length - index - 1]
-    ) as TTCBoardMove[];
+    ) as TTCMove[];
     if (this.checkLine(diag2)) {
       winner.winner = diag2[0]!.id;
       winner.board = diag2;
@@ -118,7 +108,7 @@ export class TicTacToeBoard extends Board<TTCBoardMove> {
     for (let i = 0; i < board.length; i++) {
       const elem = board[i];
       for (let j = 0; j < elem.length; j++) {
-        if (!board[i][j].move.choice) {
+        if (!board[i][j].choice) {
           isFull = false;
         }
       }
@@ -130,10 +120,10 @@ export class TicTacToeBoard extends Board<TTCBoardMove> {
     return winner;
   };
 
-  checkLine = (diagonal: TTCBoardMove[]): boolean => {
+  checkLine = (diagonal: TTCMove[]): boolean => {
     if (diagonal.length === 0) return false;
     for (let i = 0; i < diagonal.length; i++) {
-      if (diagonal[i]?.move.choice !== diagonal[0]?.move.choice) {
+      if (diagonal[i]?.choice !== diagonal[0]?.choice) {
         return false;
       }
     }
@@ -150,7 +140,7 @@ export class TicTacToeGame extends Game<"Tic Tac Toe"> {
     GameInfo<"Tic Tac Toe">["player"]
   >();
   board: TicTacToeBoard = new TicTacToeBoard();
-  round: RoundHandler<GameInfo<"Tic Tac Toe">["round"]> = new RoundHandler<
+  rounds: RoundHandler<GameInfo<"Tic Tac Toe">["round"]> = new RoundHandler<
     GameInfo<"Tic Tac Toe">["round"]
   >();
   isPlayerTurn(playerId: string): boolean {
@@ -172,7 +162,7 @@ export class TicTacToeGame extends Game<"Tic Tac Toe"> {
   isReady(): boolean {
     return true;
   }
-  addPlayer(player: IUser) {
+  addPlayer(player: TTCPlayer) {
     let choice;
     if (this.players.getPlayers().length == 0) {
       choice = Math.random() > 0.5 ? "X" : "O";
@@ -196,7 +186,16 @@ export class TicTacToeGame extends Game<"Tic Tac Toe"> {
           id: winner.isTie ? "tie" : winner.winner!,
         },
         isTie: winner.isTie,
-        moves: winner.board!,
+        moves: {
+          isTie: winner.isTie,
+          moves: this.board.moves,
+          loser: {
+            id: winner.loser ? winner.loser : "",
+          },
+          winner: {
+            id: winner.winner ? winner.winner : "",
+          },
+        },
       });
     }
 
@@ -210,8 +209,8 @@ export class TicTacToeGame extends Game<"Tic Tac Toe"> {
   getPlayers(): TTCPlayer[] {
     return this.players.getPlayers();
   }
-  play(player: TTCBoardMove) {
-    this.board.addMove(player);
+  play(move: TTCMove) {
+    this.board.addMove(move);
     // console.log(this.board.board);
   }
   hasWinner() {

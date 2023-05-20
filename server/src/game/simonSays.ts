@@ -1,22 +1,21 @@
 import {
-  ColorType,
+  SMSColorType,
   Game,
   GameNames,
-  MoveChoice,
   SMSMove,
-  SMSPlayer,
   SMSRound,
-  SMSState,
-} from "../../../web/types/types";
+  SMState,
+  SMSPlayer,
+} from "../../../web/types/game";
 import { RoundHandler } from "../handlers/RoundHandler";
 import { PlayerHandler, uhandler } from "../handlers/usersHandler";
 
 export class SimonSaysGame extends Game<"Simon Says"> {
   name: GameNames = "Simon Says";
-  players: PlayerHandler;
+  players: PlayerHandler<SMSPlayer>;
   rounds: RoundHandler<SMSRound> = new RoundHandler<SMSRound>();
-  sequence: ColorType[];
-  playerSequence: MoveChoice<SMSMove>[] = [];
+  sequence: SMSColorType[];
+  playerSequence: SMSMove[] = [];
   constructor() {
     super();
     this.sequence = ["blue"];
@@ -43,7 +42,7 @@ export class SimonSaysGame extends Game<"Simon Says"> {
   addPlayer(player: SMSPlayer): void {
     this.players.addPlayer(player);
   }
-  play(move: MoveChoice<SMSMove>): void {
+  play(move: SMSMove): void {
     this.playerSequence.push(move);
   }
   get hasLost() {
@@ -51,12 +50,8 @@ export class SimonSaysGame extends Game<"Simon Says"> {
       return false;
     if (
       this.sequence[this.sequence.length - 1] !==
-      this.playerSequence[this.playerSequence.length - 1].move.color
+      this.playerSequence[this.playerSequence.length - 1].color
     ) {
-      // console.log(
-      //   this.sequence[this.sequence.length - 1],
-      //   this.playerSequence[this.playerSequence.length - 1].move.color
-      // );
       return true;
     }
     return false;
@@ -65,10 +60,10 @@ export class SimonSaysGame extends Game<"Simon Says"> {
     console.log(this.sequence.length, this.playerSequence.length);
     return this.sequence.length == this.playerSequence.length;
   }
-  genRandomSequence(num: number): ColorType[] {
-    const colors: ColorType[] = ["blue", "green", "yellow", "red"];
+  genRandomSequence(num: number): SMSColorType[] {
+    const colors: SMSColorType[] = ["blue", "green", "yellow", "red"];
 
-    const sequence: ColorType[] = [];
+    const sequence: SMSColorType[] = [];
     for (let i = 0; i < num; i++) {
       const randomColor = colors[Math.floor(Math.random() * colors.length)];
       sequence.push(randomColor);
@@ -77,7 +72,9 @@ export class SimonSaysGame extends Game<"Simon Says"> {
   }
   newRound(): void {
     this.rounds.addRound({
-      moves: [{ sequence: this.toSequence(this.sequence) }],
+      moves: {
+        sequence: this.playerSequence,
+      },
       isTie: false,
       winner: {
         id: this.players.getPlayers()[0].id,
@@ -92,13 +89,13 @@ export class SimonSaysGame extends Game<"Simon Says"> {
       return uhandler.getUser(i.id);
     });
   }
-  toSequence(sequence: ColorType[]): MoveChoice<SMSMove>[] {
+  toSequence(sequence: SMSColorType[]): SMSMove[] {
     return sequence.map((i) => ({
       id: this.getPlayers()[0].id,
-      move: { color: i },
+      color: i,
     }));
   }
-  getState(): SMSState {
+  getState(): SMState {
     return {
       name: this.name,
       players: this.getPlayers(),
@@ -107,7 +104,7 @@ export class SimonSaysGame extends Game<"Simon Says"> {
         rounds: this.rounds.rounds,
       },
       speed: this.speed,
-      sequence: this.toSequence(this.sequence),
+      sequence: this.sequence,
     };
   }
   isReady(): boolean {

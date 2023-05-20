@@ -1,6 +1,10 @@
 import { RoundHandler } from "@/../server/src/handlers/RoundHandler";
 import { Coords } from "./types";
 import { PlayerHandler } from "@/../server/src/handlers/usersHandler";
+import { CFGame } from "@/../server/src/game/c4Game";
+import { SimonSaysGame } from "@/../server/src/game/simonSays";
+import { TicTacToeGame } from "@/../server/src/game/TicTacToeGame";
+import { RockPaperScissorsGame } from "@/../server/src/game/rockpaperScissors";
 
 export type GameInfo<T extends GameNames> = GamesInfo[T];
 
@@ -16,6 +20,12 @@ export abstract class Game<T extends GameNames> {
   abstract getState(): GameInfo<T>["state"];
   // isPlayerTurn(playerId: string): boolean;
 }
+
+export type IGame = CFGame &
+  SimonSaysGame &
+  TicTacToeGame &
+  RockPaperScissorsGame;
+
 export type GameNames =
   | "Simon Says"
   | "connect Four"
@@ -30,18 +40,21 @@ export const gameNames: GameNames[] = [
 ];
 // players
 
-export type CFplayer = {
+// this is just to have interfaces comply with the same structure
+export type Player = {
   id: string;
-  choice: ConnectChoices;
 };
-export interface TTCPlayer {
-  id: string;
+
+export interface CFplayer extends Player {
+  choice: ConnectChoices;
+}
+export interface TTCPlayer extends Player {
   choice?: TTCOptions;
 }
-export interface RPSPlayer {
-  id: string;
+export interface RPSPlayer extends Player {
   choice: RPSOptions | null;
 }
+export interface SMSPlayer extends Player {}
 
 // options
 export type SMSColorType = "red" | "blue" | "green" | "yellow";
@@ -72,11 +85,11 @@ export const RPSWinCombination: RPSCombination[] = [
 
 // rounds
 export type RoundType<T extends RPSRound | CFRound | SMSRound | TTCRound> = {
-  winner: {
+  winner?: {
     id: string;
   };
   isTie: boolean;
-  moves: T[];
+  moves: T;
 };
 
 export type TTCRound = {
@@ -90,8 +103,6 @@ export type TTCRound = {
   moves: TTCMove[];
 };
 export type CFRound = {
-  isTie: boolean;
-  winner: CFplayer;
   moves: CFMove[];
 };
 
@@ -103,7 +114,7 @@ export type RPSRound = {
 };
 
 export type SMSRound = {
-  moves: SMSMove;
+  sequence: SMSMove[];
 };
 
 export type Rounds = {
@@ -130,13 +141,20 @@ export type TTCMove = MoveChoice<{
 export type SMSMove = MoveChoice<{
   color: SMSColorType;
 }>;
-export interface MoveChoice<T> {
-  id: string;
-  move: T;
-}
+export type MoveChoice<T> = { id: string } & T;
 
 //state
-export interface SMState {}
+
+export interface SMState {
+  name: GameNames;
+  players: TTCPlayer[];
+  rounds: {
+    count: number;
+    rounds: RoundType<SMSRound>[];
+  };
+  speed: number;
+  sequence: SMSColorType[];
+}
 export interface RPSstate {
   players: RPSPlayer[];
   moves: RPSMove[];
@@ -155,7 +173,7 @@ export interface CFState {
   name: GameNames;
   rounds: {
     count: number;
-    rounds: CFMove[];
+    rounds: RoundType<CFRound>[];
     wins: {
       [key: string]: number;
       ties: number;
@@ -171,7 +189,7 @@ export interface TTCState {
   name: GameNames;
   rounds: {
     count: number;
-    rounds: TTCMove[];
+    rounds: RoundType<TTCRound>[];
   };
 }
 

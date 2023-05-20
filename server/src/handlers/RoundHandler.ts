@@ -1,4 +1,12 @@
-export class RoundHandler<T> {
+import {
+  CFRound,
+  RPSRound,
+  RoundType,
+  SMSRound,
+  TTCRound,
+} from "../../../web/types/game";
+
+export class RoundHandler<T extends RPSRound | TTCRound | SMSRound | CFRound> {
   count: number = 0;
   maxWins: number = 5;
   rounds: RoundType<T>[];
@@ -13,7 +21,7 @@ export class RoundHandler<T> {
   }
   countWins(playerId: string) {
     return this.rounds.filter(
-      (i) => i.winner.id == playerId && i.isTie == false
+      (i) => i!.winner?.id == playerId && i.isTie == false
     ).length;
   }
   isWinner(playerId: string) {
@@ -26,10 +34,12 @@ export class RoundHandler<T> {
       const round = this.rounds[i];
       if (!round) continue;
       if (!round?.isTie) {
-        if (players[round.winner.id]) {
-          players[round.winner.id]++;
+        const winner = round.winner;
+        if (!winner) continue;
+        if (players[winner.id]) {
+          players[winner.id]++;
         } else {
-          players[round.winner.id] = 1;
+          players[winner.id] = 1;
         }
       }
     }
