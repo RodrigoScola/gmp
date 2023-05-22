@@ -1,4 +1,4 @@
-import { MatchHandler } from "./Handlers";
+import { MatchHandler } from "./gameHandlers";
 import { RockPaperScissorsGame } from "../game/rockpaperScissors";
 import { UsersHandlers } from "./usersHandler";
 import { ConversationHandler } from "./ConversationHandler";
@@ -81,10 +81,12 @@ export class ChatRoom implements IRoom {
   messages: ConversationHandler = new ConversationHandler();
 
   addUser(user: ChatUser): void {
-    if (!this.messages.users.has(user.id)) {
-      throw new Error("User doesn't exist in conversation");
+    if (
+      this.messages.conversation?.users.length &&
+      this.messages.conversation.users.find((u) => u.id === user.id)
+    ) {
+      this.users.addUser(user);
     }
-    this.users.addUser(user);
   }
   constructor(id: string, users?: SocketUser[]) {
     this.messages = new ConversationHandler();
@@ -102,6 +104,7 @@ export class ChatRoom implements IRoom {
   }
   async getConversation() {
     await this.messages.getConversation(this.id);
+    console.log(this.messages.conversation);
   }
   delete(): void {}
 }

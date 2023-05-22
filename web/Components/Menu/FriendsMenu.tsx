@@ -2,28 +2,66 @@
 import { Drawer } from "@/Components/Drawer/Drawer";
 import { DrawerFooter } from "@/Components/Drawer/DrawerFooter";
 import { FriendsList } from "@/Components/Friends/FriendsComponents";
+import { useFriends } from "@/hooks/useFriends";
+import { useUser } from "@/hooks/useUser";
+import { usersSocket } from "@/lib/socket";
+import { IFriend, IFriend, IUser } from "@/types/users";
 import {
   Popover,
   PopoverTrigger,
   useDisclosure,
   PopoverContent,
 } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
 
 type FriendsMenuProps = {
   disclosure: Partial<ReturnType<typeof useDisclosure>>;
 };
 
+var timer: NodeJS.Timeout;
+
 export default function FriendsMenu(props: FriendsMenuProps) {
   const { isOpen, onToggle, onClose } = useDisclosure();
-  const handleSubmit = (e: { preventDefault: () => void; }) => {
+  const handleSubmit = (e: { preventDefault: () => void }) => {
     e.preventDefault();
   };
+  const [friends, setFriends] = useState<IFriend[]>([]);
+  const { user } = useUser();
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const f = useFriends();
+  const go = async () => {
+    const x = await f?.getFriends(user.id);
+    if (x) setFriends(x);
+  };
+
+  useEffect(() => {
+    if (user.id) {
+      go();
+    }
+  }, []);
+  const [resultFriends, setResultFriends] = useState<IFriend[]>([]);
   const handleCloseMenu = () => {
     if (props.disclosure.onClose) {
       props.disclosure.onClose();
     }
     onClose();
   };
+  const handleChange = (term: string) => {
+    setSearchTerm(term);
+  };
+  useEffect(() => {
+    let es = searchTerm;
+    if (timer) {
+      clearTimeout(timer);
+    }
+    timer = setTimeout(() => {
+      if (es == searchTerm && searchTerm !== "") {
+        usersSocket.emit("search_users", searchTerm, (data: IUser[]) => {
+          setResultFriends(data as IFriend[]);
+        });
+      }
+    }, 500);
+  }, [searchTerm]);
   return (
     <div>
       <Drawer
@@ -46,14 +84,22 @@ export default function FriendsMenu(props: FriendsMenuProps) {
               <form onSubmit={handleSubmit} className="flex flex-row">
                 <label className="flex flex-col">
                   Username
-                  <input />
+                  <input
+                    value={searchTerm}
+                    onChange={(e) => handleChange(e.target.value)}
+                  />
                 </label>
                 <button>Search</button>
               </form>
+              <div>
+                {resultFriends.map((friend: IFriend) => {
+                  return <div>{friend.username}</div>;
+                })}
+              </div>
             </PopoverContent>
           </Popover>
         </div>
-        <FriendsList />
+        <FriendsList friends={friends} />
         <DrawerFooter>
           <button onClick={onClose}>Cancel</button>
         </DrawerFooter>

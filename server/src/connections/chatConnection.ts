@@ -10,9 +10,11 @@ import {
   getUserFromSocket,
   userHandler,
 } from "../server";
-import { ChatRoom, roomHandler } from "../handlers/room";
+import { ChatRoom, getRoom, roomHandler } from "../handlers/room";
 import { ChatUser, SocketUser, UserState } from "../../../web/types/users";
 import { uhandler } from "../handlers/usersHandler";
+import { newMessage } from "../handlers/ConversationHandler";
+import { db } from "../lib/db";
 
 export const chatHandlerConnection = (
   chatHandler: Namespace<
@@ -64,10 +66,7 @@ export const chatHandlerConnection = (
     if (room) {
       chatHandler.to(roomId).emit("user_joined", room.users.getUsers());
     }
-    // console.log(room);
     socket.join(roomId);
-    // console.log(uhandler.getUser(connInfo.user.id));
-    // console.log(connInfo.user.socketId);
 
     const hasRoom = roomHandler.getRoom<ChatRoom>(getRoomId(socket));
     if (hasRoom) {
@@ -84,29 +83,31 @@ export const chatHandlerConnection = (
       state,
     });
 
-    const userFromSocket = room.users.getUser(getUserFromSocket(socket)?.id as string)
+    const userFromSocket = room.users.getUser(
+      getUserFromSocket(socket)?.id as string
+    );
     if (userFromSocket) {
-
-    socket.broadcast
-      .to(getRoomId(socket))
-      .emit(
-        "state_change",
-        userFromSocket
-      );
+      socket.broadcast
+        .to(getRoomId(socket))
+        .emit("state_change", userFromSocket);
     }
   });
-  socket.on("send_message", (message, callback) => {
+  socket.on("send_message", async (message, callback) => {
+    const roomId = socket.data.roomId ?? socket.handshake.auth["roomId"];
     if (socket.data.roomId) {
       room = roomHandler.getRoom<ChatRoom>(socket.data.roomId) as ChatRoom;
     }
+    if (!room && roomId) {
+      const tempRoom = getRoom(roomId);
+      if (!tempRoom) {
+        room = roomHandler.createRoom<ChatRoom>(roomId, new ChatRoom(roomId));
+      }
+    }
+    await room.getConversation(roomId);
+    const nmessage = newMessage(message.userId, message.message);
 
-    const nmessage = room?.messages?.newMessage(
-      message.userId,
-      message.message
-    );
     const conversationUsers = room.messages.users;
     const users = room.users.getUsers();
-
     conversationUsers.forEach((user) => {
       const muser = uhandler.getUser(user.id);
       const inChannel = room.users.users.has(user.id);
@@ -120,7 +121,7 @@ export const chatHandlerConnection = (
       chatHandler.to(user.socketId).emit("receive_message", nmessage);
       // console.log(user.socketId);
     });
-    room.messages.addMessage(nmessage);
+    await room.messages.addMessage(nmessage);
     if (callback) {
       callback({
         received: true,

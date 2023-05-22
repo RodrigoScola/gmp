@@ -1,34 +1,44 @@
 "use client";
 import { db } from "@/db/supabase";
 import { userSocket } from "@/lib/socket";
-import {
-  ChatClientEvents,
-  ChatServerEvents,
-  ChildrenType,
-  ExtendedUser,
-  IUser,
-} from "@/types/types";
+import { ChildrenType } from "@/types/types";
 import { useNotification } from "./useToast";
-import { createContext, useCallback, useContext, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { useEffectOnce, useUpdateEffect } from "usehooks-ts";
 import { GameInviteComponent } from "@/Components/Notifications/GameInvite";
 import { Socket } from "socket.io-client";
 import { useSupabase } from "@/app/supabase-provider";
+import { IUser } from "@/types/users";
+import { ChatClientEvents, ChatServerEvents } from "@/types/socketEvents";
+import { AddFiendComponent } from "@/Components/Notifications/AddFriend";
 interface UserContext {
-  user: IUser<ExtendedUser>;
+  user: IUser;
   setCurrentUser: (user: IUser) => void;
   login: (email: string, password: string) => Promise<any>;
   logout: () => void;
   socket: Socket<ChatClientEvents, ChatServerEvents>;
 }
-export const UserContext = createContext<UserContext | null>(null);
+export const UserContext = createContext<
+  | UserContext
+  | {
+      id: null;
+    }
+>({
+  id: null,
+});
 
 export const UserProvider = ({ children }: { children: ChildrenType }) => {
   // const [token, setTOken] = useState(db.authStore.token);
-  const [currentUser, setCurrentUser] = useState<IUser<ExtendedUser> | null>(
+  const [currentUser, setCurrentUser] = useState<IUser | null>(
     localStorage.getItem("user")
       ? JSON.parse(localStorage.getItem("user"))
-      : null
+      : { id: null }
   );
   const { supabase, session } = useSupabase();
 
@@ -50,15 +60,21 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
       setCurrentUser(data.data);
     }
   };
-  useEffectOnce(() => {
+  useEffect(() => {
     handleFetch();
-  });
-
+  }, []);
+  console.log(currentUser);
   useEffectOnce(() => {
     userSocket.auth = {
       user: currentUser,
     };
     userSocket.connect();
+    userSocket.on("add_friend_response", (data) => {
+      toast.addNotification("Game Request", {
+        duration: 15000,
+        render: () => <AddFiendComponent friend={data} />,
+      });
+    });
     userSocket.on("notification_message", (data) => {
       toast.addNotification(`${data.user.username} sent you a message`);
     });
@@ -84,8 +100,17 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
       email,
       password,
     });
+
     if (data?.user) {
       setCurrentUser(data.user);
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", data.user.id)
+        .single();
+
+      localStorage.setItem("user", JSON.stringify(profile));
     }
     return data;
   }, []);
@@ -95,7 +120,12 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
   return (
     <UserContext.Provider
       value={{
-        user: currentUser,
+        user: currentUser ?? {
+          id: null,
+          created_at: Date.now(),
+          email: "defaultemail@gmail.com",
+          username: "default username",
+        },
         login,
         socket: userSocket,
         logout,

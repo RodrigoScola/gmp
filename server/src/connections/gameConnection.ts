@@ -1,6 +1,6 @@
 import { GameNames, IGame } from "../../../web/types/game";
 import { SocketUser, UserGameState } from "../../../web/types/users";
-import { MatchPlayerState, getGame } from "../handlers/Handlers";
+import { MatchPlayerState, getGame } from "../handlers/gameHandlers";
 import { GameRoom, roomHandler } from "../handlers/room";
 import { uhandler } from "../handlers/usersHandler";
 import { MySocket, getRoomId, io } from "../server";

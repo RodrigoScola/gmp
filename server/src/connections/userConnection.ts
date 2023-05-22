@@ -2,8 +2,10 @@ import { Namespace, Socket } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import { SocketData, getUserFromSocket } from "../server";
 import {
-  ChatClientEvents,
-  ChatServerEvents,
+  ClientToServerEvents,
+  ServerToClientEvents,
+  UserClientEvents,
+  UserServerEvents,
 } from "../../../web/types/socketEvents";
 import {
   GameInvite,
@@ -11,57 +13,88 @@ import {
   SocketUser,
   UserState,
 } from "../../../web/types/users";
-import { uhandler } from "../handlers/usersHandler";
+import { uhandler, MainUser } from "../handlers/usersHandler";
 import { GameRoom, roomHandler } from "../handlers/room";
-import { getGame } from "../handlers/Handlers";
+import { getGame } from "../handlers/gameHandlers";
 import { GameNames } from "../../../web/types/game";
+import { db } from "../lib/db";
 
 export const userHandlerConnection = (
   userHandler: Namespace<
-    ChatClientEvents,
-    ChatServerEvents,
+    UserServerEvents,
+    UserClientEvents,
     DefaultEventsMap,
     SocketData
   >,
   socket: Socket<
-    ChatClientEvents,
-    ChatServerEvents,
+    UserServerEvents,
+    UserClientEvents,
     DefaultEventsMap,
     SocketData
   >
 ) => {
-  const user = getUserFromSocket(socket);
+  const socketuser = getUserFromSocket(socket);
   const socketUser = {
-    ...user,
+    ...socketuser,
     socketId: socket.id,
   } as SocketUser;
   uhandler.addUser(socketUser);
-  if (user) {
-    socket.data.user = user;
+  if (socketuser) {
+    socket.data.user = socketuser;
   }
-  // console.log(socketUser.socketId);
+  socket.on("get_friends", async (userid: string, callback) => {
+    const user = uhandler.getUser(userid);
 
-  // socket.on("friend_invite")
-  // socket.on("friend_invite_response")
+    if (!user) return;
+
+    const friends = await user.friends.getFriends();
+
+    callback(friends);
+  });
+
   socket.on("add_friend", async (friendId: string, _) => {
     // console.log(friendId);
     const user = uhandler.getUser(friendId);
-
-    if (!user) return;
 
     const currentUser = uhandler.getUser(
       getUserFromSocket(socket)?.id as string
     );
 
-    const isFriend = await currentUser?.friends.isFriend(user.id);
-    console.log(isFriend);
-    // add to database as pending
+    if (!user || !currentUser?.user) return;
+    const isFriend = await currentUser?.friends.getRequest(user.id);
 
-    // socket.to(user?.socketId).emit("friend_request", "hello there", () => {});
+    if (!isFriend) {
+      await currentUser?.friends.addFriendRequest(user.id);
+    }
+    if (isFriend?.status == "pending") {
+      socket.to(user?.socketId).emit("add_friend_response", {
+        created_at: currentUser.user.created_at ?? "",
+        id: currentUser.user.id,
+        username: currentUser.user.username ?? "",
+        email: currentUser.user.email ?? "",
+      });
+    }
   });
 
-  socket.on("add_friend_response", async (response) => {
+  socket.on("add_friend_answer", async (user, response) => {
     if (response == "accepted") {
+      const currentUser = uhandler.getUser(
+        getUserFromSocket(socket)?.id as string
+      );
+      if (!currentUser?.user) return;
+      const reqId = await currentUser.friends.getRequest(user.id);
+      const d = await db
+        .from("connections")
+        .update({
+          status: "accepted",
+        })
+        .eq("id", reqId?.id);
+
+      console.log(d);
+      // const a = await db
+      //   .from("connections")
+      //   .update({ status: "accepted" })
+      //   .eq("id", accepted?.id);
       // change definition to accepted
     } else {
       // change definition to declined

@@ -36,25 +36,68 @@ export interface Database {
     Tables: {
       connections: {
         Row: {
-          created_at: string | null
-          friend1: string | null
-          friend2: string | null
+          created_at: string
+          friend1: string
+          friend2: string
           id: number
-          status: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          friend1: string
+          friend2: string
+          id?: number
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          friend1?: string
+          friend2?: string
+          id?: number
+          status?: string
+        }
+      }
+      conversations: {
+        Row: {
+          created_at: string | null
+          id: number
+          user1: string
+          user2: string | null
         }
         Insert: {
           created_at?: string | null
-          friend1?: string | null
-          friend2?: string | null
           id?: number
-          status?: string | null
+          user1: string
+          user2?: string | null
         }
         Update: {
           created_at?: string | null
-          friend1?: string | null
-          friend2?: string | null
           id?: number
-          status?: string | null
+          user1?: string
+          user2?: string | null
+        }
+      }
+      messages: {
+        Row: {
+          conversationId: number
+          created: string
+          id: string
+          message: string
+          userId: string
+        }
+        Insert: {
+          conversationId: number
+          created?: string
+          id?: string
+          message: string
+          userId: string
+        }
+        Update: {
+          conversationId?: number
+          created?: string
+          id?: string
+          message?: string
+          userId?: string
         }
       }
       profiles: {
@@ -82,7 +125,35 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      find_conversation: {
+        Args: {
+          user1_id: string
+          user2_id: string
+        }
+        Returns: {
+          user1: string
+          user2: string
+          id: number
+        }[]
+      }
+      find_matching_rows: {
+        Args: {
+          user1_id: string
+          user2_id: string
+        }
+        Returns: {
+          friend1_id: string
+          friend2_id: string
+          id: number
+          status: string
+        }[]
+      }
+      get_friends: {
+        Args: {
+          userid: string
+        }
+        Returns: string[]
+      }
     }
     Enums: {
       [_ in never]: never

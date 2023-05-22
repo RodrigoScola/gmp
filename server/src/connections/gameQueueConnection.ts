@@ -1,7 +1,7 @@
 import { Namespace, Socket } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import { GameNames, GameType } from "../../../web/types/game";
-import { getGame } from "../handlers/Handlers";
+import { getGame } from "../handlers/gameHandlers";
 import { GameRoom, QueueRoom, roomHandler } from "../handlers/room";
 import { uhandler } from "../handlers/usersHandler";
 import { gameQueue } from "../matchQueue";

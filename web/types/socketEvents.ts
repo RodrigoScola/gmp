@@ -71,37 +71,52 @@ export interface ClientToServerEvents {
   user_disconnected: (roomId: string) => void;
 }
 export interface ChatServerEvents {
+  notification_message: (params: { user: SocketUser }) => void;
   receive_message: (
     message: ChatMessageType,
     callback?: (err: Error | null, data: any) => void
   ) => void;
-  notification_message: (params: { user: SocketUser }) => void;
   user_joined: (user: SocketUser[]) => void;
   state_change: (state: ChatUser) => void;
-  game_invite: (gameInvite: GameInvite) => void;
-  friend_request: (friendid: string, callback: (...args: any) => void) => void;
-  game_invite_response: (gameInvite: string) => void;
-  game_invite_accepted: (invite: GameInvite) => void;
 }
 export interface ChatClientEvents {
   join_room: (roomId: string) => void;
-  add_friend: (friendid: string, callback: (...args: any) => void) => void;
-  add_friend_response: (
-    response: "accepted" | "declined",
-    callback: (...args: any) => void
-  ) => void;
   send_message: (
     message: NewChatChatMessageType,
     callback?: (params: { received: boolean }) => void
   ) => void;
   state_change: (state: any) => void;
-  game_invite: (gameName: GameNames, userId: string) => void;
+}
+
+export type UserServerEvents = {
+  friend_request: (friendid: string, callback: (...args: any) => void) => void;
+  add_friend: (friendid: string, callback?: (...args: any) => void) => void;
   game_invite_response: (
     action: GameInviteOptions,
     invite: GameInvite,
     callback: (invite: GameInvite) => void
   ) => void;
-}
+ game_invite_accepted: (invite: GameInvite) => void; game_invite: (gameName: GameNames, userId: string) => void;
+  notification_message: (params: { user: SocketUser }) => void;
+  get_friends: (userId: string ; callback: (friends: IUser[]) => void) => void;
+  add_friend_response: (friend: IUser) => void;
+  add_friend_answer:(from : IUser,  response: 'accepted' | 'declined') => void
+};
+
+export type UserClientEvents = {
+  get_friends: (userId: string; callback: (friends: IUser[]) => void) => void;
+  add_friend_answer:( user: IUser, response: 'accepted' | 'declined') => void
+  game_invite_response: (
+    action: GameInviteOptions,
+    invite: GameInvite,
+    callback: (invite: GameInvite) => void
+  ) => void;
+  add_friend_response: (
+  user: IUser
+  ) => void;
+  game_invite: (gameName : GameNames, userId: string) => void;
+  add_friend: (friendid: string, callback?: (...args: any) => void) => void;
+};
 
 export type GameQueueClientEvents = {
   join_queue: (gameName: GameType | GameType[]) => void;
@@ -109,3 +124,11 @@ export type GameQueueClientEvents = {
 export type GameQueueServerEvents = {
   game_found: (gameid: string) => void;
 };
+
+export type UsersServerEvents  ={
+  get_user: (userId: string, callback?: (user: IUser | null , ...args: any) => void) => void
+  search_users: (username: string, callback?: (...args: any) => void) => void
+}
+export type UsersClientEvents ={
+  search_users: (username: string, callback?: (...args: any) => void) => void
+}

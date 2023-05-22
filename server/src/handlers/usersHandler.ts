@@ -13,7 +13,7 @@ export type IMainUser = {
   };
   socketId: string;
 };
-class MainUser implements IMainUser {
+export class MainUser implements IMainUser {
   user: SocketUser;
   id: string;
   currentState: UserState;
@@ -36,9 +36,10 @@ class MainUser implements IMainUser {
 class MainUserHandler {
   users: Map<string, MainUser>;
   invites: GameInviteHandler;
-
+  userNames: Map<string, string>;
   constructor() {
     this.users = new Map<string, MainUser>();
+    this.userNames = new Map<string, string>();
     this.invites = new GameInviteHandler();
   }
   addUser(user: SocketUser) {
@@ -54,6 +55,9 @@ class MainUserHandler {
       socketId: user.socketId,
     });
     this.users.set(user.id, mainUser);
+    if (user.username) {
+      this.userNames.set(user.username, user.id);
+    }
     return mainUser;
   }
   updateUser(userId: string, info: Partial<IMainUser>): IMainUser | undefined {
@@ -67,6 +71,7 @@ class MainUserHandler {
     const users = Array.from(this.users.values());
     return users.map((user) => user);
   }
+
   getUser(id: string): MainUser | undefined {
     // console.log(this.users.get(id));
     const user = this.users.get(id);
@@ -74,6 +79,10 @@ class MainUserHandler {
       return user;
     }
     return;
+  }
+  getUserByUsername(username: string) {
+    if (!this.userNames.has(username)) return;
+    return this.userNames.get(username);
   }
   deleteUser(id: string) {
     this.users.delete(id);

@@ -3,59 +3,43 @@
 import { useFriend } from "@/hooks/useFriends";
 import { useUser } from "@/hooks/useUser";
 import { chatSocket, socket, userSocket } from "@/lib/socket";
-import {
-  ChatConversationType,
-  ChatMessageType,
-  ChatUserState,
-  ReturnUserType,
-} from "@/types/types";
+import { ChatConversationType, ChatMessageType, IUser } from "@/types/users";
+import { UserState } from "@/types/users";
 import { Popover, PopoverContent, PopoverTrigger } from "@chakra-ui/react";
-import { useEffect, useRef, useState } from "react";
-
-const newMessage = (content: string, userId: string): ChatMessageType => {
-  return {
-    created: new Date().toISOString(),
-    userId,
-    id: Date.now().toString(),
-    message: content,
-  };
-};
+import { useEffect, useMemo, useRef, useState } from "react";
 
 var timer: NodeJS.Timeout;
 export const RenderChatMesages = (props: {
-  chatMessages: ChatConversationType;
-  user: ReturnUserType;
+  conversation: ChatConversationType;
+  isFriend?: boolean;
 }) => {
   const { user } = useUser();
   const friend = useFriend();
 
   useEffect(() => {
     if (user) {
-      console.log(props.chatMessages);
-      const friendId = props.chatMessages.users.find((i) => i.id != user.id);
+      const friendId = props.conversation.users.find((i) => i.id != user.id);
       if (friendId) {
         friend.setFriendId(friendId.id);
-        setAllChat(props.chatMessages);
+        setAllChat(props.conversation);
       }
     }
-  }, [user]);
+  }, [user.id]);
   const [currentChat, setCurrentChat] = useState<string>("");
   const documentRef = useRef<HTMLFormElement>(null);
-  const [allChat, setAllChat] = useState<ChatConversationType>({
-    id: "string",
-    messages: [],
-    users: [],
-  });
-  const [receiverState, setReceiverState] = useState<ChatUserState>(
-    ChatUserState.offline
+  const [allChat, setAllChat] = useState<ChatConversationType>(
+    props.conversation
+  );
+  console.log(props.conversation);
+  const [receiverState, setReceiverState] = useState<UserState>(
+    UserState.online
   );
   useEffect(() => {
     chatSocket.auth = {
       user: user,
-      roomId: "aoaoidfjoiasjdf",
+      roomId: props.conversation.id,
     };
     chatSocket.connect();
-    console.log(user.id);
 
     chatSocket.emit("join_room", chatSocket.auth.roomId);
     chatSocket.on("user_joined", (data) => {
@@ -70,7 +54,6 @@ export const RenderChatMesages = (props: {
           received: true,
         });
       }
-      console.log("asdf");
       setAllChat((prev) => {
         return {
           ...prev,
@@ -93,10 +76,10 @@ export const RenderChatMesages = (props: {
     };
   }, [socket]);
 
-  // const lastMessage = useMemo(() => {
-  //   if (!allChat?.messages.length) return;
-  //   return allChat.messages[allChat.messages.length - 1];
-  // }, [allChat]);
+  const isFriend = useMemo(() => {
+    return !!props.isFriend;
+  }, [props.isFriend]);
+
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleNewMessage = (e: HTMLFormElement) => {
@@ -108,11 +91,11 @@ export const RenderChatMesages = (props: {
     });
     setCurrentChat("");
 
-    chatSocket.emit("state_change", ChatUserState.online);
+    chatSocket.emit("state_change", UserState.online);
   };
   const handleChange = (e: string) => {
     setCurrentChat(e);
-    chatSocket.emit("state_change", ChatUserState.typing);
+    chatSocket.emit("state_change", UserState.typing);
   };
 
   useEffect(() => {
@@ -122,30 +105,22 @@ export const RenderChatMesages = (props: {
     }
     timer = setTimeout(() => {
       if (es == currentChat) {
-        chatSocket.emit("state_change", ChatUserState.online);
+        chatSocket.emit("state_change", UserState.online);
       }
     }, 1000);
   }, [currentChat]);
 
   const handleAddFriend = () => {
-    userSocket.emit("add_friend", friend.id, (data) => {
-      console.log(data);
-    });
+    friend.sendFriendRequest(friend.id);
   };
 
-  // useUpdateEffect(() => {
-  //   window.scrollTo({
-  //     top: inputRef.current?.offsetTop,
-  //   });
-  // }, [lastMessage]);
   return (
     <div>
       <div className="sticky top-0 flex justify-between bg-red-300">
         <div className="flex gap-2">
-          <p>{props.user.username}</p>
-          <div>
-            <button onClick={handleAddFriend}>add friend</button>
-          </div>
+          <p>{friend.friend?.username}</p>
+          {!isFriend && <button onClick={handleAddFriend}>add friend</button>}
+          <div></div>
           {receiverState.toString() !== "[Object Object]" && (
             <div>{receiverState.toString()}</div>
           )}
@@ -181,34 +156,35 @@ export const RenderChatMesages = (props: {
         </Popover>
       </div>
       <div className="space-y-2 px-6 text-white">
-        {allChat?.messages.map((message, i) => {
-          if (message.userId === user.id) {
-            return (
-              <div key={i + message.created} className="flex justify-end">
-                <div className=" bg-blue-700 flex items-center p-1 rounded-full right-0 w-fit space-x-2">
-                  <div className="flex text-sm text-gray-400/50">
-                    <p>{new Date(message.created).getHours()} : </p>
-                    <p>{new Date(message.created).getMinutes()}</p>
+        {allChat.messages &&
+          allChat?.messages.map((message, i) => {
+            if (message.userId === user.id) {
+              return (
+                <div key={i + message.created} className="flex justify-end">
+                  <div className=" bg-blue-700 flex items-center p-1 rounded-full right-0 w-fit space-x-2">
+                    <div className="flex text-sm text-gray-400/50">
+                      <p>{new Date(message.created).getHours()} : </p>
+                      <p>{new Date(message.created).getMinutes()}</p>
+                    </div>
+                    <p>{message.message}</p>
                   </div>
-                  <p>{message.message}</p>
                 </div>
-              </div>
-            );
-          } else {
-            return (
-              <div key={i + message.created} className="flex justify-start">
-                <div className=" bg-blue-700 flex items-center p-1 rounded-full right-0 w-fit space-x-2">
-                  <div className="flex text-sm text-gray-400/50">
-                    <p>{new Date(message.created).getHours()} : </p>
-                    <p>{new Date(message.created).getMinutes()}</p>
+              );
+            } else {
+              return (
+                <div key={i + message.created} className="flex justify-start">
+                  <div className=" bg-blue-700 flex items-center p-1 rounded-full right-0 w-fit space-x-2">
+                    <div className="flex text-sm text-gray-400/50">
+                      <p>{new Date(message.created).getHours()} : </p>
+                      <p>{new Date(message.created).getMinutes()}</p>
+                    </div>
+                    <p>{message.message}</p>
                   </div>
-                  <p>{message.message}</p>
                 </div>
-              </div>
-            );
-            // }
-          }
-        })}
+              );
+              // }
+            }
+          })}
       </div>
       <div className="px-6">
         <form ref={documentRef} onSubmit={handleNewMessage}>

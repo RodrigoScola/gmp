@@ -1,8 +1,12 @@
-import { Database } from "@/supabasetypes";
 import { GameNames, GameType } from "./game";
 import { Badges } from "./types";
 
-export type IUser = Database["public"]["Tables"]["profiles"]["Row"];
+export type IUser = {
+  id: string;
+  username: string;
+  email: string;
+  created_at: string;
+};
 
 export interface SocketUser {
   socketId: string;
@@ -37,15 +41,15 @@ export type ChatMessageType = {
 };
 export type NewChatChatMessageType = Omit<ChatMessageType, "id" | "created">;
 export type ChatConversationType = {
-  id: string;
+  id: string | number;
   users: Partial<IUser> & { id: string }[];
   messages: ChatMessageType[];
 };
 
-export interface Friend extends IUser {
-  badges: Badges;
-  games: FriendsGamesType;
-  status: OnlineStatusType;
+export interface IFriend extends IUser {
+  badges?: Badges;
+  games?: FriendsGamesType;
+  status?: OnlineStatusType;
   note?: string;
 }
 

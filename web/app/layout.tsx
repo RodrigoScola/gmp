@@ -1,13 +1,8 @@
 import { FriendsProvider } from "@/hooks/useFriends";
 import "./globals.css";
 import { Nav } from "@/Components/Nav";
-import { Friend } from "@/types/types";
-import { getFromFile } from "@/lib/utils";
 import { Providers } from "./providers";
 import SupabaseProvider from "./supabase-provider";
-const getFriends = async (): Promise<Friend[]> => {
-  return await getFromFile<Friend[]>("data/friendsjson.json");
-};
 
 export const metadata = {
   title: "Create Next App",
@@ -21,13 +16,11 @@ export default async function RootLayout({
   children: React.ReactNode;
   props: any;
 }) {
-  const friends = await getFriends();
-
   return (
     <html lang="en">
       <body className="bg-gray-600 ">
         <SupabaseProvider>
-          <FriendsProvider baseFriends={friends}>
+          <FriendsProvider>
             <Providers {...props}>
               <Nav />
               <div className="max-w-6xl m-auto">{children}</div>

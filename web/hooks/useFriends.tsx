@@ -4,11 +4,13 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useMap } from "usehooks-ts";
 import { useNotification } from "./useToast";
 import { userSocket } from "@/lib/socket";
-import { GameInviteComponent } from "@/Components/Notifications/GameInvite";
+import { db } from "@/db/supabase";
+import { FriendHandler } from "@/../server/src/handlers/FriendHandler";
 
 export type FriendsContext = {
   friends: Friend[];
   addFriend: (friend: Friend) => void;
+  getFriends: (userId: string) => Promise<Friend[]>;
   getFriend: (id: string) => Friend | undefined;
   updateFriend: (id: string, friend: Friend) => void;
   removeFriend: (id: string) => void;
@@ -16,15 +18,11 @@ export type FriendsContext = {
 
 export const FriendsContext = createContext<FriendsContext | null>(null);
 
-export const FriendsProvider = ({
-  children,
-  baseFriends,
-}: {
-  children: ChildrenType;
-  baseFriends: Friend[];
-}) => {
+export const FriendsProvider = ({ children }: { children: ChildrenType }) => {
   const [friendsMap, actions] = useMap<string, Friend>();
-
+  const [handler, setFriendHandler] = useState<FriendHandler>(
+    new FriendHandler("")
+  );
   const friends = useMemo(() => {
     return Array.from(friendsMap, (f) => f[1]);
   }, [friendsMap.values()]);
@@ -35,28 +33,38 @@ export const FriendsProvider = ({
     }
     actions.set(friend.id, friend);
   };
-  const getFriend = (id: string) => {
+  const getFriend = async (id: string) => {
+    if (friendsMap.has(id)) {
+      return friendsMap.get(id);
+    }
+    const data = await db.from("profiles").select("*").eq("id", id).single();
+
+    if (data.data) {
+      addFriend(data.data);
+    }
+    console.log(friendsMap);
+
     return friendsMap.get(id);
   };
   const updateFriend = (id: string, friend: Friend) => {
     actions.set(id, friend);
   };
+  const getFriends = async (userId: string) => {
+    const friends = await handler.getFriends(userId);
+    friends.forEach((friend) => {
+      addFriend(friend);
+    });
+    return friends;
+  };
   const removeFriend = (id: string) => {
     actions.remove(id);
   };
-  useEffect(() => {
-    if (baseFriends.length > 0) {
-      baseFriends.forEach((friend) => {
-        addFriend(friend);
-      });
-    }
-    return () => {};
-  }, []);
   return (
     <FriendsContext.Provider
       value={{
         friends,
         addFriend,
+        getFriends,
         getFriend,
         updateFriend,
         removeFriend,
@@ -67,32 +75,37 @@ export const FriendsProvider = ({
   );
 };
 
-export const useFriends = (initialState: Friend[]) => {
+export const useFriends = () => {
   const friendContext = useContext(FriendsContext);
-  useEffect(() => {
-    initialState.forEach((friend) => {
-      friendContext?.addFriend(friend);
-    });
-    return () => {};
-  }, [initialState]);
   return friendContext;
 };
 
 export const useFriend = (id?: string) => {
   const [friendId, setFriendId] = useState<string>(id);
-
+  const [friend, setFriend] = useState<Friend | null>(null);
   const friendContext = useContext(FriendsContext);
   const t = useNotification();
+
+  const go = async () => {
+    if (!friendId) return;
+    const d = await friendContext?.getFriend(friendId);
+    setFriend(d);
+  };
+  useEffect(() => {
+    go();
+  });
+
   return {
     setFriendId,
     id: friendId,
-    friend: friendContext?.getFriend(friendId),
+    friend: friend,
+    sendFriendRequest: (userId: string) => {
+      userSocket.emit("add_friend", userId);
+      console.log(`Friend request sent to ${userId}`);
+      t.addNotification("Friend request sent");
+    },
     sendInvite: (gameName: GameNames) => {
-      // const game = getGameData(gameName);
       console.log(friendId);
-      // if (!game) {
-      //   throw new Error("Game not found");
-      // }
 
       userSocket.emit(
         "game_invite",

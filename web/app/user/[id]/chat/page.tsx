@@ -1,21 +1,23 @@
+import { FriendHandler } from "@/../server/src/handlers/FriendHandler";
 import { RenderChatMesages } from "@/Components/RenderChat2";
-import { getUserByUsername } from "@/db/User";
-import { ChatConversationType } from "@/types/types";
+import { ChatConversationType } from "@/types/users";
 
 export default async function CHATPAGE({
   params: { id },
 }: {
   params: { id: string };
 }) {
-  const conversation: ChatConversationType = await fetch(
-    "http://localhost:3000/api/chat/snuffy/?page=1"
-  ).then((r) => r.json());
+  const conversationBlob = await fetch("http://localhost:3001/conversation/3");
+  const conversationJson: ChatConversationType =
+    (await conversationBlob.json()) as ChatConversationType;
 
-  const user = await getUserByUsername(id);
-
+  const isFriend = await new FriendHandler(
+    conversationJson.users[0].id
+  ).isFriend(conversationJson.users[1].id);
+  console.log(isFriend);
   return (
     <div id="chatlog">
-      <RenderChatMesages user={user} chatMessages={conversation} />
+      <RenderChatMesages isFriend={isFriend} conversation={conversationJson} />
     </div>
   );
 }

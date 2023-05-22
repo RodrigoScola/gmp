@@ -1,4 +1,4 @@
-import { Friend, IUser, IUser as UserType } from "@/types/users";
+import { IFriend, IUser, IUser as UserType } from "@/types/users";
 import { getBadges, getFriendsGames } from "@/data/baseFriends";
 
 type UserClassConstructor = {
@@ -50,7 +50,7 @@ export const newUser = (
     extended: false,
   });
 
-  let user: Partial<Friend> = {
+  let user: Partial<IFriend> = {
     email: data?.email ?? "defaultEmail@gmail.com",
     id: data?.id || "-1",
     username: data?.username || "defaultUsername",
@@ -63,16 +63,16 @@ export const newUser = (
     }),
       (user.games = getFriendsGames(100));
   }
-  return user as Friend;
+  return user as IFriend;
 };
 
 type newFriendOptions = {
   extended?: boolean;
 };
 export const newFriend = (
-  data?: Partial<Friend>,
+  data?: Partial<IFriend>,
   options?: Partial<newFriendOptions>
-): Friend => {
+): IFriend => {
   const defaultOptions: newFriendOptions = Object.assign({}, options, {
     extended: false,
   });
@@ -91,5 +91,5 @@ export const newFriend = (
 
     user.games = getFriendsGames(100);
   }
-  return user as Friend;
+  return user as IFriend;
 };

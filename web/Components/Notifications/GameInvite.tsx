@@ -1,6 +1,6 @@
 "use client";
 import { useUser } from "@/hooks/useUser";
-import { userSocket } from "@/lib/socket";
+import { chatSocket, userSocket } from "@/lib/socket";
 import { GameInvite, IUser } from "@/types/types";
 export const GameInviteComponent = ({
   gameInvite,

@@ -6,8 +6,6 @@ import FriendsMenu from "./Menu/FriendsMenu";
 import { Drawer } from "./Drawer/Drawer";
 import { useDisclosure } from "@/hooks/useDisclosure";
 import { AiOutlineMenu } from "react-icons/ai";
-import { useEffect } from "react";
-import { useEffectOnce } from "usehooks-ts";
 import { useNotifications } from "@/hooks/useToast";
 
 export const Nav = () => {

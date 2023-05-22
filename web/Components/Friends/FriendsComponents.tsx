@@ -1,14 +1,13 @@
 "use client";
 import { Friend } from "@/types/types";
 import { Popover, PopoverTrigger, PopoverContent } from "@chakra-ui/react";
-import { ComponentProps, useState } from "react";
+import { ComponentProps, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Profile from "@/images/profile.webp";
 import { useFriend, useFriends } from "@/hooks/useFriends";
 import { useDrawer } from "@/hooks/useDrawer";
-import { Drawer } from "../Drawer/Drawer";
-import { chatSocket, userSocket } from "@/lib/socket";
+import { chatSocket, usersSocket } from "@/lib/socket";
 import { useUser } from "@/hooks/useUser";
 export interface FriendsListProps {
   friends?: Friend[];
@@ -24,6 +23,19 @@ const FriendCardOpen = ({
   const handleFriend = useFriend(friend.id);
   const { user } = useUser();
   console.log(user);
+
+  useEffect(() => {
+    if (!usersSocket.connected) {
+      usersSocket.auth = {
+        user: user,
+      };
+      usersSocket.connect();
+    }
+    return () => {
+      if (usersSocket.connected) usersSocket.disconnect();
+    };
+  }, []);
+
   const [message, setMessage] = useState<string>("");
   const handleNewMessage = (e) => {
     e.preventDefault();
@@ -143,18 +155,9 @@ export const FriendCard = (props: ComponentProps<"div"> & FriendCardProps) => {
 };
 
 export const FriendsList = ({ friends }: FriendsListProps) => {
-  const currentFriends = useFriends(friends ?? []);
-  const afriend: Friend = {
-    email: "defaultEmail@gmail.com",
-    id: "fe6eb9bb-7c28-417e-8972-66fc2a2ee843",
-    username: "snuffy",
-    created_at: "2023-04-06T18:49:31.552Z",
-    status: "online",
-  };
   return (
     <div className="space-y-3">
-      <FriendCard friend={afriend} />
-      {currentFriends?.friends?.map((friend) => {
+      {friends?.map((friend) => {
         return <FriendCard key={friend.id} friend={friend} />;
       })}
     </div>

@@ -3,8 +3,10 @@ import {
   ChatMessageType,
   IUser,
   MessageUser,
+  NewChatChatMessageType,
   UserState,
 } from "../../../web/types/users";
+import { db } from "../lib/db";
 import { getFromFile } from "../utlils";
 import { IMainUser, uhandler } from "./usersHandler";
 
@@ -12,10 +14,19 @@ export class ConversationHandler {
   messages: ChatMessageType[] = [];
   users: Map<string, MessageUser>;
 
-  conversation?: ChatConversationType;
+  conversation: ChatConversationType = {
+    id: "",
+    messages: [],
+    users: [],
+  };
 
   constructor(users?: string[]) {
     this.users = new Map<string, MessageUser>();
+    this.conversation = {
+      id: "",
+      messages: [],
+      users: [],
+    };
     if (users?.length) {
       users.forEach((user) => {
         this.addUser({
@@ -30,23 +41,37 @@ export class ConversationHandler {
       this.users.set(user.id, user);
     }
   }
-  newMessage(userId: string, content: string): ChatMessageType {
-    return {
-      created: new Date().toISOString(),
-      userId,
-      id: Date.now().toString(),
-      message: content,
-    };
+  newMessage(userId: string, content: string): NewChatChatMessageType {
+    return this.newMessage(userId, content);
   }
-  addMessage(message: ChatMessageType) {
+  async addMessage(message: ChatMessageType) {
+    const d = await db
+      .from("messages")
+      .insert({
+        message: message.message,
+        conversationId: Number(this.conversation.id),
+        userId: message.userId,
+        created: message.created,
+      })
+      .select();
+    console.log(d);
+
     this.messages.push(message);
   }
-  // TODO: change this to get the actual conversation, this now just gets the conversation.json
-  async getConversation(_: string) {
-    const file = await getFromFile<ChatConversationType>(
-      "../web/data/conversationjson.json"
-    );
-    this.conversation = file;
+  async getConversation(conversationId: string) {
+    const { data: file } = await db
+      .from("conversations")
+      .select("*")
+      .eq("id", conversationId)
+      .single();
+    if (!file) return;
+
+    this.conversation = {
+      id: file.id,
+      messages: [],
+      users: [{ id: file.user1 }, { id: file.user2 }],
+    };
+
     this.conversation.users.forEach((user: Partial<IUser> & { id: string }) => {
       if (this.users.has(user.id)) {
         this.users.set(user.id, {
@@ -59,10 +84,7 @@ export class ConversationHandler {
           state: UserState.offline,
         });
       }
-      // console.log(this);
     });
-
-    // console.log(file);
   }
   getUsers(): IMainUser[] {
     let users: IMainUser[] = [];
@@ -75,3 +97,14 @@ export class ConversationHandler {
     return users;
   }
 }
+export const newMessage = (
+  userId: string,
+  content: string
+): ChatMessageType => {
+  return {
+    created: new Date().toISOString(),
+    userId,
+    id: Date.now().toString(),
+    message: content,
+  };
+};

@@ -6,6 +6,10 @@ import {
   ChatServerEvents,
   GameQueueClientEvents,
   GameQueueServerEvents,
+  UserServerEvents,
+  UserClientEvents,
+  UsersServerEvents,
+  UsersClientEvents,
 } from "@/types/socketEvents";
 import { ExtendedUser, IUser } from "@/types/users";
 import { GameNames } from "@/types/game";
@@ -33,7 +37,15 @@ export const chatSocket: SC<ChatServerEvents, ChatClientEvents> = io(
     autoConnect: false,
   }
 );
-export const userSocket: SC<ChatServerEvents, ChatClientEvents> = io(
+
+export const usersSocket: SC<UsersServerEvents, UsersClientEvents> = io(
+  `${socketUrl}/users`,
+  {
+    transports: ["websocket"],
+    autoConnect: false,
+  }
+);
+export const userSocket: SC<UserServerEvents, UserClientEvents> = io(
   `${socketUrl}/user`,
   {
     transports: ["websocket"],

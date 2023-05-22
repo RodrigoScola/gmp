@@ -11,14 +11,19 @@ import {
   GameQueueClientEvents,
   GameQueueServerEvents,
   ClientToServerEvents,
+  UsersServerEvents,
+  UsersClientEvents,
 } from "../../web/types/socketEvents";
 
 import { getRoom } from "./handlers/room";
-import { IUser } from "../../web/types/users";
+import { IUser, SocketUser } from "../../web/types/users";
 
 import { chatHandlerConnection } from "./connections/chatConnection";
 import { userHandlerConnection } from "./connections/userConnection";
 import { gamequeueHandlerConnection } from "./connections/gameQueueConnection";
+import { db } from "./lib/db";
+import { UsersHandlers, uhandler } from "./handlers/usersHandler";
+import { usersHandlerConnection } from "./connections/usersConnection";
 
 export const io = new Server<
   ServerToClientEvents,
@@ -59,6 +64,17 @@ chatHandler.on("connection", (socket) =>
   chatHandlerConnection(chatHandler, socket)
 );
 
+export const usersHandler: Namespace<
+  UsersServerEvents,
+  UsersClientEvents,
+  DefaultEventsMap,
+  SocketData
+> = io.of("/users");
+
+usersHandler.on("connection", (socket) =>
+  usersHandlerConnection(usersHandler, socket)
+);
+
 export const userHandler: Namespace<
   ChatClientEvents,
   ChatServerEvents,
@@ -90,6 +106,54 @@ gamequeueHandler.on("connection", (socket) =>
 export const gameId = "a0s9df0a9sdjf";
 
 export const getRoomId = (socket: MySocket) => socket.handshake.auth["roomId"];
+
+app.get("/conversation/:roomId", async (req, res) => {
+  const conversationId = req.params.roomId;
+  const { data } = await db
+    .from("conversations")
+    .select("*")
+    .eq("id", conversationId)
+    .single();
+
+  let users: any = await Promise.all([
+    db.from("profiles").select("*").eq("id", data?.user1).single(),
+    db.from("profiles").select("*").eq("id", data?.user2).single(),
+  ]);
+
+  users = users.map((user) => user.data);
+  const messages = await db
+    .from("messages")
+    .select("*")
+    .eq("conversationId", conversationId)
+    .order("created");
+  console.log(messages.data);
+  console.log(messages.data);
+  res.json({
+    id: data?.id,
+    users: users,
+    messages: messages.data,
+  });
+});
+
+app.get("/user/:usernameorId", async (req, res) => {
+  const username = req.params.usernameorId;
+  let user: SocketUser | undefined = uhandler.getUser(username)?.user;
+
+  if (!user) {
+    const { data, error } = await db
+      .from("profiles")
+      .select("*")
+      .eq("username", username)
+      .single();
+    if (!error) {
+      uhandler.addUser({
+        socketId: "",
+        ...data,
+      });
+    }
+  }
+  res.send(user);
+});
 
 app.get("/:roomId", (req, res) => {
   const room = getRoom(req.params.roomId);
