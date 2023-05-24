@@ -1,11 +1,31 @@
+import { Server } from "socket.io";
+import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import { GameNames, IGame } from "../../../web/types/game";
+import {
+  ClientToServerEvents,
+  ServerToClientEvents,
+} from "../../../web/types/socketEvents";
 import { SocketUser, UserGameState } from "../../../web/types/users";
 import { MatchPlayerState, getGame } from "../handlers/gameHandlers";
 import { GameRoom, roomHandler } from "../handlers/room";
 import { uhandler } from "../handlers/usersHandler";
-import { MySocket, getRoomId, io } from "../server";
+import { SocketData, getRoomId } from "../server";
+import { Socket } from "socket.io";
+export type MyIo = Server<
+  ServerToClientEvents,
+  ClientToServerEvents,
+  DefaultEventsMap,
+  SocketData
+>;
 
-io.on("connection", (socket: MySocket) => {
+export type MySocket = Socket<
+  ServerToClientEvents,
+  ClientToServerEvents,
+  DefaultEventsMap,
+  SocketData
+>;
+
+export const gameHandlerConnection = (io: MyIo, socket: MySocket) => {
   console.log("connected");
   // TODO:change it to be in socket.data
   const gameStr = socket.handshake.auth;
@@ -106,4 +126,4 @@ io.on("connection", (socket: MySocket) => {
   socket.on("disconnect", () => {
     console.log("user disconnected");
   });
-});
+};

@@ -1,23 +1,23 @@
 "use client";
-import { CFMove, CFRound, CFplayer } from "@/../server/src/game/c4Game";
-import { RoundType } from "@/../server/src/handlers/RoundHandler";
 import { useUser } from "@/hooks/useUser";
 import { newSocketAuth, socket } from "@/lib/socket";
-import {
-  CFState,
-  Coords,
-  Game,
-  GameNames,
-  GamePlayState,
-  MoveChoice,
-} from "@/types/types";
+import { Coords } from "@/types/types";
 import { useNotification } from "../../hooks/useToast";
 import dynamic from "next/dynamic";
 
 const Sketch = dynamic(() => import("react-p5"), { ssr: false });
 import p5types from "p5";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useUpdateEffect } from "usehooks-ts";
+import {
+  CFMove,
+  CFRound,
+  CFState,
+  CFplayer,
+  GameComponentProps,
+  RoundType,
+} from "@/types/game";
+import { GamePlayState } from "@/types/users";
 let p5: p5types;
 const cols = 7;
 const rows = 6;
@@ -68,7 +68,7 @@ class PlayerBall {
 }
 
 class GameState {
-  moves: MoveChoice<CFMove>[] = [];
+  moves: CFMove[] = [];
   board: (Ball | null)[][] = [];
   players: (CFplayer & { name: string })[] = [];
   game_winner: string = "";
@@ -109,12 +109,10 @@ class GameState {
         );
         this.moves.push({
           id: player.id,
-          move: {
-            color: player.choice,
-            coords: {
-              x,
-              y: i,
-            },
+          color: player.choice,
+          coords: {
+            x,
+            y: i,
           },
         });
         return;
@@ -130,11 +128,13 @@ class GameState {
     );
   }
   handleWin(winner: RoundType<CFRound>) {
-    const colorWon = winner.winner.id;
-    // console.log(this.players);
-    // console.log(winner);
-    const name = this.players.find((player) => player.id == colorWon)?.name;
-    this.game_winner = name || "";
+    if (winner.winner) {
+      const colorWon = winner.winner.id;
+      // console.log(this.players);
+      // console.log(winner);
+      const name = this.players.find((player) => player.id == colorWon)?.name;
+      this.game_winner = name || "";
+    }
   }
   showWin() {
     p5.noStroke();
@@ -158,10 +158,7 @@ class GameState {
 }
 const g = new GameState();
 
-const gameId = "a0s9df0a9sdjf";
-const gameType: GameNames = "connect Four";
-
-export default function CONNECTFOURPAGE() {
+export default function CONNECTFOURPAGE(props: GameComponentProps) {
   const [gameplaystate, setGameplaystate] = useState<GamePlayState>(
     GamePlayState.waiting
   );
@@ -183,25 +180,32 @@ export default function CONNECTFOURPAGE() {
     id: "string",
     name: opponentName,
   });
-  const [ableToStart, setAbleToStart] = useState<boolean>(false);
   useEffect(() => {
     const socketAuth = newSocketAuth({
       user: user,
-      roomId: gameId,
-      gameName: gameType,
+      roomId: props.gameId,
+      gameName: props.gameName,
     });
     socket.auth = socketAuth;
     socket.connect();
-    socket.emit("join_room", gameId);
+    socket.emit("join_room", props.gameId);
 
     socket.on("get_players", (players: CFplayer[]) => {
       const opponent = players.find((player) => player.id != user.id);
       if (opponent) {
-        setOpponent(opponent);
+        setOpponent({
+          choice: opponent.choice,
+          id: opponent.id,
+          name: opponentName,
+        });
       }
       const player = players.find((player) => player.id == user.id);
       if (player) {
-        setPlayer(player);
+        setPlayer({
+          choice: player.choice,
+          id: player.id,
+          name: user.username as string,
+        });
       }
     });
     socket.emit("player_ready");
@@ -233,7 +237,7 @@ export default function CONNECTFOURPAGE() {
         if (pl) {
           g.addPlayer({
             ...pl,
-            name: user.name as string,
+            name: user.username as string,
           });
         }
         const spl = state.players.find((player) => player.id != user.id);
@@ -265,10 +269,10 @@ export default function CONNECTFOURPAGE() {
       console.log("user disconnected");
     });
 
-    socket.on("connect_choice", (move) => {
-      g.addPiece(move.move.move.coords.x, {
-        choice: move.move.id == user.id ? "blue" : "red",
-        id: move.move.id,
+    socket.on("connect_choice", ({ move }) => {
+      g.addPiece(move.coords.x, {
+        choice: move.id == user.id ? "blue" : "red",
+        id: move.id,
       });
     });
     socket.on("connect_game_winner", (winner) => {
@@ -288,12 +292,10 @@ export default function CONNECTFOURPAGE() {
   const sendMouse = (playerPos: number) => {
     socket.emit("connect_choice", {
       id: user.id,
-      move: {
-        color: player.choice,
-        coords: {
-          x: playerPos,
-          y: 0,
-        },
+      color: player.choice,
+      coords: {
+        x: playerPos,
+        y: 0,
       },
     });
   };

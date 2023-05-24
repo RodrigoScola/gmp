@@ -7,7 +7,6 @@ import {
   UserState,
 } from "../../../web/types/users";
 import { db } from "../lib/db";
-import { getFromFile } from "../utlils";
 import { IMainUser, uhandler } from "./usersHandler";
 
 export class ConversationHandler {

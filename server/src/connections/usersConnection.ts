@@ -10,7 +10,7 @@ import { uhandler } from "../handlers/usersHandler";
 import { db } from "../lib/db";
 
 export const usersHandlerConnection = (
-  usersHandler: Namespace<
+  _: Namespace<
     UsersServerEvents,
     UsersClientEvents,
     DefaultEventsMap,

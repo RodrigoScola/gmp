@@ -127,7 +127,7 @@ export class QueueRoom implements IRoom {
 export class GameRoom implements IRoom {
   id: string;
   users: UsersHandlers;
-  match: MatchHandler = new MatchHandler(new RockPaperScissorsGame());
+  match: MatchHandler = new MatchHandler(new RockPaperScissorsGame() as IGame);
   constructor(id: string, game: IGame, users?: SocketUser[]) {
     this.id = id;
 

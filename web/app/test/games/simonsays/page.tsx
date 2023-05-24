@@ -1,8 +1,7 @@
 "use client";
 import { useMemo, useRef, useState } from "react";
-import { ColorType, SimonGameState } from "@/types/types";
 import { useUpdateEffect } from "usehooks-ts";
-
+import { SMSColorType as ColorType, SimonGameState } from "@/types/game";
 type ColorRefs = {
   red: React.RefObject<HTMLButtonElement | null>;
   blue: React.RefObject<HTMLButtonElement | null>;
@@ -140,7 +139,11 @@ export default function SimonSaysPAGE() {
               disabled={!canPlay}
               key={`button_${color}`}
               name={color}
-              ref={refs[color as keyof ColorRefs]}
+              ref={
+                refs[
+                  color as keyof ColorRefs
+                ] as React.RefObject<HTMLButtonElement>
+              }
               onClick={() => addToSequence(color as ColorType)}
               className={`simon_${color} h-40 w-40`}
             ></button>

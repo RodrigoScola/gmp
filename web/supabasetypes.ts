@@ -62,19 +62,19 @@ export interface Database {
           created_at: string | null
           id: number
           user1: string
-          user2: string | null
+          user2: string
         }
         Insert: {
           created_at?: string | null
           id?: number
           user1: string
-          user2?: string | null
+          user2: string
         }
         Update: {
           created_at?: string | null
           id?: number
           user1?: string
-          user2?: string | null
+          user2?: string
         }
       }
       messages: {
@@ -102,22 +102,22 @@ export interface Database {
       }
       profiles: {
         Row: {
-          created_at: string | null
-          email: string | null
+          created_at: string
+          email: string
           id: string
-          username: string | null
+          username: string
         }
         Insert: {
-          created_at?: string | null
-          email?: string | null
+          created_at?: string
+          email: string
           id: string
-          username?: string | null
+          username: string
         }
         Update: {
-          created_at?: string | null
-          email?: string | null
+          created_at?: string
+          email?: string
           id?: string
-          username?: string | null
+          username?: string
         }
       }
     }

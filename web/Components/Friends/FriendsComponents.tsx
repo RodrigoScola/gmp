@@ -7,7 +7,7 @@ import Link from "next/link";
 import Profile from "@/images/profile.webp";
 import { useFriend, useFriends } from "@/hooks/useFriends";
 import { useDrawer } from "@/hooks/useDrawer";
-import { chatSocket, usersSocket } from "@/lib/socket";
+import { chatSocket, userSocket, usersSocket } from "@/lib/socket";
 import { useUser } from "@/hooks/useUser";
 export interface FriendsListProps {
   friends?: Friend[];
@@ -19,22 +19,9 @@ const FriendCardOpen = ({
   friend,
   ...props
 }: ComponentProps<"div"> & FriendCardProps) => {
-  const drawer = useDrawer();
+  // const drawer = useDrawer();
   const handleFriend = useFriend(friend.id);
   const { user } = useUser();
-  console.log(user);
-
-  useEffect(() => {
-    if (!usersSocket.connected) {
-      usersSocket.auth = {
-        user: user,
-      };
-      usersSocket.connect();
-    }
-    return () => {
-      if (usersSocket.connected) usersSocket.disconnect();
-    };
-  }, []);
 
   const [message, setMessage] = useState<string>("");
   const handleNewMessage = (e) => {
@@ -70,9 +57,7 @@ const FriendCardOpen = ({
           width={75}
           height={75}
         />
-        <Link onClick={drawer.closeMenu} href={`/user/${friend.username}`}>
-          {friend.username}
-        </Link>
+        <Link href={`/user/${friend.username}`}>{friend.username}</Link>
         <div className="flex">
           {friend.expand?.badges?.badges?.map((badge) => {
             return <div key={friend?.id + "_" + badge?.id}>{badge?.name}</div>;
@@ -156,7 +141,7 @@ export const FriendCard = (props: ComponentProps<"div"> & FriendCardProps) => {
 
 export const FriendsList = ({ friends }: FriendsListProps) => {
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 ">
       {friends?.map((friend) => {
         return <FriendCard key={friend.id} friend={friend} />;
       })}

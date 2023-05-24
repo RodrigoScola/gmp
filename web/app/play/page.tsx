@@ -1,15 +1,14 @@
 "use client";
 
-import { getGameData } from "../../../server/src/game/gameUtils";
-import { GameNames, GameType, gameNames } from "@/types/types";
+import { GameNames, gameNames } from "@/types/game";
+import { GameData, getGameData } from "../../../server/src/game/gameUtils";
 import { useState } from "react";
-
-const cardClassName =
-  " rounded-md outline-2 text-2xl  outline-slate-200 outline  py-5 flex justify-center ";
+import { Button, Card, CardHeader, Heading, Tooltip } from "@chakra-ui/react";
+import { InfoIcon } from "@chakra-ui/icons";
 
 export default function PLAYPAGE() {
-  const [multiplayerGames, setMultiplayergames] = useState<GameType[]>([]);
-  const [singlePlayerGames, setSinglePlayerGames] = useState<GameType[]>([]);
+  const [multiplayerGames, setMultiplayergames] = useState<GameData[]>([]);
+  const [singlePlayerGames, setSinglePlayerGames] = useState<GameData[]>([]);
   const sendSearch = () => {
     window.location.href = `queue/?games=${multiplayerGames
       .concat(singlePlayerGames)
@@ -38,69 +37,96 @@ export default function PLAYPAGE() {
     setMultiplayergames((curr) => [...curr, game]);
   };
   return (
-    <div className="px-3">
+    <div className="px-3 text-white">
       <div>
-        <h3 className="text-3xl text-center py-12">Multiplayer Games</h3>
-        <div className="grid grid-cols-2 gap-2 max-w-3xl m-auto text-black">
+        <Heading className="text-3xl text-center py-12">
+          Multiplayer Games
+        </Heading>
+        <div className="grid grid-cols-3 gap-2 max-w-3xl m-auto text-black">
           {gameNames.map((gameName) => {
             const data = getGameData(gameName);
             if (data.isMultiplayer === false) return null;
             return (
-              <div
+              <GameCard
                 key={gameName}
-                onClick={() => toggleMultiplayerGame(gameName)}
-                className={`${cardClassName} ${
-                  !multiplayerGames.includes(data)
-                    ? "bg-slate-200"
-                    : "bg-blue-700"
-                }`}
-              >
-                <h3>{gameName}</h3>
-              </div>
+                game={data}
+                toggleGame={toggleMultiplayerGame}
+                isSelected={multiplayerGames.includes(data)}
+              />
             );
           })}
         </div>
         <div className="flex justify-center pt-4 ">
-          <button
+          <Button
             onClick={sendSearch}
             disabled={multiplayerGames.length == 0}
-            className="outline-green-300 outline disabled:text-slate-700 disabled:outline-slate-700  text-green-300 w-48 h-20 text-3xl py-2 px-7 rounded-md"
+            size={"lg"}
+            isDisabled={multiplayerGames.length == 0}
           >
             Search
-          </button>
+          </Button>
         </div>
       </div>
       <div>
-        <h3 className="text-3xl text-center py-12">Single Player Games</h3>
-        <div className="grid grid-cols-2 gap-2 max-w-3xl m-auto text-black">
+        <Heading className="text-3xl text-center py-12">
+          Single Player Games
+        </Heading>
+        <div className="grid grid-cols-1 gap-2 max-w-3xl m-auto text-black">
           {gameNames.map((gameName) => {
             const data = getGameData(gameName);
             if (data.isMultiplayer === true) return null;
             return (
-              <div
+              <GameCard
                 key={gameName}
-                onClick={() => toggleSinglePlayerGame(gameName)}
-                className={`${cardClassName} ${
-                  !singlePlayerGames.includes(data)
-                    ? "bg-slate-200"
-                    : "bg-blue-700"
-                }`}
-              >
-                <h3>{gameName}</h3>
-              </div>
+                isSelected={singlePlayerGames.includes(data)}
+                game={data}
+                toggleGame={toggleSinglePlayerGame}
+              />
             );
           })}
         </div>
         <div className="flex justify-center pt-4 ">
-          <button
+          <Button
             onClick={sendSearch}
             disabled={singlePlayerGames.length == 0}
-            className="outline-green-300 outline disabled:text-slate-700 disabled:outline-slate-700  text-green-300 w-48 h-20 text-3xl py-2 px-7 rounded-md"
+            size={"lg"}
+            isDisabled={singlePlayerGames.length == 0}
           >
-            Play
-          </button>
+            play
+          </Button>
         </div>
       </div>
     </div>
   );
 }
+
+type gameCardProps = {
+  game: GameData;
+  toggleGame: (game: GameNames) => void;
+  isSelected: boolean;
+};
+const GameCard = ({ game, isSelected, toggleGame }: gameCardProps) => {
+  return (
+    <>
+      <Card
+        key={game.name}
+        backgroundColor={isSelected ? "lightblue" : "gray"}
+        onClick={() => toggleGame(game.name)}
+        textColor={isSelected ? "black" : "white"}
+        variant={isSelected ? "filled" : "outline"}
+        className={` `}
+      >
+        <CardHeader className="flex align-middle text-center items-center gap-1">
+          <Heading as="h3" className=" capitalize text-center">
+            {game.name}
+          </Heading>
+          <Tooltip label={game.description}>
+            <div>
+              <InfoIcon />
+            </div>
+          </Tooltip>
+        </CardHeader>
+      </Card>
+    </>
+  );
+};

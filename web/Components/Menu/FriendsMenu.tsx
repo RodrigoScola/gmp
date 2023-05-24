@@ -2,10 +2,10 @@
 import { Drawer } from "@/Components/Drawer/Drawer";
 import { DrawerFooter } from "@/Components/Drawer/DrawerFooter";
 import { FriendsList } from "@/Components/Friends/FriendsComponents";
-import { useFriends } from "@/hooks/useFriends";
+import { useFriend, useFriends } from "@/hooks/useFriends";
 import { useUser } from "@/hooks/useUser";
 import { usersSocket } from "@/lib/socket";
-import { IFriend, IFriend, IUser } from "@/types/users";
+import { IFriend, IUser } from "@/types/users";
 import {
   Popover,
   PopoverTrigger,
@@ -29,6 +29,7 @@ export default function FriendsMenu(props: FriendsMenuProps) {
   const { user } = useUser();
   const [searchTerm, setSearchTerm] = useState<string>("");
   const f = useFriends();
+  const { sendFriendRequest } = useFriend();
   const go = async () => {
     const x = await f?.getFriends(user.id);
     if (x) setFriends(x);
@@ -39,6 +40,7 @@ export default function FriendsMenu(props: FriendsMenuProps) {
       go();
     }
   }, []);
+
   const [resultFriends, setResultFriends] = useState<IFriend[]>([]);
   const handleCloseMenu = () => {
     if (props.disclosure.onClose) {
@@ -92,9 +94,19 @@ export default function FriendsMenu(props: FriendsMenuProps) {
                 <button>Search</button>
               </form>
               <div>
-                {resultFriends.map((friend: IFriend) => {
-                  return <div>{friend.username}</div>;
-                })}
+                {resultFriends.map((friend: IFriend) => (
+                  <div key={friend.id}>
+                    <div>{friend.username}</div>
+
+                    <button
+                      onClick={() => {
+                        sendFriendRequest(friend.id);
+                      }}
+                    >
+                      add friend
+                    </button>
+                  </div>
+                ))}
               </div>
             </PopoverContent>
           </Popover>

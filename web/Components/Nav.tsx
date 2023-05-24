@@ -2,39 +2,34 @@
 
 import { useUser } from "@/hooks/useUser";
 import Link from "next/link";
-import FriendsMenu from "./Menu/FriendsMenu";
-import { Drawer } from "./Drawer/Drawer";
-import { useDisclosure } from "@/hooks/useDisclosure";
-import { AiOutlineMenu } from "react-icons/ai";
 import { useNotifications } from "@/hooks/useToast";
+import { Text, Heading, useColorMode } from "@chakra-ui/react";
+import { useEffectOnce } from "usehooks-ts";
 
 export const Nav = () => {
   const { user } = useUser();
-  const { isOpen, onClose, onOpen } = useDisclosure();
   useNotifications();
-  return (
-    <div className="flex justify-between px-5 w-screen ">
-      <Link href={`/`}>click me to go back</Link>
 
-      <Drawer
-        onClose={onClose}
-        onOpen={onOpen}
-        isOpen={isOpen}
-        TriggerElement={<AiOutlineMenu size={30} />}
-      >
-        {user && (
-          <Link onClick={onClose} href={`/user/${user.username}`}>
-            Profile
-          </Link>
-        )}
-        <FriendsMenu
-          disclosure={{
-            onClose,
-            onOpen,
-            isOpen,
-          }}
-        />
-      </Drawer>
+  const { colorMode, setColorMode } = useColorMode();
+  useEffectOnce(() => {
+    if (colorMode == "light") {
+      setColorMode("dark");
+    }
+  });
+  return (
+    <div className="  bg-blue-900 w-screen ">
+      <nav className="flex justify-around m-auto w-[90%] items-center py-2 flex-row">
+        <Link className="text-4xl" href={`/`}>
+          <Heading>TGZ</Heading>
+        </Link>
+        <div>
+          {user.id ? (
+            <Link href={`/user/${user.username}`}>
+              <Text className="font-bold capitalize">{user.username}</Text>
+            </Link>
+          ) : null}
+        </div>
+      </nav>
     </div>
   );
 };

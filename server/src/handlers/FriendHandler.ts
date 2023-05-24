@@ -1,8 +1,4 @@
-import {
-  IFriend as IFriend,
-  IUser,
-  SocketUser,
-} from "../../../web/types/users";
+import { IFriend as IFriend, IUser } from "../../../web/types/users";
 import { db } from "../lib/db";
 
 export type FriendRequestStatus = "pending" | "accepted" | "rejected";
@@ -60,7 +56,7 @@ export class FriendHandler {
     };
   }
   async addFriendRequest(userId: string) {
-    const { data, error } = await db
+    const { data } = await db
       .from("connections")
       .insert({
         friend1: this.userId,

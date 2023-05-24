@@ -2,18 +2,28 @@
 
 import { NotificationProvider } from "@/hooks/useToast";
 import { UserProvider } from "@/hooks/useUser";
-import { ChildrenType, IUser } from "@/types/types";
+import { ChildrenType } from "@/types/types";
 import { CacheProvider } from "@chakra-ui/next-js";
-import { ChakraProvider } from "@chakra-ui/react";
+import { ChakraProvider, ThemeProvider } from "@chakra-ui/react";
+
+import { extendTheme } from "@chakra-ui/react";
+
+const config = {
+  initialColorMode: "light",
+  useSystemColorMode: false,
+};
+const theme = extendTheme({ config });
 
 export function Providers({ children }: { children: ChildrenType }) {
   return (
     <CacheProvider>
-      <ChakraProvider>
-        <NotificationProvider>
-          <UserProvider>{children}</UserProvider>
-        </NotificationProvider>
-      </ChakraProvider>
+      <ThemeProvider theme={theme}>
+        <ChakraProvider>
+          <NotificationProvider>
+            <UserProvider>{children}</UserProvider>
+          </NotificationProvider>
+        </ChakraProvider>
+      </ThemeProvider>
     </CacheProvider>
   );
 }

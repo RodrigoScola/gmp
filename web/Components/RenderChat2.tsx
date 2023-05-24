@@ -2,19 +2,26 @@
 
 import { useFriend } from "@/hooks/useFriends";
 import { useUser } from "@/hooks/useUser";
-import { chatSocket, socket, userSocket } from "@/lib/socket";
-import { ChatConversationType, ChatMessageType, IUser } from "@/types/users";
+import { chatSocket, socket } from "@/lib/socket";
+import { ChatConversationType, ChatMessageType } from "@/types/users";
 import { UserState } from "@/types/users";
 import { Popover, PopoverContent, PopoverTrigger } from "@chakra-ui/react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { FriendsList } from "./Friends/FriendsComponents";
+import { useUpdateEffect } from "usehooks-ts";
 
 var timer: NodeJS.Timeout;
 export const RenderChatMesages = (props: {
   conversation: ChatConversationType;
   isFriend?: boolean;
 }) => {
-  const { user } = useUser();
+  const { user, friends: userFriends, getFriends } = useUser();
   const friend = useFriend();
+  useUpdateEffect(() => {
+    if (user.id) {
+      getFriends();
+    }
+  }, [user.id]);
 
   useEffect(() => {
     if (user) {
@@ -25,14 +32,24 @@ export const RenderChatMesages = (props: {
       }
     }
   }, [user.id]);
+
+  useEffect(() => {
+    if (user.id) {
+      if (!props.conversation.users.find((i) => i.id == user.id)) {
+        window.location.href = "/";
+        throw new Error("you are not in this conversation");
+        console.log("hell");
+      }
+    }
+  }, []);
+
   const [currentChat, setCurrentChat] = useState<string>("");
   const documentRef = useRef<HTMLFormElement>(null);
   const [allChat, setAllChat] = useState<ChatConversationType>(
     props.conversation
   );
-  console.log(props.conversation);
   const [receiverState, setReceiverState] = useState<UserState>(
-    UserState.online
+    UserState.offline
   );
   useEffect(() => {
     chatSocket.auth = {
@@ -113,91 +130,98 @@ export const RenderChatMesages = (props: {
   const handleAddFriend = () => {
     friend.sendFriendRequest(friend.id);
   };
-
+  console.log(user.id, friend.id);
   return (
-    <div>
-      <div className="sticky top-0 flex justify-between bg-red-300">
-        <div className="flex gap-2">
-          <p>{friend.friend?.username}</p>
-          {!isFriend && <button onClick={handleAddFriend}>add friend</button>}
-          <div></div>
-          {receiverState.toString() !== "[Object Object]" && (
-            <div>{receiverState.toString()}</div>
-          )}
-        </div>
+    <div className="grid-cols-7 grid gap-2">
+      <div className="col-span-6">
+        <div className="sticky top-0  flex justify-between bg-red-300">
+          <div className="flex gap-2">
+            <p>{friend.friend?.username}</p>
+            {!isFriend && <button onClick={handleAddFriend}>add friend</button>}
+            <div></div>
+            {receiverState.toString() !== "[Object Object]" && (
+              <div>{receiverState.toString()}</div>
+            )}
+          </div>
 
-        <Popover>
-          <PopoverTrigger>
-            <div>Invite to game</div>
-          </PopoverTrigger>
-          <PopoverContent className="flex gap-2">
-            <div
-              onClick={() => {
-                friend.sendInvite("connect Four");
-              }}
-            >
-              connect4
-            </div>
-            <div
-              onClick={() => {
-                friend.sendInvite("Tic Tac Toe");
-              }}
-            >
-              tic tac toe
-            </div>
-            <div
-              onClick={() => {
-                friend.sendInvite("Rock Paper Scissors");
-              }}
-            >
-              rock paper scissors
-            </div>
-          </PopoverContent>
-        </Popover>
-      </div>
-      <div className="space-y-2 px-6 text-white">
-        {allChat.messages &&
-          allChat?.messages.map((message, i) => {
-            if (message.userId === user.id) {
-              return (
-                <div key={i + message.created} className="flex justify-end">
-                  <div className=" bg-blue-700 flex items-center p-1 rounded-full right-0 w-fit space-x-2">
-                    <div className="flex text-sm text-gray-400/50">
-                      <p>{new Date(message.created).getHours()} : </p>
-                      <p>{new Date(message.created).getMinutes()}</p>
+          <Popover>
+            <PopoverTrigger>
+              <div>Invite to game</div>
+            </PopoverTrigger>
+            <PopoverContent className="flex gap-2">
+              <div
+                onClick={() => {
+                  friend.sendInvite("connect Four");
+                }}
+              >
+                connect4
+              </div>
+              <div
+                onClick={() => {
+                  friend.sendInvite("Tic Tac Toe");
+                }}
+              >
+                tic tac toe
+              </div>
+              <div
+                onClick={() => {
+                  friend.sendInvite("Rock Paper Scissors");
+                }}
+              >
+                rock paper scissors
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
+        <div className="space-y-2 px-6 text-white">
+          {allChat.messages &&
+            allChat?.messages.map((message, i) => {
+              if (message.userId === user.id) {
+                return (
+                  <div key={i + message.created} className="flex justify-end">
+                    <div className=" bg-blue-700 flex items-center p-1 rounded-full right-0 w-fit space-x-2">
+                      <div className="flex text-sm text-gray-400/50">
+                        <p>{new Date(message.created).getHours()} : </p>
+                        <p>{new Date(message.created).getMinutes()}</p>
+                      </div>
+                      <p>{message.message}</p>
                     </div>
-                    <p>{message.message}</p>
                   </div>
-                </div>
-              );
-            } else {
-              return (
-                <div key={i + message.created} className="flex justify-start">
-                  <div className=" bg-blue-700 flex items-center p-1 rounded-full right-0 w-fit space-x-2">
-                    <div className="flex text-sm text-gray-400/50">
-                      <p>{new Date(message.created).getHours()} : </p>
-                      <p>{new Date(message.created).getMinutes()}</p>
+                );
+              } else {
+                return (
+                  <div key={i + message.created} className="flex justify-start">
+                    <div className=" bg-blue-700 flex items-center p-1 rounded-full right-0 w-fit space-x-2">
+                      <div className="flex text-sm text-gray-400/50">
+                        <p>{new Date(message.created).getHours()} : </p>
+                        <p>{new Date(message.created).getMinutes()}</p>
+                      </div>
+                      <p>{message.message}</p>
                     </div>
-                    <p>{message.message}</p>
                   </div>
-                </div>
-              );
-              // }
-            }
-          })}
+                );
+                // }
+              }
+            })}
+        </div>
+        <div className="px-6">
+          <form ref={documentRef} onSubmit={handleNewMessage}>
+            <input
+              className="w-full mt-2"
+              value={currentChat}
+              onChange={(e) => {
+                handleChange(e.target.value);
+              }}
+              ref={inputRef}
+              type="text"
+            />
+          </form>
+        </div>
       </div>
-      <div className="px-6">
-        <form ref={documentRef} onSubmit={handleNewMessage}>
-          <input
-            className="w-full mt-2"
-            value={currentChat}
-            onChange={(e) => {
-              handleChange(e.target.value);
-            }}
-            ref={inputRef}
-            type="text"
-          />
-        </form>
+      <div>
+        <div>
+          <FriendsList friends={userFriends} />
+        </div>
       </div>
     </div>
   );

@@ -9,7 +9,6 @@ import {
   RPSMove,
   RPSstate,
 } from "../../../web/types/game";
-import { IUser } from "../../../web/types/users";
 import { RoundHandler } from "../handlers/RoundHandler";
 export const RockPaperScissorsMaxWins = 5;
 
@@ -33,13 +32,13 @@ export class RockPaperScissorsGame extends Game<"Rock Paper Scissors"> {
     };
     return;
   }
-  addPlayer(player: IUser) {
+  addPlayer(player: RPSPlayer) {
     this.players.addPlayer(player);
   }
   isReady(): boolean {
     return this.getPlayers().length == 2;
   }
-  getPlayers(): IUser[] {
+  getPlayers(): RPSPlayer[] {
     return this.players.getPlayers();
   }
   hasRoundWinner() {

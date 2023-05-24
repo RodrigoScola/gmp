@@ -10,36 +10,34 @@ import {
   useEffect,
   useState,
 } from "react";
-import { useEffectOnce, useUpdateEffect } from "usehooks-ts";
+import { useEffectOnce } from "usehooks-ts";
 import { GameInviteComponent } from "@/Components/Notifications/GameInvite";
 import { Socket } from "socket.io-client";
 import { useSupabase } from "@/app/supabase-provider";
-import { IUser } from "@/types/users";
+import { IUser, IFriend } from "@/types/users";
 import { ChatClientEvents, ChatServerEvents } from "@/types/socketEvents";
 import { AddFiendComponent } from "@/Components/Notifications/AddFriend";
+import { useFriends } from "./useFriends";
 interface UserContext {
   user: IUser;
   setCurrentUser: (user: IUser) => void;
+  getFriends: () => Promise<IFriend[] | undefined>;
   login: (email: string, password: string) => Promise<any>;
   logout: () => void;
   socket: Socket<ChatClientEvents, ChatServerEvents>;
+  friends: IFriend[];
 }
-export const UserContext = createContext<
-  | UserContext
-  | {
-      id: null;
-    }
->({
-  id: null,
-});
+export const UserContext = createContext<UserContext | null>(null);
 
 export const UserProvider = ({ children }: { children: ChildrenType }) => {
   // const [token, setTOken] = useState(db.authStore.token);
   const [currentUser, setCurrentUser] = useState<IUser | null>(
     localStorage.getItem("user")
-      ? JSON.parse(localStorage.getItem("user"))
+      ? JSON.parse(localStorage.getItem("user") ?? "")
       : { id: null }
   );
+  const [friends, setFriends] = useState<IFriend[]>([]);
+  const friendHandler = useFriends();
   const { supabase, session } = useSupabase();
 
   const toast = useNotification();
@@ -85,7 +83,6 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
       });
     });
     userSocket.on("game_invite_accepted", (data) => {
-      console.log(data);
       window.location.href = `/play/${data.roomId}`;
     });
     return () => {
@@ -94,6 +91,14 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
       }
     };
   });
+  const getFriends = async () => {
+    if (!currentUser) return;
+    const friendss = await friendHandler?.getFriends(currentUser.id);
+    if (friendss) {
+      setFriends(friendss);
+    }
+    return friendss;
+  };
 
   const login = useCallback(async (email: string, password: string) => {
     const { data } = await supabase.auth.signInWithPassword({
@@ -126,9 +131,11 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
           email: "defaultemail@gmail.com",
           username: "default username",
         },
+        getFriends,
         login,
         socket: userSocket,
         logout,
+        friends,
       }}
     >
       {children}

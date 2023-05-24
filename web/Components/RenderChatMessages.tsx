@@ -1,14 +1,9 @@
 "use client";
 
 import { useFriend } from "@/hooks/useFriends";
-import { useObject } from "@/hooks/useObject";
 import { useRefetch } from "@/hooks/useRefetch";
 import { useUser } from "@/hooks/useUser";
-import {
-  ChatConversationType,
-  ChatMessageType,
-  ReturnUserType,
-} from "@/types/types";
+import { ChatConversationType, ChatMessageType, IUser } from "@/types/users";
 import { Popover, PopoverContent, PopoverTrigger } from "@chakra-ui/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useUpdateEffect } from "usehooks-ts";
@@ -24,7 +19,7 @@ const newMessage = (content: string, userId: string): ChatMessageType => {
 
 export const RenderChatMesages = (props: {
   chatMessages: ChatConversationType;
-  user: ReturnUserType;
+  user: IUser;
 }) => {
   const { user } = useUser();
   const friend = useFriend();

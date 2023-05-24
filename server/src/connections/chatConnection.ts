@@ -14,7 +14,6 @@ import { ChatRoom, getRoom, roomHandler } from "../handlers/room";
 import { ChatUser, SocketUser, UserState } from "../../../web/types/users";
 import { uhandler } from "../handlers/usersHandler";
 import { newMessage } from "../handlers/ConversationHandler";
-import { db } from "../lib/db";
 
 export const chatHandlerConnection = (
   chatHandler: Namespace<
@@ -103,7 +102,7 @@ export const chatHandlerConnection = (
         room = roomHandler.createRoom<ChatRoom>(roomId, new ChatRoom(roomId));
       }
     }
-    await room.getConversation(roomId);
+    await room.getConversation();
     const nmessage = newMessage(message.userId, message.message);
 
     const conversationUsers = room.messages.users;
@@ -112,7 +111,7 @@ export const chatHandlerConnection = (
       const muser = uhandler.getUser(user.id);
       const inChannel = room.users.users.has(user.id);
       if (!inChannel && muser) {
-        userHandler.to(muser.user.socketId).emit("notification_message", {
+        userHandler.to(muser.socketId).emit("notification_message", {
           user: uhandler.getUser(message.userId)?.user as SocketUser,
         });
       }

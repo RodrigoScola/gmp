@@ -2,23 +2,24 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   GameNames,
-  GamePlayState,
-  RPSPlayer,
+  GameComponentProps,
   RPSOptions,
   RPSOptionsValues,
   RPSRound,
   Rounds,
-  IUser,
-} from "@/types/types";
+} from "@/types/game";
 import { useUser } from "@/hooks/useUser";
 import { RockPaperScissorsGame } from "@/../server/src/game/rockpaperScissors";
 const maxWins = 5;
 const gameId = "a0s9df0a9sdjf";
 const gameName: GameNames = "Rock Paper Scissors";
 import { socket } from "@/lib/socket";
+import { GamePlayState, IUser } from "@/types/users";
 const { getWinner } = new RockPaperScissorsGame();
 
-export default function RockPaperScissorGameComponent() {
+export default function RockPaperScissorGameComponent(
+  props: GameComponentProps
+) {
   const [opponent, setOpponent] = useState<
     (IUser & { choice: RPSOptions | null }) | { id: string }
   >({
@@ -59,13 +60,11 @@ export default function RockPaperScissorGameComponent() {
   }, [rounds.wins[currentPlayer.id], gameState, rounds.wins[opponent.id]]);
 
   useEffect(() => {
-    socket.auth = { user, roomId: gameId, gameName: gameName };
+    socket.auth = { user, roomId: props.gameId, gameName: props.gameName };
     socket.connect();
-    socket.emit("join_room", gameId);
+    socket.emit("join_room", props.gameId);
 
     socket.on("get_players", (players: IUser[]) => {
-      console.log(players);
-      console.log(players);
       const opponent = players.find((player) => player.id != user.id);
       if (opponent) {
         setOpponent(opponent);
@@ -154,9 +153,7 @@ export default function RockPaperScissorGameComponent() {
     console.log(choice);
     socket.emit("rps_choice", {
       id: user.id,
-      move: {
-        choice,
-      },
+      choice,
     });
     setGameState(GamePlayState.waiting);
   };

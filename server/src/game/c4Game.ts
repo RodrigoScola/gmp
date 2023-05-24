@@ -9,7 +9,6 @@ import {
   CFplayer,
   RoundType,
 } from "../../../web/types/game";
-import { IUser } from "../../../web/types/users";
 import { PlayerHandler } from "../handlers/usersHandler";
 import { RoundHandler } from "../handlers/RoundHandler";
 
@@ -165,7 +164,7 @@ export class CFGame extends Game<"connect Four"> {
   moves: CFMove[] = [];
   players: PlayerHandler<CFplayer> = new PlayerHandler<CFplayer>();
 
-  addPlayer(player: IUser) {
+  addPlayer(player: CFplayer) {
     const choice = this.players.getPlayers().length == 1 ? "red" : "blue";
     this.players.addPlayer({
       id: player.id,

@@ -22,8 +22,9 @@ import { chatHandlerConnection } from "./connections/chatConnection";
 import { userHandlerConnection } from "./connections/userConnection";
 import { gamequeueHandlerConnection } from "./connections/gameQueueConnection";
 import { db } from "./lib/db";
-import { UsersHandlers, uhandler } from "./handlers/usersHandler";
+import { uhandler } from "./handlers/usersHandler";
 import { usersHandlerConnection } from "./connections/usersConnection";
+import { gameHandlerConnection } from "./connections/gameConnection";
 
 export const io = new Server<
   ServerToClientEvents,
@@ -103,6 +104,7 @@ gamequeueHandler.on("connection", (socket) =>
   gamequeueHandlerConnection(gamequeueHandler, socket)
 );
 
+io.on("connection", (socket) => gameHandlerConnection(io, socket));
 export const gameId = "a0s9df0a9sdjf";
 
 export const getRoomId = (socket: MySocket) => socket.handshake.auth["roomId"];
@@ -120,14 +122,12 @@ app.get("/conversation/:roomId", async (req, res) => {
     db.from("profiles").select("*").eq("id", data?.user2).single(),
   ]);
 
-  users = users.map((user) => user.data);
+  users = users.map((user: { data: IUser }) => user.data);
   const messages = await db
     .from("messages")
     .select("*")
     .eq("conversationId", conversationId)
     .order("created");
-  console.log(messages.data);
-  console.log(messages.data);
   res.json({
     id: data?.id,
     users: users,

@@ -18,14 +18,15 @@ export default async function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-gray-600 ">
+      <body className="bg-blue-1000">
         <SupabaseProvider>
           <FriendsProvider>
             <Providers {...props}>
               <Nav />
-              <div className="max-w-6xl m-auto">{children}</div>
+              <div className="max-w-6xl z-10 m-auto">{children}</div>
             </Providers>
           </FriendsProvider>
+          <div className="fixed h-96 -z-50 w-screen bottom-0 bg-gradient-to-t from-white/10 to-blue-1000"></div>
         </SupabaseProvider>
       </body>
     </html>

@@ -105,8 +105,6 @@ export const useFriend = (id?: string) => {
       t.addNotification("Friend request sent");
     },
     sendInvite: (gameName: GameNames) => {
-      console.log(friendId);
-
       userSocket.emit(
         "game_invite",
         gameName.toString() as GameNames,

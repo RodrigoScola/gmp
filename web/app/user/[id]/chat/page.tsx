@@ -7,7 +7,9 @@ export default async function CHATPAGE({
 }: {
   params: { id: string };
 }) {
-  const conversationBlob = await fetch("http://localhost:3001/conversation/3");
+  const conversationBlob = await fetch(
+    "http://localhost:3001/conversation/" + id
+  );
   const conversationJson: ChatConversationType =
     (await conversationBlob.json()) as ChatConversationType;
 

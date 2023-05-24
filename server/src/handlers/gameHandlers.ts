@@ -4,20 +4,24 @@ import { TicTacToeGame } from "../game/TicTacToeGame";
 import { MyIo, MySocket, getRoomId } from "../server";
 import { Room, getRoom } from "./room";
 import { CFGame } from "../game/c4Game";
-import { PlayerHandler } from "./usersHandler";
+import { PlayerHandler, uhandler } from "./usersHandler";
 import { SimonSaysGame } from "../game/simonSays";
 import {
   GameNames,
   SMSMove,
-  IGame,
   CFMove,
   RPSMove,
   TTCMove,
 } from "../../../web/types/game";
 import { IUser } from "../../../web/types/users";
 
+export type IGame = CFGame &
+  SimonSaysGame &
+  TicTacToeGame &
+  RockPaperScissorsGame;
+
 const handleSimonSaysGame = (
-  io: MyIo,
+  _: MyIo,
   socket: MySocket,
   game: SimonSaysGame
   // room: Room
@@ -40,7 +44,7 @@ const handleConnectGame = (
   io: MyIo,
   socket: MySocket,
   game: CFGame,
-  room: Room
+  _: Room
 ) => {
   socket.on("c_player_move", (move: Coords) => {
     io.to(getRoomId(socket)).emit("c_player_move", move);
@@ -51,7 +55,7 @@ const handleConnectGame = (
     if (game.isPlayerTurn(move.id)) {
       game.play(move);
       io.to(getRoomId(socket)).emit("connect_choice", {
-        board: game.board.board,
+        board: game.board,
         move: move,
       });
       const winner = game.getWinner();
@@ -119,7 +123,15 @@ const handleRpsGame = (
       game?.newRound();
       const gameWinner = game?.hasGameWin();
       if (gameWinner) {
-        io.to(getRoomId(socket)).emit("rps_game_winner", gameWinner);
+        const winner = uhandler.getUser(gameWinner.id)?.user;
+        if (winner) {
+          io.to(getRoomId(socket)).emit("rps_game_winner", {
+            id: winner.id,
+            created_at: winner.created_at ?? "",
+            username: winner.username ?? "",
+            email: winner.email ?? "",
+          });
+        }
       } else {
         setTimeout(() => {
           io.to(getRoomId(socket)).emit("new_round");
@@ -226,12 +238,12 @@ const saveGame = (_: IGame) => {
 export const getGame = (gameName: GameNames): IGame => {
   switch (gameName) {
     case "Tic Tac Toe":
-      return new TicTacToeGame();
+      return new TicTacToeGame() as IGame;
     case "Rock Paper Scissors":
-      return new RockPaperScissorsGame();
+      return new RockPaperScissorsGame() as IGame;
     case "connect Four":
-      return new CFGame();
+      return new CFGame() as IGame;
     case "Simon Says":
-      return new SimonSaysGame();
+      return new SimonSaysGame() as IGame;
   }
 };

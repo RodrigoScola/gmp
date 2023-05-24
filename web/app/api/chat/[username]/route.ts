@@ -1,11 +1,10 @@
-import { db } from "@/db/supabase";
 import { getQueryParameters } from "@/lib/UrlUtils";
 import { getFromFile } from "@/lib/utils";
-import { ChatConversationType } from "@/types/types";
+import { ChatConversationType } from "@/types/users";
 
 export async function GET(
   request: Request,
-  req: {
+  _: {
     query: {
       username: string;
     };

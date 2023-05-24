@@ -26,6 +26,8 @@ export type IGame = CFGame &
   TicTacToeGame &
   RockPaperScissorsGame;
 
+export type Igame = IGame;
+
 export type GameNames =
   | "Simon Says"
   | "connect Four"
@@ -200,6 +202,11 @@ export enum SimonGameState {
   WAITING = "Waiting",
 }
 
+export interface GameComponentProps {
+  gameId: string;
+  gameName: GameNames;
+}
+
 export enum TicTacToeGameState {
   START = "Start",
   PLAYING = "Playing",
@@ -232,11 +239,11 @@ export type GamesInfo = {
     move: RPSMove;
   };
   "Simon Says": {
-    player: TTCPlayer;
-    board: TTCMove[][];
-    round: TTCRound;
+    player: SMSPlayer;
+    board: SMSMove[][];
+    round: SMSRound;
     state: SMState;
-    move: TTCMove;
+    move: SMSMove;
   };
 };
 
@@ -250,5 +257,5 @@ export abstract class Board<T> {
 
 export type GameType = {
   name: GameNames;
-  id: string;
+  id: number;
 };

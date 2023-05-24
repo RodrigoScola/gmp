@@ -1,39 +1,36 @@
 "use client";
 import { baseUser } from "@/constants";
 import { newSocketAuth, socket } from "@/lib/socket";
+import { useEffect, useMemo, useState } from "react";
+import { useEffectOnce } from "usehooks-ts";
 import {
+  GameComponentProps,
   GameNames,
-  MoveChoice,
   TTCCombination,
+  TTCMove,
+  TTCOptions,
   TTCOptions,
   TTCPlayer,
   TicTacToeGameState,
-  IUser,
-} from "@/types/types";
-import { useEffect, useMemo, useState } from "react";
-import { useEffectOnce } from "usehooks-ts";
-import { TTCMove } from "@/types/types";
-import {
-  generateBoard,
-  isValid,
-  TTCBoardMove,
-} from "@/../server/src/game/TicTacToeGame";
+} from "@/types/game";
+import { IUser } from "@/types/users";
+import { generateBoard, isValid } from "@/../server/src/game/TicTacToeGame";
 import { useUser } from "@/hooks/useUser";
 
 const gameId = "a0s9df0a9sdjf";
 const gameType: GameNames = "Tic Tac Toe";
 
 type TicTacToeState = {
-  moves: TTCBoardMove[];
+  moves: TTCMove[];
   winner: {
     id: string | null | "tie";
-    board: TTCBoardMove[] | null;
+    board: TTCMove[] | null;
   };
   wins: {
     [k: string]: number;
   };
 };
-export default function TicTacToeGameComponent() {
+export default function TicTacToeGameComponent(props: GameComponentProps) {
   const [moves, setMoves] = useState<TicTacToeState>({
     moves: [],
     winner: {
@@ -60,7 +57,7 @@ export default function TicTacToeGameComponent() {
   >({
     id: "string",
   });
-  const [board, setBoard] = useState<MoveChoice<TTCMove>[][]>(generateBoard());
+  const [board, setBoard] = useState<TTCMove[][]>(generateBoard());
   const [gameState, setGameState] = useState<TicTacToeGameState>(
     TicTacToeGameState.WAITING
   );
@@ -101,12 +98,10 @@ export default function TicTacToeGameComponent() {
       board,
       move: {
         id: user.id,
-        move: {
-          choice: player.choice,
-          coords: {
-            x,
-            y,
-          },
+        choice: player.choice,
+        coords: {
+          x,
+          y,
         },
       },
     });
@@ -119,12 +114,12 @@ export default function TicTacToeGameComponent() {
   useEffect(() => {
     const socketAuth = newSocketAuth({
       user: user,
-      roomId: gameId,
-      gameName: gameType,
+      roomId: props.gameId,
+      gameName: props.gameName,
     });
     socket.auth = socketAuth;
     socket.connect();
-    socket.emit("join_room", gameId);
+    socket.emit("join_room", props.gameId);
 
     socket.on("get_players", (players: TTCPlayer[]) => {
       const opponent = players.find((player) => player.id != user.id);
@@ -209,14 +204,14 @@ export default function TicTacToeGameComponent() {
   return (
     <>
       <div>
-        {board.map((row: (MoveChoice<TTCMove> | null)[], i: number) => {
+        {board.map((row: (TTCMove | null)[], i: number) => {
           return (
             <div className="flex m-auto w-fit" key={i}>
-              {row.map((col: MoveChoice<TTCMove> | null, j: number) => {
+              {row.map((col: TTCMove | null, j: number) => {
                 let clas = "";
                 if (moves.winner?.board) {
                   const found = moves.winner.board.find(
-                    (b) => b.move.coords.x == i && b.move.coords.y == j
+                    (b) => b.coords.x == i && b.coords.y == j
                   );
                   if (found) {
                     clas = "bg-green-500";
@@ -231,7 +226,7 @@ export default function TicTacToeGameComponent() {
                     key={j}
                     className={`${clas} h-24 w-24 border border-black flex align-middle justify-center items-center`}
                   >
-                    <div className="relative text-4xl">{col?.move.choice}</div>
+                    <div className="relative text-4xl">{col?.choice}</div>
                   </div>
                 );
               })}

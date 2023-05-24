@@ -2,8 +2,6 @@ import { Namespace, Socket } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import { SocketData, getUserFromSocket } from "../server";
 import {
-  ClientToServerEvents,
-  ServerToClientEvents,
   UserClientEvents,
   UserServerEvents,
 } from "../../../web/types/socketEvents";
@@ -13,7 +11,7 @@ import {
   SocketUser,
   UserState,
 } from "../../../web/types/users";
-import { uhandler, MainUser } from "../handlers/usersHandler";
+import { uhandler } from "../handlers/usersHandler";
 import { GameRoom, roomHandler } from "../handlers/room";
 import { getGame } from "../handlers/gameHandlers";
 import { GameNames } from "../../../web/types/game";
@@ -83,14 +81,15 @@ export const userHandlerConnection = (
       );
       if (!currentUser?.user) return;
       const reqId = await currentUser.friends.getRequest(user.id);
-      const d = await db
+      const { data } = await db
         .from("connections")
         .update({
           status: "accepted",
         })
-        .eq("id", reqId?.id);
+        .eq("id", reqId?.id)
+        .single();
 
-      console.log(d);
+      console.log(data);
       // const a = await db
       //   .from("connections")
       //   .update({ status: "accepted" })
@@ -107,16 +106,27 @@ export const userHandlerConnection = (
     const mainUser = uhandler.getUser(getUserFromSocket(socket)?.id as string);
 
     if (!user || !mainUser) return;
-
     const gameInvite = uhandler.invites.addInvite(
-      mainUser.user,
-      user.user,
+      {
+        id: mainUser.user.id,
+        created_at: mainUser.user.created_at ?? "",
+        email: mainUser.user.email ?? "",
+        username: mainUser.user.username ?? "",
+      },
+      {
+        created_at: user.user.created_at ?? "",
+        email: user.user.email ?? "",
+        id: user.user.id,
+        username: user.user.username ?? "",
+      },
       gameName
     );
     if (!gameInvite) return;
     // console.log(gameInvite);
     // console.log(user.socketId);
-    userHandler.to(user.user.socketId).emit("game_invite", gameInvite);
+    userHandler
+      .to(user.user.socketId)
+      .emit("game_invite", gameInvite.gameName, mainUser.user.id);
   });
   socket.on(
     "game_invite_response",
@@ -134,9 +144,15 @@ export const userHandlerConnection = (
         );
         const to = uhandler.getUser(ninvite.to.id);
         const from = uhandler.getUser(ninvite.from.id);
+        console.log(to, from);
         if (!to || !from) return;
+        console.log("this ga");
+        userHandler.to(to.user.socketId).emit("game_invite_accepted", ninvite);
         userHandler.to(to.socketId).emit("game_invite_accepted", ninvite);
         userHandler.to(from.socketId).emit("game_invite_accepted", ninvite);
+        userHandler
+          .to(from.user.socketId)
+          .emit("game_invite_accepted", ninvite);
         callback(invite);
       } else if (action == "declined") {
       }

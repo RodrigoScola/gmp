@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ColorType,
+  GameComponentProps,
   MoveChoice,
   SMSMove,
   SMSState,
@@ -19,7 +20,7 @@ type ColorRefs = {
 };
 export const gameId = "a0s9df0a9sdjf";
 
-export const SimonSaysComponent = () => {
+export const SimonSaysComponent = (props: GameComponentProps) => {
   const [colors, _] = useState(["blue", "green", "yellow", "red"]);
   const [gamePlayState, setGamePlayState] = useState<SimonGameState>(
     SimonGameState.WAITING
@@ -68,9 +69,7 @@ export const SimonSaysComponent = () => {
     if (!canPlay) return;
     socket.emit("sms_move", {
       id: user.id,
-      move: {
-        color: color,
-      },
+      color: color,
     });
 
     blink(refs[color].current as HTMLButtonElement, 1);
@@ -78,9 +77,7 @@ export const SimonSaysComponent = () => {
       ...playerSequence,
       {
         id: user.id,
-        move: {
-          color: color,
-        },
+        color: color,
       },
     ]);
   };
@@ -121,12 +118,12 @@ export const SimonSaysComponent = () => {
   const { user } = useUser();
   useEffect(() => {
     socket.auth = newSocketAuth({
-      gameName: "Simon Says",
-      roomId: gameId,
+      gameName: props.gameName,
+      roomId: props.gameId,
       user: user,
     });
     socket.connect();
-    socket.emit("join_room", gameId);
+    socket.emit("join_room", props.gameId);
     socket.on("sms_new_round", (state: SMSState) => {
       setGameState(state);
       setPlayerSequence([]);
