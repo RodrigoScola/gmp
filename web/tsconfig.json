@@ -24,7 +24,7 @@
     "noImplicitThis": true,
     "alwaysStrict": true,
     "noUnusedLocals": true,
-    "outDir": "js",
+    "outDir": "./js",
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "composite": true,
@@ -49,10 +49,9 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "../server/**/*.ts",
     "syncData.ts",
     "n.js"
-, "../server/src/lib/db.ts"  ],
+ ],
   "files" : [],
   "references": [
     {

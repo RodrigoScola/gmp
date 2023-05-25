@@ -1,4 +1,4 @@
-import { ExtendedUser } from "../shared/types/users";
+import { ExtendedUser } from "../shared/src/types/users";
 
 export const baseUrl = "http://localhost:3000/";
 

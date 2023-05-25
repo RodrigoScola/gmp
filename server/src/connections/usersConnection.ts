@@ -1,13 +1,14 @@
 import { Namespace, Socket } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
-import { SocketData, getUserFromSocket } from "../server";
+import { getUserFromSocket } from "../server";
 import {
   UsersClientEvents,
   UsersServerEvents,
-} from "../../../shared/types/socketEvents";
-import { SocketUser, UserState } from "../../../shared/types/users";
+} from "../../../shared/src/types/socketEvents";
+import { SocketUser, UserState } from "../../../shared/src/types/users";
 import { uhandler } from "../../../shared/handlers/usersHandler";
 import { db } from "../lib/db";
+import { SocketData } from "../../../shared/src/types/types";
 
 export const usersHandlerConnection = (
   _: Namespace<

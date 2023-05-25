@@ -10,9 +10,9 @@ import {
   UserClientEvents,
   UsersServerEvents,
   UsersClientEvents,
-} from "../../shared/types/socketEvents";
-import { IUser } from "../../shared/types/users";
-import { GameNames } from "../../shared/types/game";
+} from "../../shared/src/types/socketEvents";
+import { IUser } from "../../shared/src/types/users";
+import { GameNames } from "../../shared/src/types/game";
 
 const socketUrl = "ws://localhost:3001";
 

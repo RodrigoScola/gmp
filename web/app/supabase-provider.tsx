@@ -8,7 +8,7 @@ import {
 import { useRouter } from "next/navigation";
 
 import type { SupabaseClient } from "@supabase/auth-helpers-nextjs";
-import { Database } from "@/supabasetypes";
+import { Database } from "../../shared/src/types/supabasetypes";
 import { useUpdateEffect } from "usehooks-ts";
 type MaybeSession = Session | null;
 

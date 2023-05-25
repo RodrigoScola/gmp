@@ -1,7 +1,7 @@
 "use client";
 import { useUser } from "@/hooks/useUser";
 import { newSocketAuth, socket } from "@/lib/socket";
-import { Coords } from "../../../shared/types/types";
+import { Coords } from "../../../shared/src/types/types";
 import { useNotification } from "../../hooks/useToast";
 import dynamic from "next/dynamic";
 const Sketch = dynamic(() => import("react-p5"), { ssr: false });
@@ -15,8 +15,8 @@ import {
   CFplayer,
   GameComponentProps,
   RoundType,
-} from "../../../shared/types/game";
-import { GamePlayState } from "../../../shared/types/users";
+} from "../../../shared/src/types/game";
+import { GamePlayState } from "../../../shared/src/types/users";
 let p5: p5types;
 const cols = 7;
 const rows = 6;

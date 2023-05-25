@@ -4,7 +4,7 @@ import { useUpdateEffect } from "usehooks-ts";
 import {
   SMSColorType as ColorType,
   SimonGameState,
-} from "../../../../../shared/types/game";
+} from "../../../../../shared/src/types/game";
 type ColorRefs = {
   red: React.RefObject<HTMLButtonElement | null>;
   blue: React.RefObject<HTMLButtonElement | null>;

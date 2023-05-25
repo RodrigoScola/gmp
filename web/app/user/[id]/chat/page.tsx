@@ -1,6 +1,6 @@
-import { FriendHandler } from "../../../../../shared/handlers/handlers/FriendHandler";
+import { FriendHandler } from "../../../../../shared/src/handlers/FriendHandler";
 import { RenderChatMesages } from "@/Components/RenderChat2";
-import { ChatConversationType } from "../../../../../shared/types/users";
+import { ChatConversationType } from "../../../../../shared/src/types/users";
 
 export default async function CHATPAGE({
   params: { id },

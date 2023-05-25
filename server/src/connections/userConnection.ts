@@ -1,21 +1,22 @@
 import { Namespace, Socket } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
-import { SocketData, getUserFromSocket } from "../server";
+import { getUserFromSocket } from "../server";
 import {
   UserClientEvents,
   UserServerEvents,
-} from "../../../shared/types/socketEvents";
+} from "../../../shared/src/types/socketEvents";
 import {
   GameInvite,
   GameInviteOptions,
   SocketUser,
   UserState,
-} from "../../../shared/types/users";
+} from "../../../shared/src/types/users";
 import { uhandler } from "../../../shared/handlers/usersHandler";
 import { GameRoom, roomHandler } from "../../../shared/handlers/room";
 import { getGame } from "../../../shared/handlers/gameHandlers";
-import { GameNames } from "../../../shared/types/game";
+import { GameNames } from "../../../shared/src/types/game";
 import { db } from "../lib/db";
+import { SocketData } from "../../../shared/src/types/types";
 
 export const userHandlerConnection = (
   userHandler: Namespace<

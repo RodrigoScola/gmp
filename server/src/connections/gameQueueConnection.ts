@@ -1,6 +1,6 @@
 import { Namespace, Socket } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
-import { GameNames, GameType } from "../../../shared/types/game";
+import { GameNames, GameType } from "../../../shared/src/types/game";
 import { getGame } from "../../../shared/handlers/gameHandlers";
 import {
   GameRoom,
@@ -8,12 +8,13 @@ import {
   roomHandler,
 } from "../../../shared/handlers/room";
 import { uhandler } from "../../../shared/handlers/usersHandler";
-import { gameQueue } from "../matchQueue";
-import { SocketData, gameId, getUserFromSocket } from "../server";
+import { gameQueue } from "../../../shared/handlers/matchQueue";
+import { gameId, getUserFromSocket } from "../server";
 import {
   GameQueueClientEvents,
   GameQueueServerEvents,
-} from "../../../shared/types/socketEvents";
+} from "../../../shared/src/types/socketEvents";
+import { SocketData } from "../../../shared/src/types/types";
 
 export const gamequeueHandlerConnection = (
   gamequeueHandler: Namespace<

@@ -2,7 +2,8 @@ import express from "express";
 const app = express();
 import http from "http";
 const server = http.createServer(app);
-import { Server, Socket, Namespace } from "socket.io";
+import { Server, Namespace } from "socket.io";
+import { MySocket, SocketData } from "../../shared/src/types/types";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import {
   ServerToClientEvents,
@@ -13,10 +14,10 @@ import {
   ClientToServerEvents,
   UsersServerEvents,
   UsersClientEvents,
-} from "../../shared/types/socketEvents";
+} from "../../shared/src/types/socketEvents";
 
 import { getRoom } from "../../shared/handlers/room";
-import { IUser, SocketUser } from "../../shared/types/users";
+import { IUser, SocketUser } from "../../shared/src/types/users";
 import { chatHandlerConnection } from "./connections/chatConnection";
 import { userHandlerConnection } from "./connections/userConnection";
 import { gamequeueHandlerConnection } from "./connections/gameQueueConnection";
@@ -33,25 +34,6 @@ export const io = new Server<
 >(server);
 
 type InterServerEvents = {};
-
-export type SocketData = {
-  user: IUser;
-  roomId: string;
-};
-
-export type MyIo = Server<
-  ServerToClientEvents,
-  ClientToServerEvents,
-  DefaultEventsMap,
-  SocketData
->;
-
-export type MySocket = Socket<
-  ServerToClientEvents,
-  ClientToServerEvents,
-  DefaultEventsMap,
-  SocketData
->;
 
 export const chatHandler: Namespace<
   ChatClientEvents,
@@ -137,7 +119,6 @@ app.get("/conversation/:roomId", async (req, res) => {
 app.get("/user/:usernameorId", async (req, res) => {
   const username = req.params.usernameorId;
   let user: SocketUser | undefined = uhandler.getUser(username)?.user;
-
   if (!user) {
     const { data, error } = await db
       .from("profiles")
@@ -151,7 +132,7 @@ app.get("/user/:usernameorId", async (req, res) => {
       });
     }
   }
-  res.send(user);
+  res.send(uhandler.getUser(uhandler.getUserByUsername(username) as string));
 });
 
 app.get("/:roomId", (req, res) => {

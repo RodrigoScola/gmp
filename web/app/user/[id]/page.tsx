@@ -4,11 +4,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffectOnce } from "usehooks-ts";
 import { useState } from "react";
-import { IFriend, IUser } from "../../../../shared/types/users";
+import { IFriend, IUser } from "../../../../shared/src/types/users";
 import { db } from "@/db/supabase";
 import { useUser } from "@/hooks/useUser";
 import { FriendsList } from "@/Components/Friends/FriendsComponents";
-import { GameNames } from "../../../../shared/types/game";
+import { GameNames } from "../../../../shared/src/types/game";
 import { Card, CardBody, CardHeader } from "@chakra-ui/react";
 
 export default function PROFILEPAGE({

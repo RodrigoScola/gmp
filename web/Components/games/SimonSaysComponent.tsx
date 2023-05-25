@@ -7,7 +7,7 @@ import {
   SMSMove,
   SMState,
   SimonGameState,
-} from "../../../shared/types/game";
+} from "../../../shared/src/types/game";
 import { useUpdateEffect } from "usehooks-ts";
 import { newSocketAuth, socket } from "@/lib/socket";
 import { useUser } from "@/hooks/useUser";

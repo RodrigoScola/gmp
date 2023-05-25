@@ -3,7 +3,7 @@ import { FriendsList } from "@/Components/Friends/FriendsComponents";
 import { useFriends } from "@/hooks/useFriends";
 import { useUser } from "@/hooks/useUser";
 // import { getUrl } from "@/lib/utils";
-import { IFriend } from "../../shared/types/users";
+import { IFriend } from "../../shared/src/types/users";
 import Link from "next/link";
 import { useState } from "react";
 import { useEffectOnce } from "usehooks-ts";

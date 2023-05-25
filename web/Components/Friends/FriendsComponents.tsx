@@ -1,5 +1,5 @@
 "use client";
-import { IFriend } from "../../../shared/types/users";
+import { IFriend } from "../../../shared/src/types/users";
 import { Popover, PopoverTrigger, PopoverContent } from "@chakra-ui/react";
 import { ComponentProps, FormEvent, useState } from "react";
 import Image from "next/image";

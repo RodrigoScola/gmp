@@ -7,12 +7,12 @@ import {
   RPSPlayer,
   RPSRound,
   Rounds,
-} from "../../../shared/types/game";
+} from "../../../shared/src/types/game";
 import { useUser } from "@/hooks/useUser";
-import { RockPaperScissorsGame } from "../../../shared/game/rockpaperScissors";
 const maxWins = 5;
 import { socket } from "@/lib/socket";
-import { GamePlayState, IUser } from "../../../shared/types/users";
+import { GamePlayState, IUser } from "../../../shared/src/types/users";
+import { RockPaperScissorsGame } from "@/../shared/src/game/rockpaperScissors";
 const { getWinner } = new RockPaperScissorsGame();
 
 export default function RockPaperScissorGameComponent(

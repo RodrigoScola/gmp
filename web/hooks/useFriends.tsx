@@ -1,13 +1,13 @@
 "use client";
 import { ChildrenType } from "@/types";
-import { IFriend as Friend } from "../../shared/types/users";
+import { IFriend as Friend } from "../../shared/src/types/users";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useMap } from "usehooks-ts";
 import { useNotification } from "./useToast";
 import { userSocket } from "@/lib/socket";
 import { db } from "@/db/supabase";
-import { FriendHandler } from "@/../server/src/handlers/FriendHandler";
-import { GameNames } from "../../shared/types/game";
+import { FriendHandler } from "../../shared/src/handlers/FriendHandler";
+import { GameNames } from "../../shared/src/types/game";
 
 export type FriendsContext = {
   friends: Friend[];

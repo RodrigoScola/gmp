@@ -1,0 +1,1 @@
+{"version":3,"file":"FriendsMenu.d.ts","sourceRoot":"","sources":["../../../Components/Menu/FriendsMenu.tsx"],"names":[],"mappings":";AAQA,OAAO,EAGL,aAAa,EAEd,MAAM,kBAAkB,CAAC;AAG1B,KAAK,gBAAgB,GAAG;IACtB,UAAU,EAAE,OAAO,CAAC,UAAU,CAAC,OAAO,aAAa,CAAC,CAAC,CAAC;CACvD,CAAC;AAIF,MAAM,CAAC,OAAO,UAAU,WAAW,CAAC,KAAK,EAAE,gBAAgB,eAkG1D"}

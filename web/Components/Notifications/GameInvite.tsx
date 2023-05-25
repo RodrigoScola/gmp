@@ -1,6 +1,6 @@
 "use client";
 import { userSocket } from "@/lib/socket";
-import { GameInvite } from "../../../shared/types/users";
+import { GameInvite } from "../../../shared/src/types/users";
 export const GameInviteComponent = ({
   gameInvite,
 }: {

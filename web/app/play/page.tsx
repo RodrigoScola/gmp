@@ -1,10 +1,10 @@
 "use client";
 
-import { GameNames, gameNames } from "../../../shared/types/game";
+import { GameNames, gameNames } from "../../../shared/src/types/game";
 import { useState } from "react";
 import { Button, Card, CardHeader, Heading, Tooltip } from "@chakra-ui/react";
 import { InfoIcon } from "@chakra-ui/icons";
-import { GameData, getGameData } from "../../../shared/game/gameUtils";
+import { GameData, getGameData } from "@/../shared/src/game/gameUtils";
 
 export default function PLAYPAGE() {
   const [multiplayerGames, setMultiplayergames] = useState<GameData[]>([]);

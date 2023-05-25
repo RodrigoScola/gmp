@@ -14,11 +14,11 @@ import { useEffectOnce } from "usehooks-ts";
 import { GameInviteComponent } from "@/Components/Notifications/GameInvite";
 import { Socket } from "socket.io-client";
 import { useSupabase } from "@/app/supabase-provider";
-import { IUser, IFriend, GameInvite } from "../../shared/types/users";
+import { IUser, IFriend, GameInvite } from "../../shared/src/types/users";
 import {
   ChatClientEvents,
   ChatServerEvents,
-} from "../../shared/types/socketEvents";
+} from "../../shared/src/types/socketEvents";
 import { AddFiendComponent } from "@/Components/Notifications/AddFriend";
 import { useFriends } from "./useFriends";
 interface UserContext {

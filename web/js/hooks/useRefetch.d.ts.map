@@ -1,0 +1,1 @@
+{"version":3,"file":"useRefetch.d.ts","sourceRoot":"","sources":["../../hooks/useRefetch.ts"],"names":[],"mappings":"AAKA,MAAM,MAAM,aAAa,GAAG;IAC1B,UAAU,EAAE,OAAO,CAAC;CACrB,CAAC;AAEF,wBAAgB,UAAU,CAAC,CAAC,SAAS,EAAE,EACrC,GAAG,EAAE,MAAM,EACX,OAAO,GAAE,WAAgB,GACxB;IACD,IAAI,EAAE,CAAC,GAAG,IAAI,CAAC;CAChB,CAmBA"}

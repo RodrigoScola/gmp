@@ -2,7 +2,7 @@ import { newUser } from "@/db/User";
 import {
   ChatConversationType,
   ChatMessageType,
-} from "../../shared/types/users";
+} from "../../shared/src/types/users";
 import { faker } from "@faker-js/faker";
 import fs from "fs";
 

@@ -10,9 +10,9 @@ import {
   TTCOptions,
   TTCPlayer,
   TicTacToeGameState,
-} from "../../../shared/types/game";
-import { IUser } from "../../../shared/types/users";
-import { generateBoard, isValid } from "../../../shared/game/TicTacToeGame";
+} from "../../../shared/src/types/game";
+import { IUser } from "../../../shared/src/types/users";
+import { generateBoard, isValid } from "../../../shared/src/game/TicTacToeGame";
 import { useUser } from "@/hooks/useUser";
 
 type TicTacToeState = {

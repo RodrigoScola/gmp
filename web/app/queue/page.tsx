@@ -1,10 +1,10 @@
 "use client";
 
 import { Card, Text, Heading } from "@chakra-ui/react";
-import { getGameData } from "../../../shared/game/gameUtils";
+import { getGameData } from "../../../shared/src/game/gameUtils";
 import { useUser } from "@/hooks/useUser";
 import { queueSocket } from "@/lib/socket";
-import { GameType } from "../../../shared/types/game";
+import { GameType } from "../../../shared/src/types/game";
 import { useEffect, useState } from "react";
 import { FriendsList } from "@/Components/Friends/FriendsComponents";
 

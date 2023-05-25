@@ -1,9 +1,12 @@
 "use client";
 import { baseUser } from "@/constants";
-import { checkBoard } from "../../../../../shared/game/TicTacToeGame";
+import { checkBoard } from "../../../../../shared/src/game/TicTacToeGame";
 import { useMemo, useState } from "react";
 import { useEffectOnce, useUpdateEffect } from "usehooks-ts";
-import { TTCMove, TicTacToeGameState } from "../../../../../shared/types/game";
+import {
+  TTCMove,
+  TicTacToeGameState,
+} from "../../../../../shared/src/types/game";
 const generateboard = (): TTCMove[][] => {
   let rows: TTCMove[][] = [];
   for (let i = 0; i < 3; i++) {

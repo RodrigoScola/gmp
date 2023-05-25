@@ -7,7 +7,7 @@ import {
   ChatConversationType,
   ChatMessageType,
   UserState,
-} from "../../shared/types/users";
+} from "../../shared/src/types/users";
 import { Popover, PopoverContent, PopoverTrigger } from "@chakra-ui/react";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { FriendsList } from "./Friends/FriendsComponents";
