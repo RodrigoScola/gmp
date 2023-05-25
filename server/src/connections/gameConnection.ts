@@ -9,9 +9,9 @@ import { SocketUser, UserGameState } from "../../../shared/src/types/users";
 import {
   MatchPlayerState,
   getGame,
-} from "../../../shared/handlers/gameHandlers";
-import { GameRoom, roomHandler } from "../../../shared/handlers/room";
-import { uhandler } from "../../../shared/handlers/usersHandler";
+} from "../../../shared/src/handlers/gameHandlers";
+import { GameRoom, roomHandler } from "../../../shared/src/handlers/room";
+import { uhandler } from "../../../shared/src/handlers/usersHandler";
 import { getRoomId } from "../server";
 import { Socket } from "socket.io";
 import { SocketData } from "../../../shared/src/types/types";

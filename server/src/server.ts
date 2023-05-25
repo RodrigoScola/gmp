@@ -16,13 +16,13 @@ import {
   UsersClientEvents,
 } from "../../shared/src/types/socketEvents";
 
-import { getRoom } from "../../shared/handlers/room";
+import { getRoom } from "../../shared/src/handlers/room";
 import { IUser, SocketUser } from "../../shared/src/types/users";
 import { chatHandlerConnection } from "./connections/chatConnection";
 import { userHandlerConnection } from "./connections/userConnection";
 import { gamequeueHandlerConnection } from "./connections/gameQueueConnection";
 import { db } from "./lib/db";
-import { uhandler } from "../../shared/handlers/usersHandler";
+import { uhandler } from "../../shared/src/handlers/usersHandler";
 import { usersHandlerConnection } from "./connections/usersConnection";
 import { gameHandlerConnection } from "./connections/gameConnection";
 

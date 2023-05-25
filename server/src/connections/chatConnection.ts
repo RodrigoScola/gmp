@@ -5,14 +5,18 @@ import {
   ChatServerEvents,
 } from "../../../shared/src/types/socketEvents";
 import { getRoomId, getUserFromSocket, userHandler } from "../server";
-import { ChatRoom, getRoom, roomHandler } from "../../../shared/handlers/room";
+import {
+  ChatRoom,
+  getRoom,
+  roomHandler,
+} from "../../../shared/src/handlers/room";
 import {
   ChatUser,
   SocketUser,
   UserState,
 } from "../../../shared/src/types/users";
-import { uhandler } from "../../../shared/handlers/usersHandler";
-import { newMessage } from "../../../shared/handlers/ConversationHandler";
+import { uhandler } from "../../../shared/src/handlers/usersHandler";
+import { newMessage } from "../../../shared/src/handlers/ConversationHandler";
 import { SocketData } from "../../../shared/src/types/types";
 
 export const chatHandlerConnection = (

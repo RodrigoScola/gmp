@@ -6,7 +6,7 @@ import {
   UsersServerEvents,
 } from "../../../shared/src/types/socketEvents";
 import { SocketUser, UserState } from "../../../shared/src/types/users";
-import { uhandler } from "../../../shared/handlers/usersHandler";
+import { uhandler } from "../../../shared/src/handlers/usersHandler";
 import { db } from "../lib/db";
 import { SocketData } from "../../../shared/src/types/types";
 

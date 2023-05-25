@@ -11,9 +11,9 @@ import {
   SocketUser,
   UserState,
 } from "../../../shared/src/types/users";
-import { uhandler } from "../../../shared/handlers/usersHandler";
-import { GameRoom, roomHandler } from "../../../shared/handlers/room";
-import { getGame } from "../../../shared/handlers/gameHandlers";
+import { uhandler } from "../../../shared/src/handlers/usersHandler";
+import { GameRoom, roomHandler } from "../../../shared/src/handlers/room";
+import { getGame } from "../../../shared/src/handlers/gameHandlers";
 import { GameNames } from "../../../shared/src/types/game";
 import { db } from "../lib/db";
 import { SocketData } from "../../../shared/src/types/types";

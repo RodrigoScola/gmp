@@ -1,14 +1,14 @@
 import { Namespace, Socket } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import { GameNames, GameType } from "../../../shared/src/types/game";
-import { getGame } from "../../../shared/handlers/gameHandlers";
+import { getGame } from "../../../shared/src/handlers/gameHandlers";
 import {
   GameRoom,
   QueueRoom,
   roomHandler,
-} from "../../../shared/handlers/room";
-import { uhandler } from "../../../shared/handlers/usersHandler";
-import { gameQueue } from "../../../shared/handlers/matchQueue";
+} from "../../../shared/src/handlers/room";
+import { uhandler } from "../../../shared/src/handlers/usersHandler";
+import { gameQueue } from "../../../shared/src/handlers/matchQueue";
 import { gameId, getUserFromSocket } from "../server";
 import {
   GameQueueClientEvents,
