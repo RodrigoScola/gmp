@@ -147,5 +147,4 @@ app.get("/:roomId", (req, res) => {
 });
 server.listen(3001, () => {
   console.log("listening on *:3001");
-  console.log("dep");
 });
