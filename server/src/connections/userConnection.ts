@@ -4,17 +4,17 @@ import { SocketData, getUserFromSocket } from "../server";
 import {
   UserClientEvents,
   UserServerEvents,
-} from "../../../web/types/socketEvents";
+} from "../../../shared/types/socketEvents";
 import {
   GameInvite,
   GameInviteOptions,
   SocketUser,
   UserState,
-} from "../../../web/types/users";
-import { uhandler } from "../handlers/usersHandler";
-import { GameRoom, roomHandler } from "../handlers/room";
-import { getGame } from "../handlers/gameHandlers";
-import { GameNames } from "../../../web/types/game";
+} from "../../../shared/types/users";
+import { uhandler } from "../../../shared/handlers/usersHandler";
+import { GameRoom, roomHandler } from "../../../shared/handlers/room";
+import { getGame } from "../../../shared/handlers/gameHandlers";
+import { GameNames } from "../../../shared/types/game";
 import { db } from "../lib/db";
 
 export const userHandlerConnection = (
@@ -25,8 +25,8 @@ export const userHandlerConnection = (
     SocketData
   >,
   socket: Socket<
-    UserServerEvents,
     UserClientEvents,
+    UserServerEvents,
     DefaultEventsMap,
     SocketData
   >

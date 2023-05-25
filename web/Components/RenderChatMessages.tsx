@@ -3,9 +3,13 @@
 import { useFriend } from "@/hooks/useFriends";
 import { useRefetch } from "@/hooks/useRefetch";
 import { useUser } from "@/hooks/useUser";
-import { ChatConversationType, ChatMessageType, IUser } from "@/types/users";
+import {
+  ChatConversationType,
+  ChatMessageType,
+  IUser,
+} from "../../shared/types/users";
 import { Popover, PopoverContent, PopoverTrigger } from "@chakra-ui/react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useUpdateEffect } from "usehooks-ts";
 
 const newMessage = (content: string, userId: string): ChatMessageType => {
@@ -82,7 +86,7 @@ export const RenderChatMesages = (props: {
   }, [allChat]);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleNewMessage = (e: HTMLFormElement) => {
+  const handleNewMessage = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const message = newMessage(currentChat, user.id);
     setAllChat((current) => ({

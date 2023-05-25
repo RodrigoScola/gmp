@@ -1,10 +1,10 @@
 "use client";
 
 import { Card, Text, Heading } from "@chakra-ui/react";
-import { getGameData } from "@/../server/src/game/gameUtils";
+import { getGameData } from "../../../shared/game/gameUtils";
 import { useUser } from "@/hooks/useUser";
 import { queueSocket } from "@/lib/socket";
-import { GameType } from "@/types/game";
+import { GameType } from "../../../shared/types/game";
 import { useEffect, useState } from "react";
 import { FriendsList } from "@/Components/Friends/FriendsComponents";
 
@@ -21,8 +21,10 @@ export default function QueueHoldingPage({
 
   const [gameName, _] = useState<GameType[]>(
     searchParams.games
-      .split(",")
-      .map((game: GameType) => getGameData(Number(game)))
+      ? searchParams.games
+          .split(",")
+          .map((game: GameType) => getGameData(Number(game)))
+      : []
   );
   const [timer, setTimer] = useState<NodeJS.Timer | undefined>(undefined);
 
@@ -45,7 +47,7 @@ export default function QueueHoldingPage({
     queueSocket.connect();
     queueSocket.emit("join_queue", gameName);
 
-    queueSocket.on("game_found", (data) => {
+    queueSocket.on("game_found", (data: any) => {
       window.location.href = `/play/${data}`;
     });
     return () => {

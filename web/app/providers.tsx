@@ -2,7 +2,7 @@
 
 import { NotificationProvider } from "@/hooks/useToast";
 import { UserProvider } from "@/hooks/useUser";
-import { ChildrenType } from "@/types/types";
+import { ChildrenType } from "@/types";
 import { CacheProvider } from "@chakra-ui/next-js";
 import { ChakraProvider, ThemeProvider } from "@chakra-ui/react";
 

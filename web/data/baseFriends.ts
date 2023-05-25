@@ -1,6 +1,7 @@
-import { Badge, FriendsGamesType } from "@/types/types";
+import { Badge } from "../../shared/types/types";
 import { basebadegeData } from "./baseBadges";
-import { getGameData } from "./games";
+import { getGameData } from "../../shared/game/gameUtils";
+import { FriendsGamesType } from "../../shared/types/users";
 
 export const getBadges = (num: number) => {
   const badges: Badge[] = [];

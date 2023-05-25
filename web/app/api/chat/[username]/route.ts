@@ -1,6 +1,6 @@
 import { getQueryParameters } from "@/lib/UrlUtils";
 import { getFromFile } from "@/lib/utils";
-import { ChatConversationType } from "@/types/users";
+import { ChatConversationType } from "../../../../../shared/types/users";
 
 export async function GET(
   request: Request,

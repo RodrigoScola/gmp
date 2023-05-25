@@ -4,9 +4,9 @@ import { SocketData, getUserFromSocket } from "../server";
 import {
   UsersClientEvents,
   UsersServerEvents,
-} from "../../../web/types/socketEvents";
-import { SocketUser, UserState } from "../../../web/types/users";
-import { uhandler } from "../handlers/usersHandler";
+} from "../../../shared/types/socketEvents";
+import { SocketUser, UserState } from "../../../shared/types/users";
+import { uhandler } from "../../../shared/handlers/usersHandler";
 import { db } from "../lib/db";
 
 export const usersHandlerConnection = (

@@ -1,10 +1,9 @@
 "use client";
 import { useUser } from "@/hooks/useUser";
 import { newSocketAuth, socket } from "@/lib/socket";
-import { Coords } from "@/types/types";
+import { Coords } from "../../../shared/types/types";
 import { useNotification } from "../../hooks/useToast";
 import dynamic from "next/dynamic";
-
 const Sketch = dynamic(() => import("react-p5"), { ssr: false });
 import p5types from "p5";
 import { useEffect, useRef, useState } from "react";
@@ -16,8 +15,8 @@ import {
   CFplayer,
   GameComponentProps,
   RoundType,
-} from "@/types/game";
-import { GamePlayState } from "@/types/users";
+} from "../../../shared/types/game";
+import { GamePlayState } from "../../../shared/types/users";
 let p5: p5types;
 const cols = 7;
 const rows = 6;
@@ -30,6 +29,7 @@ let prevPlayerPos = 0;
 let win = 0;
 const opponentName = "Opponent";
 var canStart = false;
+console.log(canStart);
 
 class Ball {
   speed: number = 5;
@@ -159,9 +159,7 @@ class GameState {
 const g = new GameState();
 
 export default function CONNECTFOURPAGE(props: GameComponentProps) {
-  const [gameplaystate, setGameplaystate] = useState<GamePlayState>(
-    GamePlayState.waiting
-  );
+  const [_, setGameplaystate] = useState<GamePlayState>(GamePlayState.waiting);
 
   const ref = useRef(null);
   const toast = useNotification();

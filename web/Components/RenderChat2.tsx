@@ -3,10 +3,13 @@
 import { useFriend } from "@/hooks/useFriends";
 import { useUser } from "@/hooks/useUser";
 import { chatSocket, socket } from "@/lib/socket";
-import { ChatConversationType, ChatMessageType } from "@/types/users";
-import { UserState } from "@/types/users";
+import {
+  ChatConversationType,
+  ChatMessageType,
+  UserState,
+} from "../../shared/types/users";
 import { Popover, PopoverContent, PopoverTrigger } from "@chakra-ui/react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { FriendsList } from "./Friends/FriendsComponents";
 import { useUpdateEffect } from "usehooks-ts";
 
@@ -99,7 +102,7 @@ export const RenderChatMesages = (props: {
 
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleNewMessage = (e: HTMLFormElement) => {
+  const handleNewMessage = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (currentChat.length < 1) return;
     chatSocket.emit("send_message", {
@@ -128,6 +131,7 @@ export const RenderChatMesages = (props: {
   }, [currentChat]);
 
   const handleAddFriend = () => {
+    if (!friend.id) return;
     friend.sendFriendRequest(friend.id);
   };
   console.log(user.id, friend.id);

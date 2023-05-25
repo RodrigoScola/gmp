@@ -1,5 +1,5 @@
 import { userSocket } from "@/lib/socket";
-import { IUser } from "@/types/users";
+import { IUser } from "../../../shared/types/users";
 
 export const AddFiendComponent = ({ friend }: { friend: IUser }) => {
   const handleAccept = () => {

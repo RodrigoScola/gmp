@@ -1,4 +1,4 @@
-import { Badge } from "../types/types";
+import { Badge } from "../../shared/types/types";
 export const basebadegeData: Badge[] = [
   {
     id: 0,

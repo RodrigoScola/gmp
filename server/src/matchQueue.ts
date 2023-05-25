@@ -1,6 +1,6 @@
-import { GameNames, GameType, gameNames } from "../../web/types/game";
-import { getGameData } from "./game/gameUtils";
-import { PlayerHandler } from "./handlers/usersHandler";
+import { GameNames, GameType, gameNames } from "../../shared/types/game";
+import { getGameData } from "../../shared/game/gameUtils";
+import { PlayerHandler } from "../../shared/handlers/usersHandler";
 import { GameQueue } from "./lib/GamesQueue";
 
 export type MatchQueuePlayer = {

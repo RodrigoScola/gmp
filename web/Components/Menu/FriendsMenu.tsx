@@ -5,7 +5,7 @@ import { FriendsList } from "@/Components/Friends/FriendsComponents";
 import { useFriend, useFriends } from "@/hooks/useFriends";
 import { useUser } from "@/hooks/useUser";
 import { usersSocket } from "@/lib/socket";
-import { IFriend, IUser } from "@/types/users";
+import { IFriend, IUser } from "../../../shared/types/users";
 import {
   Popover,
   PopoverTrigger,

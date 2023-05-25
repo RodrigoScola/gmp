@@ -1,7 +1,7 @@
 "use client";
 import { db } from "@/db/supabase";
 import { userSocket } from "@/lib/socket";
-import { ChildrenType } from "@/types/types";
+import { ChildrenType } from "@/types";
 import { useNotification } from "./useToast";
 import {
   createContext,
@@ -14,8 +14,11 @@ import { useEffectOnce } from "usehooks-ts";
 import { GameInviteComponent } from "@/Components/Notifications/GameInvite";
 import { Socket } from "socket.io-client";
 import { useSupabase } from "@/app/supabase-provider";
-import { IUser, IFriend } from "@/types/users";
-import { ChatClientEvents, ChatServerEvents } from "@/types/socketEvents";
+import { IUser, IFriend, GameInvite } from "../../shared/types/users";
+import {
+  ChatClientEvents,
+  ChatServerEvents,
+} from "../../shared/types/socketEvents";
 import { AddFiendComponent } from "@/Components/Notifications/AddFriend";
 import { useFriends } from "./useFriends";
 interface UserContext {
@@ -31,8 +34,11 @@ export const UserContext = createContext<UserContext | null>(null);
 
 export const UserProvider = ({ children }: { children: ChildrenType }) => {
   // const [token, setTOken] = useState(db.authStore.token);
+  const [localStorage] = useState(
+    typeof window !== "undefined" ? window.localStorage : null
+  );
   const [currentUser, setCurrentUser] = useState<IUser | null>(
-    localStorage.getItem("user")
+    localStorage && localStorage.getItem("user")
       ? JSON.parse(localStorage.getItem("user") ?? "")
       : { id: null }
   );
@@ -44,7 +50,7 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
 
   const handleFetch = async () => {
     if (currentUser) return;
-    const localUser = localStorage.getItem("user");
+    const localUser = localStorage?.getItem("user");
     if (localUser) {
       setCurrentUser(JSON.parse(localUser));
     } else {
@@ -54,7 +60,7 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
         .eq("id", session?.user.id)
         .single();
 
-      localStorage.setItem("user", JSON.stringify(data.data));
+      localStorage?.setItem("user", JSON.stringify(data.data));
       setCurrentUser(data.data);
     }
   };
@@ -76,7 +82,7 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
     userSocket.on("notification_message", (data) => {
       toast.addNotification(`${data.user.username} sent you a message`);
     });
-    userSocket.on("game_invite", (data) => {
+    userSocket.on("game_invite", (data: GameInvite) => {
       toast.addNotification("Game Request", {
         duration: 15000,
         render: () => <GameInviteComponent gameInvite={data} />,
@@ -107,15 +113,15 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
     });
 
     if (data?.user) {
-      setCurrentUser(data.user);
-
       const { data: profile } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", data.user.id)
         .single();
-
-      localStorage.setItem("user", JSON.stringify(profile));
+      if (profile) {
+        setCurrentUser(profile);
+        localStorage?.setItem("user", JSON.stringify(profile));
+      }
     }
     return data;
   }, []);
@@ -126,11 +132,12 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
     <UserContext.Provider
       value={{
         user: currentUser ?? {
-          id: null,
-          created_at: Date.now(),
-          email: "defaultemail@gmail.com",
-          username: "default username",
+          created_at: "",
+          email: "",
+          id: "",
+          username: "",
         },
+        setCurrentUser,
         getFriends,
         login,
         socket: userSocket,

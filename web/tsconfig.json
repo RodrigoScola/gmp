@@ -10,7 +10,7 @@
     "skipLibCheck": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "noEmit": true,
+    "noEmit": false,
     "noEmitOnError": true,
     "esModuleInterop": true,
     "module": "esnext",
@@ -52,10 +52,11 @@
     "../server/**/*.ts",
     "syncData.ts",
     "n.js"
-  ],
+, "../server/src/lib/db.ts"  ],
+  "files" : [],
   "references": [
     {
-      "path": "../server"
+      "path": "../shared"
     }
   ],
   "exclude": [

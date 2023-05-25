@@ -1,17 +1,19 @@
 "use client";
-import { ChildrenType, Friend, GameNames } from "@/types/types";
+import { ChildrenType } from "@/types";
+import { IFriend as Friend } from "../../shared/types/users";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useMap } from "usehooks-ts";
 import { useNotification } from "./useToast";
 import { userSocket } from "@/lib/socket";
 import { db } from "@/db/supabase";
 import { FriendHandler } from "@/../server/src/handlers/FriendHandler";
+import { GameNames } from "../../shared/types/game";
 
 export type FriendsContext = {
   friends: Friend[];
   addFriend: (friend: Friend) => void;
   getFriends: (userId: string) => Promise<Friend[]>;
-  getFriend: (id: string) => Friend | undefined;
+  getFriend: (id: string) => Promise<Friend | undefined>;
   updateFriend: (id: string, friend: Friend) => void;
   removeFriend: (id: string) => void;
 };
@@ -20,9 +22,7 @@ export const FriendsContext = createContext<FriendsContext | null>(null);
 
 export const FriendsProvider = ({ children }: { children: ChildrenType }) => {
   const [friendsMap, actions] = useMap<string, Friend>();
-  const [handler, setFriendHandler] = useState<FriendHandler>(
-    new FriendHandler("")
-  );
+  const [handler, _] = useState<FriendHandler>(new FriendHandler(""));
   const friends = useMemo(() => {
     return Array.from(friendsMap, (f) => f[1]);
   }, [friendsMap.values()]);
@@ -38,12 +38,8 @@ export const FriendsProvider = ({ children }: { children: ChildrenType }) => {
       return friendsMap.get(id);
     }
     const data = await db.from("profiles").select("*").eq("id", id).single();
-
-    if (data.data) {
-      addFriend(data.data);
-    }
-    console.log(friendsMap);
-
+    if (!data.data) return;
+    addFriend(data.data);
     return friendsMap.get(id);
   };
   const updateFriend = (id: string, friend: Friend) => {
@@ -81,7 +77,7 @@ export const useFriends = () => {
 };
 
 export const useFriend = (id?: string) => {
-  const [friendId, setFriendId] = useState<string>(id);
+  const [friendId, setFriendId] = useState<string | null | undefined>(id);
   const [friend, setFriend] = useState<Friend | null>(null);
   const friendContext = useContext(FriendsContext);
   const t = useNotification();
@@ -89,7 +85,9 @@ export const useFriend = (id?: string) => {
   const go = async () => {
     if (!friendId) return;
     const d = await friendContext?.getFriend(friendId);
-    setFriend(d);
+    if (d) {
+      setFriend(d);
+    }
   };
   useEffect(() => {
     go();
@@ -105,11 +103,12 @@ export const useFriend = (id?: string) => {
       t.addNotification("Friend request sent");
     },
     sendInvite: (gameName: GameNames) => {
-      userSocket.emit(
-        "game_invite",
-        gameName.toString() as GameNames,
-        friendId
-      );
+      if (friendId)
+        userSocket.emit(
+          "game_invite",
+          gameName.toString() as GameNames,
+          friendId
+        );
       console.log(`Invite ${friendId} to ${gameName}`);
       t.addNotification("Invite sent");
     },

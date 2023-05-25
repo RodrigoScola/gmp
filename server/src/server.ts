@@ -13,16 +13,15 @@ import {
   ClientToServerEvents,
   UsersServerEvents,
   UsersClientEvents,
-} from "../../web/types/socketEvents";
+} from "../../shared/types/socketEvents";
 
-import { getRoom } from "./handlers/room";
-import { IUser, SocketUser } from "../../web/types/users";
-
+import { getRoom } from "../../shared/handlers/room";
+import { IUser, SocketUser } from "../../shared/types/users";
 import { chatHandlerConnection } from "./connections/chatConnection";
 import { userHandlerConnection } from "./connections/userConnection";
 import { gamequeueHandlerConnection } from "./connections/gameQueueConnection";
 import { db } from "./lib/db";
-import { uhandler } from "./handlers/usersHandler";
+import { uhandler } from "../../shared/handlers/usersHandler";
 import { usersHandlerConnection } from "./connections/usersConnection";
 import { gameHandlerConnection } from "./connections/gameConnection";
 
@@ -116,10 +115,10 @@ app.get("/conversation/:roomId", async (req, res) => {
     .select("*")
     .eq("id", conversationId)
     .single();
-
+  if (!data) return;
   let users: any = await Promise.all([
-    db.from("profiles").select("*").eq("id", data?.user1).single(),
-    db.from("profiles").select("*").eq("id", data?.user2).single(),
+    db.from("profiles").select("*").eq("id", data["user1"]).single(),
+    db.from("profiles").select("*").eq("id", data["user2"]).single(),
   ]);
 
   users = users.map((user: { data: IUser }) => user.data);
@@ -129,7 +128,7 @@ app.get("/conversation/:roomId", async (req, res) => {
     .eq("conversationId", conversationId)
     .order("created");
   res.json({
-    id: data?.id,
+    id: data["id"],
     users: users,
     messages: messages.data,
   });

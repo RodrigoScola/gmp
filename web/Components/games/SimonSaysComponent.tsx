@@ -1,13 +1,13 @@
 "use client";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { LegacyRef, useEffect, useMemo, useRef, useState } from "react";
 import {
-  ColorType,
   GameComponentProps,
   MoveChoice,
+  SMSColorType,
   SMSMove,
-  SMSState,
+  SMState,
   SimonGameState,
-} from "@/types/game";
+} from "../../../shared/types/game";
 import { useUpdateEffect } from "usehooks-ts";
 import { newSocketAuth, socket } from "@/lib/socket";
 import { useUser } from "@/hooks/useUser";
@@ -25,7 +25,7 @@ export const SimonSaysComponent = (props: GameComponentProps) => {
   const [gamePlayState, setGamePlayState] = useState<SimonGameState>(
     SimonGameState.WAITING
   );
-  const [gameState, setGameState] = useState<SMSState>({
+  const [gameState, setGameState] = useState<SMState>({
     sequence: [],
     name: "Simon Says",
     players: [],
@@ -65,7 +65,7 @@ export const SimonSaysComponent = (props: GameComponentProps) => {
     localStorage.setItem("simon_max_score", score.toString());
   };
 
-  const addToSequence = (color: ColorType) => {
+  const addToSequence = (color: SMSColorType) => {
     if (!canPlay) return;
     socket.emit("sms_move", {
       id: user.id,
@@ -89,9 +89,7 @@ export const SimonSaysComponent = (props: GameComponentProps) => {
   };
 
   useUpdateEffect(() => {
-    const ncolors: ColorType[] = gameState.sequence.map(
-      (move) => move.move.color
-    );
+    const ncolors: SMSColorType[] = gameState.sequence.map((move) => move);
     console.log(ncolors);
     const intervaliId = setInterval(() => {
       const color = ncolors.shift();
@@ -124,15 +122,15 @@ export const SimonSaysComponent = (props: GameComponentProps) => {
     });
     socket.connect();
     socket.emit("join_room", props.gameId);
-    socket.on("sms_new_round", (state: SMSState) => {
-      setGameState(state);
+    socket.on("sms_new_round", (state: SMState) => {
+      setGameState(state as SMState);
       setPlayerSequence([]);
     });
     socket.on("sms_game_lost", () => {
       gameLost();
     });
     socket.on("start_game", () => {
-      socket.emit("get_state", (state: SMSState) => {
+      socket.emit("get_state", (state: SMState) => {
         console.log(state);
         setGameState(state);
       });
@@ -163,8 +161,10 @@ export const SimonSaysComponent = (props: GameComponentProps) => {
               disabled={!canPlay}
               key={`button_${color}`}
               name={color}
-              ref={refs[color as keyof ColorRefs]}
-              onClick={() => addToSequence(color as ColorType)}
+              ref={
+                refs[color as keyof ColorRefs] as LegacyRef<HTMLButtonElement>
+              }
+              onClick={() => addToSequence(color as SMSColorType)}
               className={`simon_${color} h-40 w-40`}
             ></button>
           );

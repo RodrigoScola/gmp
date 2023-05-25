@@ -1,4 +1,5 @@
-import { ChildrenType, Direction } from "@/types/types";
+import { ChildrenType } from "@/types";
+import { Direction } from "@/../shared/types/types";
 import { ComponentProps } from "react";
 
 export type TooltipProps = {

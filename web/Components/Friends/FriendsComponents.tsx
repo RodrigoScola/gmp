@@ -1,19 +1,18 @@
 "use client";
-import { Friend } from "@/types/types";
+import { IFriend } from "../../../shared/types/users";
 import { Popover, PopoverTrigger, PopoverContent } from "@chakra-ui/react";
-import { ComponentProps, useEffect, useState } from "react";
+import { ComponentProps, FormEvent, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Profile from "@/images/profile.webp";
-import { useFriend, useFriends } from "@/hooks/useFriends";
-import { useDrawer } from "@/hooks/useDrawer";
-import { chatSocket, userSocket, usersSocket } from "@/lib/socket";
+import { useFriend } from "@/hooks/useFriends";
+import { chatSocket } from "@/lib/socket";
 import { useUser } from "@/hooks/useUser";
 export interface FriendsListProps {
-  friends?: Friend[];
+  friends?: IFriend[];
 }
 export interface FriendCardProps {
-  friend: Friend;
+  friend: IFriend;
 }
 const FriendCardOpen = ({
   friend,
@@ -24,8 +23,9 @@ const FriendCardOpen = ({
   const { user } = useUser();
 
   const [message, setMessage] = useState<string>("");
-  const handleNewMessage = (e) => {
+  const handleNewMessage = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     if (!chatSocket.connected) {
       chatSocket.auth = {
         roomId: "aoaoidfjoiasjdf",
@@ -40,7 +40,7 @@ const FriendCardOpen = ({
         message,
         userId: user.id,
       },
-      (data) => {
+      (data: any) => {
         if (data.received == true) {
           window.location.pathname = `user/${friend.id}/chat`;
         }
@@ -59,9 +59,9 @@ const FriendCardOpen = ({
         />
         <Link href={`/user/${friend.username}`}>{friend.username}</Link>
         <div className="flex">
-          {friend.expand?.badges?.badges?.map((badge) => {
+          {/* {friend.expand?.badges?.badges?.map((badge) => {
             return <div key={friend?.id + "_" + badge?.id}>{badge?.name}</div>;
-          })}
+          })} */}
         </div>
       </div>
       <div>Friends Since 1 - Feb - 2023</div>
@@ -96,7 +96,7 @@ const FriendCardOpen = ({
       <div>
         <h3>Stats</h3>
         <div className="grid grid-cols-2">
-          {Object.values(friend?.expand?.games ?? []).map((game) => {
+          {/* {Object.values(friend?.expand?.games ?? []).map((game) => {
             return (
               <div key={game.id}>
                 <p>{game.name}</p>
@@ -104,12 +104,12 @@ const FriendCardOpen = ({
                 <p>Losses {game.lost}</p>
               </div>
             );
-          })}
+          })} */}
         </div>
       </div>
       <div>
         <p>Note: </p>
-        <p>{friend.expand?.note}</p>
+        <p>{friend.note}</p>
       </div>
       <div>
         <form onSubmit={handleNewMessage}>

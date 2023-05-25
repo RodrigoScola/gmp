@@ -5,20 +5,15 @@ import { useEffect, useMemo, useState } from "react";
 import { useEffectOnce } from "usehooks-ts";
 import {
   GameComponentProps,
-  GameNames,
   TTCCombination,
   TTCMove,
   TTCOptions,
-  TTCOptions,
   TTCPlayer,
   TicTacToeGameState,
-} from "@/types/game";
-import { IUser } from "@/types/users";
-import { generateBoard, isValid } from "@/../server/src/game/TicTacToeGame";
+} from "../../../shared/types/game";
+import { IUser } from "../../../shared/types/users";
+import { generateBoard, isValid } from "../../../shared/game/TicTacToeGame";
 import { useUser } from "@/hooks/useUser";
-
-const gameId = "a0s9df0a9sdjf";
-const gameType: GameNames = "Tic Tac Toe";
 
 type TicTacToeState = {
   moves: TTCMove[];
@@ -52,7 +47,7 @@ export default function TicTacToeGameComponent(props: GameComponentProps) {
     id: "string2",
   });
 
-  const [opponent, setOpponent] = useState<
+  const [_, setOpponent] = useState<
     (IUser & { choice: TTCOptions | null }) | { id: string }
   >({
     id: "string",
@@ -128,9 +123,12 @@ export default function TicTacToeGameComponent(props: GameComponentProps) {
       }
       const player = players.find((player) => player.id == user.id);
       if (player) {
-        setPlayer(player);
+        setPlayer({
+          ...player,
+          choice: player.choice ?? "O",
+        });
       }
-      socket.on("ttc_choice", (move) => {
+      socket.on("ttc_choice", (move: any) => {
         console.log(move);
         setMoves((current) => ({
           ...current,

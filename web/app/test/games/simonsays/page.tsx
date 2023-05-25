@@ -1,7 +1,10 @@
 "use client";
 import { useMemo, useRef, useState } from "react";
 import { useUpdateEffect } from "usehooks-ts";
-import { SMSColorType as ColorType, SimonGameState } from "@/types/game";
+import {
+  SMSColorType as ColorType,
+  SimonGameState,
+} from "../../../../../shared/types/game";
 type ColorRefs = {
   red: React.RefObject<HTMLButtonElement | null>;
   blue: React.RefObject<HTMLButtonElement | null>;
@@ -37,6 +40,9 @@ const getSpeed = (round: number) => {
 
 export default function SimonSaysPAGE() {
   const [colors, _] = useState(["blue", "green", "yellow", "red"]);
+  const [localStorage] = useState(
+    typeof window !== "undefined" ? window.localStorage : null
+  );
   const [gameState, setGameState] = useState<SimonGameState>(
     SimonGameState.WAITING
   );
@@ -44,7 +50,7 @@ export default function SimonSaysPAGE() {
   const [playerSequence, setPlayerSequence] = useState<string[]>([]);
   const [round, setRound] = useState<number>(0);
   const [maxRound, setMaxRound] = useState<number>(
-    parseInt(localStorage.getItem("simon_max_score") ?? ("1" as string)) ?? 0
+    parseInt(localStorage?.getItem("simon_max_score") ?? ("1" as string)) ?? 0
   );
 
   const [refs, __] = useState<ColorRefs>({
@@ -65,7 +71,7 @@ export default function SimonSaysPAGE() {
 
   const setMaxScore = (score: number) => {
     setMaxRound(score);
-    localStorage.setItem("simon_max_score", score.toString());
+    localStorage?.setItem("simon_max_score", score.toString());
   };
 
   const addToSequence = (color: ColorType) => {

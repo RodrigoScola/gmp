@@ -1,14 +1,17 @@
 import { Server } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
-import { GameNames, IGame } from "../../../web/types/game";
+import { GameNames, IGame } from "../../../shared/types/game";
 import {
   ClientToServerEvents,
   ServerToClientEvents,
-} from "../../../web/types/socketEvents";
-import { SocketUser, UserGameState } from "../../../web/types/users";
-import { MatchPlayerState, getGame } from "../handlers/gameHandlers";
-import { GameRoom, roomHandler } from "../handlers/room";
-import { uhandler } from "../handlers/usersHandler";
+} from "../../../shared/types/socketEvents";
+import { SocketUser, UserGameState } from "../../../shared/types/users";
+import {
+  MatchPlayerState,
+  getGame,
+} from "../../../shared/handlers/gameHandlers";
+import { GameRoom, roomHandler } from "../../../shared/handlers/room";
+import { uhandler } from "../../../shared/handlers/usersHandler";
 import { SocketData, getRoomId } from "../server";
 import { Socket } from "socket.io";
 export type MyIo = Server<

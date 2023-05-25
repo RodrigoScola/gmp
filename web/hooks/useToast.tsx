@@ -1,10 +1,8 @@
 "use client";
-import { ChildrenType, ToastType, newToastType } from "@/types/types";
-import { createContext, useContext, useEffect } from "react";
+import { ChildrenType } from "@/types";
+import { createContext, useContext } from "react";
 import { UseToastOptions, useToast } from "@chakra-ui/react";
-import { useUser } from "./useUser";
-import { useEffectOnce } from "usehooks-ts";
-import { userSocket } from "@/lib/socket";
+import { newToastType } from "@/types";
 type NotificationContextType = {
   addNotification: (message: string, options?: newToastType) => void;
 };
@@ -51,5 +49,5 @@ export const useNotification = () => {
 export const useNotifications = () => {
   const toast = useNotification();
 
-  return {};
+  return toast;
 };

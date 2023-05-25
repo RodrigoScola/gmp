@@ -1,17 +1,11 @@
 "use client";
 import { baseUser } from "@/constants";
-import { checkBoard } from "../../../../../server/src/game/TicTacToeGame";
-import { Coords, TicTacToeGameState } from "@/types/types";
+import { checkBoard } from "../../../../../shared/game/TicTacToeGame";
 import { useMemo, useState } from "react";
 import { useEffectOnce, useUpdateEffect } from "usehooks-ts";
-export type TicTacToeMove = {
-  userId: string;
-  moveId: string;
-  coords: Coords;
-  type: "X" | "O" | null;
-};
-const generateboard = (): TicTacToeMove[][] => {
-  let rows: TicTacToeMove[][] = [];
+import { TTCMove, TicTacToeGameState } from "../../../../../shared/types/game";
+const generateboard = (): TTCMove[][] => {
+  let rows: TTCMove[][] = [];
   for (let i = 0; i < 3; i++) {
     rows[i] = new Array(3).fill({
       userId: null,
@@ -26,22 +20,20 @@ const generateboard = (): TicTacToeMove[][] => {
   return rows;
 };
 const isValid = (
-  board: TicTacToeMove[][],
+  board: TTCMove[][],
   x: number = -1,
   y: number = -1
 ): boolean => {
   if (x < 0 || x > board.length || y < 0 || y > board.length) {
     return false;
   }
-  if (board[x][y]?.type) {
+  if (board[x][y]?.choice) {
     return false;
   }
   if (checkBoard(board).winner) return false;
   return true;
 };
-const sendLetter = (
-  board: TicTacToeMove[][]
-): Promise<TicTacToeMove | null> => {
+const sendLetter = (board: TTCMove[][]): Promise<TTCMove | null> => {
   return new Promise((resolve) => {
     let availableOptions: number[][] = [];
     for (let i = 0; i < board.length; i++) {
@@ -62,8 +54,8 @@ const sendLetter = (
         x: pos[0],
         y: pos[1],
       },
-      type: "O",
-      userId: "asoidufaosduf0av09asf",
+      choice: "O",
+      id: "asoidufaosduf0av09asf",
     });
     setTimeout(() => {
       resolve(b);
@@ -71,27 +63,22 @@ const sendLetter = (
   });
 };
 // add round
-const newBlock = ({
-  coords,
-  type,
-  userId,
-}: Partial<TicTacToeMove>): TicTacToeMove => {
+const newBlock = ({ coords, choice, id }: TTCMove): TTCMove => {
   return {
     coords: {
       x: coords?.x ?? 0,
       y: coords?.y ?? 0,
     },
-    moveId: Date.now().toString(),
-    userId: userId ?? baseUser.id,
-    type: type || "O",
+    id: id ?? baseUser.id,
+    choice: choice || "O",
   };
 };
 
 type TicTacToeState = {
-  moves: TicTacToeMove[];
+  moves: TTCMove[];
   winner?: {
     id: string | null | "tie";
-    board: TicTacToeMove[] | null;
+    board: TTCMove[] | null;
   };
   wins: {
     [k: string]: number;
@@ -110,7 +97,7 @@ export default function TiCTACTOEPAGE() {
     },
   });
 
-  const [board, setBoard] = useState<TicTacToeMove[][]>(generateboard());
+  const [board, setBoard] = useState<TTCMove[][]>(generateboard());
   const [gameState, setGameState] = useState<TicTacToeGameState>(
     TicTacToeGameState.WAITING
   );
@@ -118,12 +105,12 @@ export default function TiCTACTOEPAGE() {
   const addToBoard = async (x: number, y: number) => {
     let nb = [...board];
     const block = newBlock({
-      type: "X",
+      choice: "X",
       coords: {
         x,
         y,
       },
-      userId: baseUser.id,
+      id: baseUser.id,
     });
     if (!isValid(board, x, y)) return;
 
@@ -152,7 +139,7 @@ export default function TiCTACTOEPAGE() {
 
   useUpdateEffect(() => {
     if (
-      moves.moves[moves.moves.length - 1].userId == baseUser.id &&
+      moves.moves[moves.moves.length - 1].id == baseUser.id &&
       moves.moves.length > 0
     ) {
       console.log("asdf");
@@ -184,10 +171,13 @@ export default function TiCTACTOEPAGE() {
     console.log(result);
     if (result.winner) {
       setMoves((current) => ({
-        ...current,
+        moves: current.moves,
         winner: {
+          id: result.winner,
           board: result.board,
-          id: result.winner || "tie",
+        },
+        wins: {
+          ...current.wins,
         },
       }));
       setGameState(TicTacToeGameState.END);
@@ -197,10 +187,10 @@ export default function TiCTACTOEPAGE() {
   return (
     <>
       <div>
-        {board.map((row: (TicTacToeMove | null)[], i: number) => {
+        {board.map((row: (TTCMove | null)[], i: number) => {
           return (
             <div className="flex m-auto w-fit" key={i}>
-              {row.map((col: TicTacToeMove | null, j: number) => {
+              {row.map((col: TTCMove | null, j: number) => {
                 let clas = "";
                 if (moves.winner?.board) {
                   const found = moves.winner.board.find(
@@ -219,7 +209,7 @@ export default function TiCTACTOEPAGE() {
                     key={j}
                     className={`${clas} h-24 w-24 border border-black flex align-middle justify-center items-center`}
                   >
-                    <div className="relative text-4xl">{col?.type}</div>
+                    <div className="relative text-4xl">{col?.choice}</div>
                   </div>
                 );
               })}

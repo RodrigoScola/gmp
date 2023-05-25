@@ -1,13 +1,12 @@
 import { useRef, useState } from "react";
 import { MenuProps } from "../Menu/Menu";
 import { useOnClickOutside } from "usehooks-ts";
-import { Direction } from "@/types/types";
+import { Direction } from "../../../shared/types/types";
 import { DrawerContext } from "@/hooks/useDrawer";
 import {
   DrawerBody,
   Drawer as D,
   DrawerOverlay,
-  Input,
   DrawerContent,
   DrawerHeader,
   DrawerCloseButton,
@@ -37,9 +36,10 @@ export const Drawer = ({ direction = "left", ...props }: DrawerProps) => {
     return findParent(currentElement.parentElement, delimiter);
   };
   const handleClose = (e: MouseEvent) => {
-    console.log(findParent(e.target as HTMLElement, `menu_${now}`));
-    if (!findParent(e.target, `menu_${now}`)) {
-      props.onClose();
+    if (e.target) {
+      if (!findParent(e.target as HTMLElement, `menu_${now}`)) {
+        props.onClose();
+      }
     }
   };
 

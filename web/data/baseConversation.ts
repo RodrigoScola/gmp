@@ -1,5 +1,8 @@
 import { newUser } from "@/db/User";
-import { ChatConversationType, ChatMessageType } from "@/types/types";
+import {
+  ChatConversationType,
+  ChatMessageType,
+} from "../../shared/types/users";
 import { faker } from "@faker-js/faker";
 import fs from "fs";
 

@@ -1,4 +1,4 @@
-import { IFriend, IUser, IUser as UserType } from "@/types/users";
+import { IFriend, IUser, IUser as UserType } from "../../shared/types/users";
 import { getBadges, getFriendsGames } from "@/data/baseFriends";
 
 type UserClassConstructor = {

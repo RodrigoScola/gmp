@@ -3,17 +3,17 @@ import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import {
   ChatClientEvents,
   ChatServerEvents,
-} from "../../../web/types/socketEvents";
+} from "../../../shared/types/socketEvents";
 import {
   SocketData,
   getRoomId,
   getUserFromSocket,
   userHandler,
 } from "../server";
-import { ChatRoom, getRoom, roomHandler } from "../handlers/room";
-import { ChatUser, SocketUser, UserState } from "../../../web/types/users";
-import { uhandler } from "../handlers/usersHandler";
-import { newMessage } from "../handlers/ConversationHandler";
+import { ChatRoom, getRoom, roomHandler } from "../../../shared/handlers/room";
+import { ChatUser, SocketUser, UserState } from "../../../shared/types/users";
+import { uhandler } from "../../../shared/handlers/usersHandler";
+import { newMessage } from "../../../shared/handlers/ConversationHandler";
 
 export const chatHandlerConnection = (
   chatHandler: Namespace<
