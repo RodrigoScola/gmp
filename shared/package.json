@@ -11,6 +11,9 @@
   "license": "ISC",
   "dependencies": {
     "@supabase/supabase-js": "^2.22.0",
-    "socket.io": "^4.6.1"
+    "@types/node": "^20.2.3",
+    "@types/socket.io": "^3.0.2",
+    "socket.io": "^4.6.1",
+    "typescript": "^5.0.4"
   }
 }
