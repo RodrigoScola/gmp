@@ -1,1 +1,0 @@
-{"version":3,"file":"useDrawer.d.ts","sourceRoot":"","sources":["../../hooks/useDrawer.ts"],"names":[],"mappings":";AAGA,MAAM,MAAM,iBAAiB,GAAG;IAC/B,SAAS,EAAE,MAAM,IAAI,CAAA;IACrB,QAAQ,EAAE,MAAM,IAAI,CAAA;IACpB,MAAM,EAAE,OAAO,CAAA;CACf,CAAA;AAED,eAAO,MAAM,aAAa,mDAAgD,CAAA;AAE1E,eAAO,MAAM,SAAS,yBAOrB,CAAA"}
