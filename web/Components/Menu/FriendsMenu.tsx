@@ -29,6 +29,7 @@ export default function FriendsMenu(props: FriendsMenuProps) {
   const { user } = useUser();
   const [searchTerm, setSearchTerm] = useState<string>("");
   const f = useFriends();
+  console.log(f);
   const { sendFriendRequest } = useFriend();
   const go = async () => {
     const x = await f?.getFriends(user.id);
