@@ -24,7 +24,7 @@
     "noImplicitThis": true,
     "alwaysStrict": true,
     "noUnusedLocals": true,
-    "outDir": "./js",
+    "outDir": "./dist",
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "composite": true,
