@@ -26,8 +26,8 @@ export const userHandlerConnection = (
     SocketData
   >,
   socket: Socket<
-    UserClientEvents,
     UserServerEvents,
+    UserClientEvents,
     DefaultEventsMap,
     SocketData
   >
@@ -125,9 +125,7 @@ export const userHandlerConnection = (
     if (!gameInvite) return;
     // console.log(gameInvite);
     // console.log(user.socketId);
-    userHandler
-      .to(user.user.socketId)
-      .emit("game_invite", gameInvite.gameName, mainUser.user.id);
+    userHandler.to(user.user.socketId).emit("game_invite", gameInvite);
   });
   socket.on(
     "game_invite_response",

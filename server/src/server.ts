@@ -97,7 +97,10 @@ app.get("/conversation/:roomId", async (req, res) => {
     .select("*")
     .eq("id", conversationId)
     .single();
-  if (!data) return;
+  if (!data)
+    return res.status(500).json({
+      message: "Conversation not found",
+    });
   let users: any = await Promise.all([
     db.from("profiles").select("*").eq("id", data["user1"]).single(),
     db.from("profiles").select("*").eq("id", data["user2"]).single(),
@@ -109,7 +112,7 @@ app.get("/conversation/:roomId", async (req, res) => {
     .select("*")
     .eq("conversationId", conversationId)
     .order("created");
-  res.json({
+  return res.json({
     id: data["id"],
     users: users,
     messages: messages.data,

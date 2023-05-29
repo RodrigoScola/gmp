@@ -31,7 +31,7 @@
   /* body {
     @apply bg-gray-900 text-white;
   } */
-  .menu_background {
+  /* .menu_background {
     position: absolute;
     top: 0;
     left: 0;
@@ -46,7 +46,7 @@
     width: 40vw;
     right: 0;
     height: 100vh;
-  }
+  } */
   .sidebar-icon {
     @apply relative flex;
   }

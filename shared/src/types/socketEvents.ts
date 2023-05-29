@@ -97,16 +97,17 @@ export type UserServerEvents = {
     callback: (invite: GameInvite) => void
   ) => void;
   game_invite_accepted: (invite: GameInvite) => void;
-  game_invite: (gameInvite: GameInvite) => void;
-  notification_message: (params: { user: SocketUser }) => void;
   get_friends: (userId: string, callback: (friends: IUser[]) => void) => void;
+  game_invite: (gameName: GameNames, userId: string) => void;
   add_friend_response: (friend: IUser) => void;
   add_friend_answer: (from: IUser, response: "accepted" | "declined") => void;
 };
 
 export type UserClientEvents = {
   game_invite_accepted: (invite: GameInvite) => void;
+  notification_message: (params: { user: SocketUser }) => void;
   get_friends: (userId: string, callback: (friends: IUser[]) => void) => void;
+  game_invite: (gameInvite: GameInvite) => void;
   add_friend_answer: (user: IUser, response: "accepted" | "declined") => void;
   game_invite_response: (
     action: GameInviteOptions,
@@ -114,7 +115,6 @@ export type UserClientEvents = {
     callback: (invite: GameInvite) => void
   ) => void;
   add_friend_response: (user: IUser) => void;
-  game_invite: (gameName: GameNames, userId: string) => void;
   add_friend: (friendid: string, callback?: (...args: any) => void) => void;
 };
 

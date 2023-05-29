@@ -22,11 +22,11 @@ import {
 import { AddFiendComponent } from "@/Components/Notifications/AddFriend";
 import { useFriends } from "./useFriends";
 interface UserContext {
-  user: IUser;
+  user: IUser | null;
   setCurrentUser: (user: IUser) => void;
   getFriends: () => Promise<IFriend[] | undefined>;
   login: (email: string, password: string) => Promise<any>;
-  logout: () => void;
+  logout: () => Promise<void>;
   socket: Socket<ChatClientEvents, ChatServerEvents>;
   friends: IFriend[];
 }
@@ -40,7 +40,7 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
   const [currentUser, setCurrentUser] = useState<IUser | null>(
     localStorage && localStorage.getItem("user")
       ? JSON.parse(localStorage.getItem("user") ?? "")
-      : { id: null }
+      : null
   );
   const [friends, setFriends] = useState<IFriend[]>([]);
   const friendHandler = useFriends();
@@ -50,25 +50,19 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
 
   const handleFetch = async () => {
     if (currentUser) return;
-    const localUser = localStorage?.getItem("user");
-    if (localUser) {
-      setCurrentUser(JSON.parse(localUser));
-    } else {
-      const data = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", session?.user.id)
-        .single();
-
-      localStorage?.setItem("user", JSON.stringify(data.data));
-      setCurrentUser(data.data);
-    }
+    const data = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", session?.user.id)
+      .single();
+    localStorage?.setItem("user", JSON.stringify(data.data));
+    setCurrentUser(data.data);
   };
   useEffect(() => {
     handleFetch();
   }, []);
-  console.log(currentUser);
   useEffectOnce(() => {
+    if (!currentUser) return;
     userSocket.auth = {
       user: currentUser,
     };
@@ -83,6 +77,7 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
       toast.addNotification(`${data.user.username} sent you a message`);
     });
     userSocket.on("game_invite", (data: GameInvite) => {
+      console.log(data);
       toast.addNotification("Game Request", {
         duration: 15000,
         render: () => <GameInviteComponent gameInvite={data} />,
@@ -125,18 +120,14 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
     }
     return data;
   }, []);
-  const logout = useCallback(() => {
-    db.auth.signOut();
+  const logout = useCallback(async () => {
+    await db.auth.signOut();
+    localStorage?.removeItem("user");
   }, []);
   return (
     <UserContext.Provider
       value={{
-        user: currentUser ?? {
-          created_at: "",
-          email: "",
-          id: "",
-          username: "",
-        },
+        user: currentUser,
         setCurrentUser,
         getFriends,
         login,

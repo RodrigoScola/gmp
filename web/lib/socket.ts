@@ -24,12 +24,6 @@ export const socket: SC<ClientToServerEvents, ServerToClientEvents> = io(
   }
 );
 
-export type SocketAuth = {
-  user: IUser;
-  roomId: string;
-  gameName: GameNames;
-};
-
 export const chatSocket: SC<ChatServerEvents, ChatClientEvents> = io(
   `${socketUrl}/chat`,
   {
@@ -45,7 +39,7 @@ export const usersSocket: SC<UsersServerEvents, UsersClientEvents> = io(
     autoConnect: false,
   }
 );
-export const userSocket: SC<UserServerEvents, UserClientEvents> = io(
+export const userSocket: SC<UserClientEvents, UserServerEvents> = io(
   `${socketUrl}/user`,
   {
     transports: ["websocket"],
@@ -60,6 +54,11 @@ export const queueSocket: SC<GameQueueServerEvents, GameQueueClientEvents> = io(
     autoConnect: false,
   }
 );
+export type SocketAuth = {
+  user: IUser;
+  roomId: string;
+  gameName: GameNames;
+};
 export const newSocketAuth = (params: SocketAuth): SocketAuth => {
   return {
     user: params.user,

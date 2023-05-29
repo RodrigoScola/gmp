@@ -21,10 +21,10 @@ export const RenderChatMesages = (props: {
   const { user, friends: userFriends, getFriends } = useUser();
   const friend = useFriend();
   useUpdateEffect(() => {
-    if (user.id) {
+    if (user && userFriends.length < 1) {
       getFriends();
     }
-  }, [user.id]);
+  }, [user?.id]);
 
   useEffect(() => {
     if (user) {
@@ -34,10 +34,10 @@ export const RenderChatMesages = (props: {
         setAllChat(props.conversation);
       }
     }
-  }, [user.id]);
+  }, [user?.id]);
 
   useEffect(() => {
-    if (user.id) {
+    if (user?.id) {
       if (!props.conversation.users.find((i) => i.id == user.id)) {
         window.location.href = "/";
         throw new Error("you are not in this conversation");
@@ -55,6 +55,9 @@ export const RenderChatMesages = (props: {
     UserState.offline
   );
   useEffect(() => {
+    if (!user) {
+      window.location.href = "/";
+    }
     chatSocket.auth = {
       user: user,
       roomId: props.conversation.id,
@@ -134,7 +137,6 @@ export const RenderChatMesages = (props: {
     if (!friend.id) return;
     friend.sendFriendRequest(friend.id);
   };
-  console.log(user.id, friend.id);
   return (
     <div className="grid-cols-7 grid gap-2">
       <div className="col-span-6">
@@ -179,8 +181,9 @@ export const RenderChatMesages = (props: {
         </div>
         <div className="space-y-2 px-6 text-white">
           {allChat.messages &&
+            user?.id &&
             allChat?.messages.map((message, i) => {
-              if (message.userId === user.id) {
+              if (message.userId === user?.id) {
                 return (
                   <div key={i + message.created} className="flex justify-end">
                     <div className=" bg-blue-700 flex items-center p-1 rounded-full right-0 w-fit space-x-2">

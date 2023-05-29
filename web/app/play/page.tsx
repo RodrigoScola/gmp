@@ -5,9 +5,16 @@ import { useState } from "react";
 import { Button, Card, CardHeader, Heading, Tooltip } from "@chakra-ui/react";
 import { InfoIcon } from "@chakra-ui/icons";
 import { GameData, getGameData } from "@/../shared/src/game/gameUtils";
+import { FriendsList } from "@/Components/Friends/FriendsComponents";
+import { useUser } from "@/hooks/useUser";
+import { useEffectOnce } from "usehooks-ts";
 
 export default function PLAYPAGE() {
   const [multiplayerGames, setMultiplayergames] = useState<GameData[]>([]);
+  const user = useUser();
+  useEffectOnce(() => {
+    user.getFriends();
+  });
   const [singlePlayerGames, setSinglePlayerGames] = useState<GameData[]>([]);
   const sendSearch = () => {
     window.location.href = `queue/?games=${multiplayerGames
@@ -37,64 +44,69 @@ export default function PLAYPAGE() {
     setMultiplayergames((curr) => [...curr, game]);
   };
   return (
-    <div className="px-3 text-white">
-      <div>
-        <Heading className="text-3xl text-center py-12">
-          Multiplayer Games
-        </Heading>
-        <div className="grid grid-cols-3 gap-2 max-w-3xl m-auto text-black">
-          {gameNames.map((gameName) => {
-            const data = getGameData(gameName);
-            if (data.isMultiplayer === false) return null;
-            return (
-              <GameCard
-                key={gameName}
-                game={data}
-                toggleGame={toggleMultiplayerGame}
-                isSelected={multiplayerGames.includes(data)}
-              />
-            );
-          })}
+    <div className="grid grid-cols-7">
+      <div className="px-3 col-span-6 text-white">
+        <div>
+          <Heading className="text-3xl text-center py-12">
+            Multiplayer Games
+          </Heading>
+          <div className="grid grid-cols-3 gap-2 max-w-3xl m-auto text-black">
+            {gameNames.map((gameName) => {
+              const data = getGameData(gameName);
+              if (data.isMultiplayer === false) return null;
+              return (
+                <GameCard
+                  key={gameName}
+                  game={data}
+                  toggleGame={toggleMultiplayerGame}
+                  isSelected={multiplayerGames.includes(data)}
+                />
+              );
+            })}
+          </div>
+          <div className="flex justify-center pt-4 ">
+            <Button
+              onClick={sendSearch}
+              disabled={multiplayerGames.length == 0}
+              size={"lg"}
+              isDisabled={multiplayerGames.length == 0}
+            >
+              Search
+            </Button>
+          </div>
         </div>
-        <div className="flex justify-center pt-4 ">
-          <Button
-            onClick={sendSearch}
-            disabled={multiplayerGames.length == 0}
-            size={"lg"}
-            isDisabled={multiplayerGames.length == 0}
-          >
-            Search
-          </Button>
+        <div>
+          <Heading className="text-3xl text-center py-12">
+            Single Player Games
+          </Heading>
+          <div className="grid grid-cols-1 gap-2 max-w-3xl m-auto text-black">
+            {gameNames.map((gameName) => {
+              const data = getGameData(gameName);
+              if (data.isMultiplayer === true) return null;
+              return (
+                <GameCard
+                  key={gameName}
+                  isSelected={singlePlayerGames.includes(data)}
+                  game={data}
+                  toggleGame={toggleSinglePlayerGame}
+                />
+              );
+            })}
+          </div>
+          <div className="flex justify-center pt-4 ">
+            <Button
+              onClick={sendSearch}
+              disabled={singlePlayerGames.length == 0}
+              size={"lg"}
+              isDisabled={singlePlayerGames.length == 0}
+            >
+              play
+            </Button>
+          </div>
         </div>
       </div>
       <div>
-        <Heading className="text-3xl text-center py-12">
-          Single Player Games
-        </Heading>
-        <div className="grid grid-cols-1 gap-2 max-w-3xl m-auto text-black">
-          {gameNames.map((gameName) => {
-            const data = getGameData(gameName);
-            if (data.isMultiplayer === true) return null;
-            return (
-              <GameCard
-                key={gameName}
-                isSelected={singlePlayerGames.includes(data)}
-                game={data}
-                toggleGame={toggleSinglePlayerGame}
-              />
-            );
-          })}
-        </div>
-        <div className="flex justify-center pt-4 ">
-          <Button
-            onClick={sendSearch}
-            disabled={singlePlayerGames.length == 0}
-            size={"lg"}
-            isDisabled={singlePlayerGames.length == 0}
-          >
-            play
-          </Button>
-        </div>
+        <FriendsList friends={user.friends} />
       </div>
     </div>
   );

@@ -12,11 +12,10 @@ export default function Home() {
   const [userFriends, setFriends] = useState<IFriend[]>([]);
   const friends = useFriends();
   useEffectOnce(() => {
+    if (!user) return;
     friends?.getFriends(user.id).then((friends) => {
       setFriends(friends);
     });
-    console.log(user.id);
-    console.log(userFriends);
   });
   return (
     <div className="flex flex-row">

@@ -52,7 +52,7 @@ export default function SupabaseProvider({
 
   return (
     <Context.Provider value={{ supabase, session }}>
-      <>{children}</>
+      {children}
     </Context.Provider>
   );
 }

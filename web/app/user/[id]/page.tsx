@@ -9,7 +9,8 @@ import { db } from "@/db/supabase";
 import { useUser } from "@/hooks/useUser";
 import { FriendsList } from "@/Components/Friends/FriendsComponents";
 import { GameNames } from "../../../../shared/src/types/game";
-import { Card, CardBody, CardHeader } from "@chakra-ui/react";
+import { Button, Card, CardBody, CardHeader } from "@chakra-ui/react";
+import { LogoutButton } from "@/Components/buttons/LogoutButton";
 
 export default function PROFILEPAGE({
   params,
@@ -29,6 +30,7 @@ export default function PROFILEPAGE({
   const [userFriends, setUserfriends] = useState<IFriend[]>([]);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const getInformation = async () => {
+    if (!currentUser) return;
     const user = await db
       .from("profiles")
       .select("*")
@@ -82,8 +84,12 @@ export default function PROFILEPAGE({
             )}
             <div className="">
               <h1 className="text-4xl">{user.username}</h1>
-              {user.id !== currentUser.id && (
+              {user.id !== currentUser?.id ? (
                 <Link href={`user/${conversationId}/chat`}>Start a Chat</Link>
+              ) : (
+                <div>
+                  <LogoutButton />
+                </div>
               )}
               <ul className="flex gap-2">
                 {/* {user.badges?.badges?.map((badge, i) => {

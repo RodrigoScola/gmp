@@ -17,17 +17,22 @@ export const Nav = () => {
     }
   });
   return (
-    <div className="  bg-blue-900 w-screen ">
-      <nav className="flex justify-around m-auto w-[90%] items-center py-2 flex-row">
-        <Link className="text-4xl" href={`/`}>
+    <div className="bg-warmGray-50 w-[30vw] px-6 rounded-full  m-auto ">
+      <nav className="flex justify-between m-auto  items-center py-2 flex-row">
+        <Link className="text-4xl text-blue-900" href={`/`}>
           <Heading>TGZ</Heading>
         </Link>
-        <div>
-          {user.id ? (
-            <Link href={`/user/${user.username}`}>
+        <div className="text-blue-900">
+          {user ? (
+            <Link className="" href={`/user/${user.username}`}>
               <Text className="font-bold capitalize">{user.username}</Text>
             </Link>
-          ) : null}
+          ) : (
+            <div className="inline-flex gap-2 border border-blue-900 bg-blue-900 text-warmGray-50 ">
+              <button>login</button>
+              <button>create an account</button>
+            </div>
+          )}
         </div>
       </nav>
     </div>
