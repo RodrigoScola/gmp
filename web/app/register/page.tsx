@@ -7,21 +7,16 @@ import {
 } from "../login/page";
 import { useSupabase } from "../supabase-provider";
 
-export default function REGISTERPAGE(a) {
-     console.log(a);
+export default function REGISTERPAGE() {
      const { supabase } = useSupabase();
      const handleSignUpProvider = async (
           provider: AccountProviderType
      ): Promise<void> => {
-          const res = await supabase.auth.signInWithOAuth({
+          await supabase.auth.signInWithOAuth({
                provider: provider,
-               options: {
-                    redirectTo: "http://localhost:3000/register",
-               },
           });
-
-          console.log(res);
      };
+
      return (
           <div className="w-fit m-auto  p-3 rounded-lg">
                <form className="flex flex-col">
@@ -56,6 +51,7 @@ export default function REGISTERPAGE(a) {
                <div className="gap-2 flex flex-col pt-5">
                     {Object.keys(AccountProviders).map((provider) => (
                          <ProviderButton
+                              key={provider}
                               handleClick={handleSignUpProvider}
                               provider={provider as AccountProviderType}
                          />

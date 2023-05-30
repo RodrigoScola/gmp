@@ -120,7 +120,6 @@ export const RenderChatMesages = (props) => {
           <div className="flex gap-2">
             <p>{friend.friend?.username}</p>
             {!isFriend && <button onClick={handleAddFriend}>add friend</button>}
-            <div></div>
             {receiverState.toString() !== "[Object Object]" && (<div>{receiverState.toString()}</div>)}
           </div>
 
@@ -171,7 +170,6 @@ export const RenderChatMesages = (props) => {
                       <p>{message.message}</p>
                     </div>
                   </div>);
-                    // }
                 }
             })}
         </div>

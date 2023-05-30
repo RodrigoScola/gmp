@@ -1,23 +1,25 @@
 ## games
 
-- check that games are working
+-    check that games are working
 
-- Rps
+-    Rps
 
-- TTC
+-    TTC
 
-- Simon says
+-    Simon says
 
-- connect4
+-    connect4
 
 ## Chat
 
-- status are working
+-    status are working
 
-- sending and receiving messages
+-    sending and receiving messages
 
-- inviting to game
+-    inviting to game
+
+-    when messaging from the status bar, its returning the user id not the conversation id
 
 ## Status bar
 
-- getting friends
+-    getting friends

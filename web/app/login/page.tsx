@@ -1,22 +1,36 @@
 "use client";
-import { Button, FormControl, FormLabel, Input } from "@chakra-ui/react";
+import {
+     Button,
+     FormControl,
+     FormLabel,
+     Input,
+     Modal,
+     ModalBody,
+     ModalCloseButton,
+     ModalContent,
+     ModalHeader,
+     ModalOverlay,
+} from "@chakra-ui/react";
 import { useObject } from "@/hooks/useObject";
 import { useUser } from "@/hooks/useUser";
 import { BsDiscord, BsGithub, BsGoogle } from "react-icons/bs";
 import { useSupabase } from "../supabase-provider";
 import { useState } from "react";
+import { ChangeUsernameComponent } from "@/Components/ChangeUsername";
+import { User } from "@supabase/auth-helpers-nextjs";
+import { useEffectOnce } from "usehooks-ts";
 
 export const AccountProviders = {
      discord: {
-          color: "blue-500",
+          color: "bg-blue-500",
           Icon: BsDiscord,
      },
      github: {
-          color: "slate-500",
+          color: "bg-slate-500",
           Icon: BsGithub,
      },
      google: {
-          color: "red-500",
+          color: "bg-red-500",
           Icon: BsGoogle,
      },
 } as const;
@@ -26,7 +40,10 @@ export default function LOGINPAGE() {
           email: "",
           password: "",
      });
-     const user = useUser();
+
+     const [canSetUsername, setCanSetUsername] = useState<boolean>(false);
+     const mainUser = useUser();
+     const [currentUser, setCurrentUser] = useState<User | null>(null);
      const supabase = useSupabase();
 
      const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -36,19 +53,55 @@ export default function LOGINPAGE() {
      };
      const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
           e.preventDefault();
-          await user.logout();
-          await user.login(state.email, state.password);
-          // if (typeof window !== "undefined") {
-          //   window.location.href = "/";
-          // }
+          await mainUser.logout();
+          await mainUser.login(state.email, state.password);
      };
      const handleProviderSignIn = async (provider: AccountProviderType) => {
           await supabase.supabase.auth.signInWithOAuth({
                provider: provider,
+               options: {
+                    redirectTo: "http://localhost:3000/login",
+               },
           });
      };
+
+     useEffectOnce(() => {
+          supabase.supabase.auth.getUser().then(({ data: { user } }) => {
+               if (user) {
+                    setCurrentUser(user);
+                    console.log(user);
+                    supabase.supabase
+                         .from("profiles")
+                         .select("*")
+                         .eq("id", user.id)
+                         .single()
+                         .then(({ error, data }) => {
+                              if (error || data.username == "") {
+                                   setCanSetUsername(true);
+                              } else {
+                                   mainUser.updateUser(data);
+                              }
+                         });
+               }
+          });
+     });
      return (
           <div className="flex items-center h-[80vh]">
+               <Modal
+                    onClose={() => setCanSetUsername(false)}
+                    isOpen={canSetUsername}
+               >
+                    <ModalOverlay />
+                    <ModalContent>
+                         <ModalHeader>Set Username</ModalHeader>
+                         <ModalCloseButton />
+                         <ModalBody>
+                              <ChangeUsernameComponent
+                                   currentUser={currentUser}
+                              />
+                         </ModalBody>
+                    </ModalContent>
+               </Modal>
                <form className="m-auto w-fit" onSubmit={handleSubmit}>
                     <div>
                          <FormControl>
@@ -78,6 +131,7 @@ export default function LOGINPAGE() {
                          {Object.keys(AccountProviders).map((provider) => {
                               return (
                                    <ProviderButton
+                                        key={provider}
                                         provider={
                                              provider as AccountProviderType
                                         }
@@ -102,11 +156,10 @@ export const ProviderButton = ({
      handleClick: (provider: AccountProviderType) => Promise<void>;
 }) => {
      const [{ color, Icon }, _] = useState(AccountProviders[provider]);
-
      return (
           <div
                onClick={() => handleClick(provider)}
-               className={`bg-${color} hover:cursor-pointer rounded-md flex py-2 justify-center`}
+               className={`${color} hover:cursor-pointer rounded-md flex py-2 justify-center`}
           >
                <Icon />
           </div>
