@@ -5,10 +5,19 @@ import Link from "next/link";
 import { useNotifications } from "@/hooks/useToast";
 import { Text, Heading, useColorMode } from "@chakra-ui/react";
 import { useEffectOnce } from "usehooks-ts";
+import { useEffect, useState } from "react";
 
 export const Nav = () => {
   const { user } = useUser();
   useNotifications();
+  // NOTE: this is a hack to get the username to show up in the nav bar
+  const [username, setUsername] = useState<string>("");
+  useEffect(() => {
+    if (user) {
+      setUsername(user.username);
+    }
+    return () => {};
+  }, [user]);
 
   const { colorMode, setColorMode } = useColorMode();
   useEffectOnce(() => {
@@ -17,20 +26,20 @@ export const Nav = () => {
     }
   });
   return (
-    <div className="bg-warmGray-50 w-[30vw] px-6 rounded-full  m-auto ">
-      <nav className="flex justify-between m-auto  items-center py-2 flex-row">
-        <Link className="text-4xl text-blue-900" href={`/`}>
+    <div className="  bg-blue-900 w-screen ">
+      <nav className="flex justify-around m-auto w-[90%] items-center py-2 flex-row">
+        <Link className="text-4xl" href={`/`}>
           <Heading>TGZ</Heading>
         </Link>
-        <div className="text-blue-900">
+        <div>
           {user ? (
-            <Link className="" href={`/user/${user.username}`}>
-              <Text className="font-bold capitalize">{user.username}</Text>
+            <Link href={`/user/${username}`} prefetch>
+              <Text className="font-bold capitalize">{username}</Text>
             </Link>
           ) : (
-            <div className="inline-flex gap-2 border border-blue-900 bg-blue-900 text-warmGray-50 ">
-              <button>login</button>
-              <button>create an account</button>
+            <div className="flex flex-row gap-2">
+              <Link href={`/login`}>login</Link>
+              <Link href={`/register`}>create account</Link>
             </div>
           )}
         </div>

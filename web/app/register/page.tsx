@@ -1,45 +1,66 @@
-import { BsGoogle, BsGithub, BsDiscord } from "react-icons/bs"
+"use client";
+import { Button, FormControl, FormLabel, Input } from "@chakra-ui/react";
+import {
+     AccountProviderType,
+     AccountProviders,
+     ProviderButton,
+} from "../login/page";
+import { useSupabase } from "../supabase-provider";
 
-const ButtonProps: string = "rounded-md flex py-2 justify-center"
+export default function REGISTERPAGE(a) {
+     console.log(a);
+     const { supabase } = useSupabase();
+     const handleSignUpProvider = async (
+          provider: AccountProviderType
+     ): Promise<void> => {
+          const res = await supabase.auth.signInWithOAuth({
+               provider: provider,
+               options: {
+                    redirectTo: "http://localhost:3000/register",
+               },
+          });
 
-export default function REGISTERPAGE() {
-	return (
-		<div className="w-fit bg-slate-200 p-3 rounded-lg">
-			<form className="flex flex-col">
-				<label>
-					<p>Email</p>
-					<input type="email" />
-				</label>
-				<label>
-					<p>Username</p>
-					<input type="email" />
-				</label>
-				<label>
-					<p>Password</p>
-					<input type="password" />
-				</label>
-				<label>
-					<p>Confirm Password</p>
-					<input type="password" />
-				</label>
-			</form>
-			<div className="gap-2 pt-3 flex flex-col">
-				<div className={`bg-red-500 ${ButtonProps}`}>
-					<button>
-						<BsGoogle color="white" />
-					</button>
-				</div>
-				<div className={`bg-slate-500 ${ButtonProps}`}>
-					<button>
-						<BsGithub color="white" />
-					</button>
-				</div>
-				<div className={`bg-blue-500 ${ButtonProps}`}>
-					<button className="">
-						<BsDiscord color="white" />
-					</button>
-				</div>
-			</div>
-		</div>
-	)
+          console.log(res);
+     };
+     return (
+          <div className="w-fit m-auto  p-3 rounded-lg">
+               <form className="flex flex-col">
+                    <FormControl>
+                         <FormLabel>
+                              <p>Email</p>
+                         </FormLabel>
+                         <Input type="email" />
+                    </FormControl>
+                    <FormControl>
+                         <FormLabel>
+                              <p>Username</p>
+                         </FormLabel>
+                         <Input type="email" />
+                    </FormControl>
+                    <FormControl>
+                         <FormLabel>
+                              <p>Password</p>
+                         </FormLabel>
+                         <Input type="password" />
+                    </FormControl>
+                    <FormControl>
+                         <FormLabel>
+                              <p>Confirm Password</p>
+                         </FormLabel>
+                         <Input type="password" />
+                    </FormControl>
+                    <div className="m-auto">
+                         <Button type="submit">Register</Button>
+                    </div>
+               </form>
+               <div className="gap-2 flex flex-col pt-5">
+                    {Object.keys(AccountProviders).map((provider) => (
+                         <ProviderButton
+                              handleClick={handleSignUpProvider}
+                              provider={provider as AccountProviderType}
+                         />
+                    ))}
+               </div>
+          </div>
+     );
 }

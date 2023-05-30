@@ -1,3 +1,6 @@
 {
-     "emmet.showAbbreviationSuggestions": false
+     "emmet.showAbbreviationSuggestions": false,
+     "editor.tabSize": 10,
+     "workbench.editor.tabSizing": "shrink",
+     "prettier.tabWidth": 5
 }
