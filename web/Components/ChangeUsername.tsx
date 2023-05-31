@@ -55,7 +55,7 @@ export const ChangeUsernameComponent = ({
                                    .single()
                                    .then(({ data }) => {
                                         if (data) {
-                                             mainUser.setCurrentUser(data);
+                                             mainUser.updateUser(data);
                                         }
                                    });
                          }

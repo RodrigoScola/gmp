@@ -23,7 +23,6 @@ import { AddFiendComponent } from "@/Components/Notifications/AddFriend";
 import { useFriends } from "./useFriends";
 interface UserContext {
      user: IUser | null;
-     setCurrentUser: (user: IUser) => void;
      getFriends: () => Promise<IFriend[] | undefined>;
      login: (email: string, password: string) => Promise<any>;
      logout: () => Promise<void>;
@@ -138,6 +137,7 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
           <UserContext.Provider
                value={{
                     user: currentUser,
+
                     updateUser,
                     getFriends,
                     login,
