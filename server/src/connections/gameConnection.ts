@@ -91,7 +91,7 @@ export const gameHandlerConnection = (
                });
           });
           const s: MyIo = io;
-          room?.match.playGame(s, socket as MySocket, game);
+          room?.match.playGame(s as unknown as MyIo, socket as MySocket, game);
           // }
      });
 
