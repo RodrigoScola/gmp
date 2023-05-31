@@ -50,13 +50,11 @@ export default function LOGINPAGE() {
           await supabase.supabase.auth.signInWithOAuth({
                provider: provider,
                options: {
-                    redirectTo: `https://gmp-eta.vercel.app/login`,
+                    redirectTo: window.location.origin,
                },
           });
      };
-     console.log(baseUrl);
-     console.log(process.env.NODE_ENV);
-
+     console.log(window.location.origin);
      useEffectOnce(() => {
           supabase.supabase.auth.getUser().then(({ data: { user } }) => {
                if (user) {
