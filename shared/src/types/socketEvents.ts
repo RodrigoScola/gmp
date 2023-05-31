@@ -27,6 +27,11 @@ import {
      SocketUser,
 } from "./users";
 
+export type ChatRoomState = {
+     id: string;
+     users: ChatUser[];
+};
+
 // game events
 export interface ServerToClientEvents {
      join_room: (roomId: string) => void;
@@ -71,6 +76,7 @@ export interface ClientToServerEvents {
      new_round: () => void;
      user_disconnected: (roomId: string) => void;
 }
+
 export interface ChatServerEvents {
      notification_message: (params: { user: SocketUser }) => void;
      receive_message: (
@@ -78,7 +84,7 @@ export interface ChatServerEvents {
           callback?: (err: Error | null, data: any) => void
      ) => void;
      user_joined: (user: SocketUser[]) => void;
-     state_change: (state: ChatUser) => void;
+     state_change: (state: ChatRoomState) => void;
 }
 export interface ChatClientEvents {
      join_room: (roomId: string) => void;

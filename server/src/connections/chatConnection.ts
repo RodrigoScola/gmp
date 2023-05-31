@@ -126,14 +126,11 @@ export const chatHandlerConnection = (
                state,
           });
 
-          const userFromSocket = room.users.getUser(
-               getUserFromSocket(socket)?.id as string
-          );
-          if (userFromSocket) {
-               socket.broadcast
-                    .to(getRoomId(socket))
-                    .emit("state_change", userFromSocket);
-          }
+          socket.broadcast.to(getRoomId(socket)).emit("state_change", {
+               id: room.id,
+
+               users: room.users.getUsers(),
+          });
      });
      socket.on("send_message", async (message, callback) => {
           const roomId =

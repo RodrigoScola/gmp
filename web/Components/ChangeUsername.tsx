@@ -5,7 +5,6 @@ import { useUser } from "@/hooks/useUser";
 import { Button, FormControl, FormLabel, Input } from "@chakra-ui/react";
 import { FormEvent, useState } from "react";
 import { User } from "@supabase/supabase-js";
-import { IUser } from "@/../shared/src/types/users";
 
 export const ChangeUsernameComponent = ({
      currentUser,
