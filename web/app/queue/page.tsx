@@ -7,6 +7,7 @@ import { queueSocket } from "@/lib/socket";
 import { GameType } from "../../../shared/src/types/game";
 import { useEffect, useState } from "react";
 import { FriendsList } from "@/Components/Friends/FriendsComponents";
+import { useEffectOnce } from "usehooks-ts";
 
 export default function QueueHoldingPage({
      searchParams,
@@ -19,14 +20,24 @@ export default function QueueHoldingPage({
           getFriends();
      }, []);
 
-     const [games, _] = useState<GameType[]>(
+     const [games, setGames] = useState<GameType[]>(
           searchParams.games
                ? searchParams.games
                       .split(",")
                       .map((gameId: GameType) => getGameData(Number(gameId)))
                : []
      );
-     console.log(searchParams);
+     useEffectOnce(() => {
+          const querystring = window.location.search;
+          const urlParams = new URLSearchParams(querystring);
+          const gameIds = urlParams.get("games");
+          if (gameIds) {
+               const gameData = gameIds
+                    .split(",")
+                    .map((gameId) => getGameData(Number(gameId)));
+               setGames(gameData);
+          }
+     });
      const [timer, setTimer] = useState<NodeJS.Timer | undefined>(undefined);
 
      useEffect(() => {
@@ -46,7 +57,7 @@ export default function QueueHoldingPage({
                user: user,
           };
           queueSocket.connect();
-          console.log(games);
+
           queueSocket.emit("join_queue", games);
           queueSocket.on("game_found", (data: any) => {
                window.location.href = `/play/${data}`;
@@ -56,7 +67,7 @@ export default function QueueHoldingPage({
                     queueSocket.disconnect();
                }
           };
-     }, []);
+     }, [games]);
      return (
           <div
                className="flex flex-row
