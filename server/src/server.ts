@@ -86,7 +86,9 @@ gamequeueHandler.on("connection", (socket) =>
      gamequeueHandlerConnection(gamequeueHandler, socket)
 );
 
-io.on("connection", (socket) => gameHandlerConnection(io as MyIo, socket));
+io.on("connection", (socket) =>
+     gameHandlerConnection(io as unknown as MyIo, socket)
+);
 export const gameId = "a0s9df0a9sdjf";
 
 export const getRoomId = (socket: Socket<any, any, any, any>) =>
