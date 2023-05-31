@@ -50,7 +50,7 @@ export default function LOGINPAGE() {
           await supabase.supabase.auth.signInWithOAuth({
                provider: provider,
                options: {
-                    redirectTo: `${window.location.href}`,
+                    redirectTo: `https://gmp-eta.vercel.app/login`,
                },
           });
      };
