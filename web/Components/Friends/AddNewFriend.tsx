@@ -8,7 +8,6 @@ import { useFriend } from "@/hooks/useFriends";
 import {
      Button,
      Popover,
-     PopoverCloseButton,
      PopoverContent,
      PopoverTrigger,
 } from "@chakra-ui/react";
