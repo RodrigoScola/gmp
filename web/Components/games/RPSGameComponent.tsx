@@ -13,6 +13,7 @@ const maxWins = 5;
 import { socket } from "@/lib/socket";
 import { GamePlayState, IUser } from "../../../shared/src/types/users";
 import { RockPaperScissorsGame } from "@/../shared/src/game/rockpaperScissors";
+import { baseUrl } from "@/constants";
 const { getWinner } = new RockPaperScissorsGame();
 
 export default function RockPaperScissorGameComponent(
@@ -146,7 +147,7 @@ export default function RockPaperScissorGameComponent(
           socket.on("user_disconnected", () => {
                console.log("a");
 
-               window.location.reload();
+               window.location.href = `${baseUrl}/play/${props.gameId}/result`;
           });
           socket.on("disconnect", () => {
                console.log("user disconnected");

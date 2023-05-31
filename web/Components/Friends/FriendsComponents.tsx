@@ -66,7 +66,7 @@ const FriendCardOpen = ({
      };
 
      return (
-          <div {...props} className=" bg-blue-200 z-10 ">
+          <div {...props} className=" text-white bg-blue-200 z-10 ">
                <div>
                     <Image
                          src={Profile.src}
@@ -132,7 +132,7 @@ const FriendCardOpen = ({
                     <p>Note: </p>
                     <p>{friend.note}</p>
                </div>
-               <div>
+               <div className="m-auto">
                     <form onSubmit={handleNewMessage}>
                          <input
                               onChange={(e) => setMessage(e.target.value)}
