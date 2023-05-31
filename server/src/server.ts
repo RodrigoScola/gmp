@@ -3,7 +3,7 @@ const app = express();
 import http from "http";
 const server = http.createServer(app);
 import { Server, Namespace, Socket } from "socket.io";
-import { SocketData } from "../../shared/src/types/types";
+import { MyIo, SocketData } from "../../shared/src/types/types";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import {
      ServerToClientEvents,
@@ -86,7 +86,7 @@ gamequeueHandler.on("connection", (socket) =>
      gamequeueHandlerConnection(gamequeueHandler, socket)
 );
 
-io.on("connection", (socket) => gameHandlerConnection(io, socket));
+io.on("connection", (socket) => gameHandlerConnection(io as MyIo, socket));
 export const gameId = "a0s9df0a9sdjf";
 
 export const getRoomId = (socket: Socket<any, any, any, any>) =>
