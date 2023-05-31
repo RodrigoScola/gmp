@@ -17,6 +17,7 @@ import {
      RoundType,
 } from "../../../shared/src/types/game";
 import { GamePlayState } from "../../../shared/src/types/users";
+import { baseUrl } from "@/constants";
 let p5: p5types;
 const cols = 7;
 const rows = 6;
@@ -271,7 +272,7 @@ export default function CONNECTFOURPAGE(props: GameComponentProps) {
                });
           });
           socket.on("user_disconnected", () => {
-               window.location.reload();
+               window.location.href = `${baseUrl}/play/${props.gameId}/result`;
           });
           socket.on("disconnect", () => {
                console.log("user disconnected");

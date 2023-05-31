@@ -1,5 +1,5 @@
 "use client";
-import { baseUser } from "@/constants";
+import { baseUrl, baseUser } from "@/constants";
 import { newSocketAuth, socket } from "@/lib/socket";
 import { useEffect, useMemo, useState } from "react";
 import { useEffectOnce } from "usehooks-ts";
@@ -178,7 +178,7 @@ export default function TicTacToeGameComponent(props: GameComponentProps) {
           });
           // socket.emit('set-user', user)
           socket.on("user_disconnected", () => {
-               window.location.reload();
+               window.location.href = `${baseUrl}/play/${props.gameId}/result`;
           });
           socket.on("disconnect", () => {
                console.log("user disconnected");
@@ -189,21 +189,6 @@ export default function TicTacToeGameComponent(props: GameComponentProps) {
                }
           };
      }, [socket]);
-     // useUpdateEffect(() => {
-     //   const result = checkBoard(board);
-     //   console.log(result);
-     //   if (result.winner) {
-     //     setMoves((current) => ({
-     //       ...current,
-     //       winner: {
-     //         board: result.board,
-     //         id: result.winner || "tie",
-     //       },
-     //     }));
-     //     setGameState(TicTacToeGameState.END);
-     //     console.log(moves);
-     //   }
-     // }, [board]);
      return (
           <>
                <div>
