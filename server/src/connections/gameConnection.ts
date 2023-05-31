@@ -16,21 +16,20 @@ import { getRoomId } from "../server";
 import { Socket } from "socket.io";
 import { SocketData } from "../../../shared/src/types/types";
 
-export type MyIo = Server<
-     ServerToClientEvents,
-     ClientToServerEvents,
-     DefaultEventsMap,
-     SocketData
->;
-
-export type MySocket = Socket<
-     ServerToClientEvents,
-     ClientToServerEvents,
-     DefaultEventsMap,
-     SocketData
->;
-
-export const gameHandlerConnection = (io: MyIo, socket: MySocket) => {
+export const gameHandlerConnection = (
+     io: Server<
+          ServerToClientEvents,
+          ClientToServerEvents,
+          DefaultEventsMap,
+          SocketData
+     >,
+     socket: Socket<
+          ServerToClientEvents,
+          ClientToServerEvents,
+          DefaultEventsMap,
+          SocketData
+     >
+) => {
      console.log("connected");
      // TODO:change it to be in socket.data
      const gameStr = socket.handshake.auth;
