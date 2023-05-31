@@ -15,6 +15,7 @@ import {
      GameQueueServerEvents,
 } from "../../../shared/src/types/socketEvents";
 import { SocketData } from "../../../shared/src/types/types";
+import { getGameData } from "../../../shared/src/game/gameUtils";
 
 export const gamequeueHandlerConnection = (
      gamequeueHandler: Namespace<
@@ -70,9 +71,13 @@ export const gamequeueHandlerConnection = (
           if (!match) return;
           const players = gameQueue.matchPlayer(match);
           if (players) {
+               const { id: matchId } = gameQueue.newMatch(
+                    getGameData(match.gameName),
+                    match.players
+               );
                const gameRoom = roomHandler.createRoom<GameRoom>(
-                    gameId,
-                    new GameRoom(gameId, getGame(match.gameName as GameNames))
+                    matchId,
+                    new GameRoom(matchId, getGame(match.gameName as GameNames))
                );
                players.forEach((player) => {
                     const user = uhandler.getUser(player.id);
@@ -82,7 +87,7 @@ export const gamequeueHandlerConnection = (
                     if (!roomUser) return;
                     gamequeueHandler
                          .to(roomUser?.socketId)
-                         .emit("game_found", gameId);
+                         .emit("game_found", matchId);
                     gameQueue.removePlayer(player);
                     room.users.deleteUser(user?.id as string);
                });
