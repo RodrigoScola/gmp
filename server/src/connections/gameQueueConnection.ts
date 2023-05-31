@@ -9,7 +9,7 @@ import {
 } from "../../../shared/src/handlers/room";
 import { MainUser, uhandler } from "../../../shared/src/handlers/usersHandler";
 import { gameQueue } from "../../../shared/src/handlers/matchQueue";
-import { gameId, getUserFromSocket } from "../server";
+import { getUserFromSocket } from "../server";
 import {
      GameQueueClientEvents,
      GameQueueServerEvents,

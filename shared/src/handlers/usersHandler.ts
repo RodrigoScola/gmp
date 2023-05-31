@@ -43,6 +43,7 @@ class MainUserHandler {
           this.invites = new GameInviteHandler();
      }
      addUser(user: SocketUser) {
+          if (!user.id) return;
           user.id = user.id.toString();
           const mainUser = new MainUser({
                currentState: UserState.online,
