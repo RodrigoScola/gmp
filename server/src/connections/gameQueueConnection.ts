@@ -62,10 +62,15 @@ export const gamequeueHandlerConnection = (
                id: user.id,
                socketId: connInfo.user.socketId,
           });
+
           gameQueue.addPlayer({
                games: games,
                id: user.id,
           });
+          gamequeueHandler.emit("state_change", {
+               length: gameQueue.players.length,
+          });
+          console.log(gameQueue.players);
           if (!user) return;
           const match = gameQueue.findMatch(user.id);
           if (!match) return;
@@ -93,7 +98,23 @@ export const gamequeueHandlerConnection = (
                });
           }
      });
-     socket.on("disconnect", () => {
-          gameQueue.removePlayer(connInfo.user.id);
+     socket.on("get_state", (callback) => {
+          console.log(gameQueue.players.length);
+          callback({
+               length: gameQueue.players.length,
+          });
      });
+     socket.on("disconnecting", () => {
+          console.log("disco");
+
+          gameQueue.removePlayer(connInfo.user.id);
+
+          console.log(gameQueue.players);
+          console.log(gameQueue.players.hasPlayer(connInfo.user.id));
+          console.log(gameQueue.players.length);
+          socket.emit("state_change", {
+               length: gameQueue.players.length,
+          });
+     });
+     socket.on("disconnect", () => {});
 };
