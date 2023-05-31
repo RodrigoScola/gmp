@@ -2,7 +2,7 @@ import express from "express";
 const app = express();
 import http from "http";
 const server = http.createServer(app);
-import { Server, Namespace } from "socket.io";
+import { Server, Namespace, Socket } from "socket.io";
 import { MySocket, SocketData } from "../../shared/src/types/types";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import {
@@ -68,8 +68,9 @@ userHandler.on("connection", (socket) =>
      userHandlerConnection(userHandler, socket)
 );
 
-export const getUserFromSocket = (socket: MySocket): IUser | undefined => {
+export const getUserFromSocket = (socket: Socket): IUser | undefined => {
      const u = socket.handshake.auth["user"];
+
      if (!u) {
           return;
      }
