@@ -1,4 +1,3 @@
-import { Server } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import { GameNames, IGame } from "../../../shared/src/types/game";
 import {
@@ -17,12 +16,7 @@ import { Socket } from "socket.io";
 import { MyIo, MySocket, SocketData } from "../../../shared/src/types/types";
 
 export const gameHandlerConnection = (
-     io: Server<
-          ServerToClientEvents,
-          ClientToServerEvents,
-          DefaultEventsMap,
-          SocketData
-     >,
+     io: MyIo,
      socket: Socket<
           ServerToClientEvents,
           ClientToServerEvents,
