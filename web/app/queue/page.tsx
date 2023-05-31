@@ -23,9 +23,10 @@ export default function QueueHoldingPage({
           searchParams.games
                ? searchParams.games
                       .split(",")
-                      .map((game: GameType) => getGameData(Number(game)))
+                      .map((gameId: GameType) => getGameData(Number(gameId)))
                : []
      );
+     console.log(searchParams);
      const [timer, setTimer] = useState<NodeJS.Timer | undefined>(undefined);
 
      useEffect(() => {
