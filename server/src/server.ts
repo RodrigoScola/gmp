@@ -3,7 +3,7 @@ const app = express();
 import http from "http";
 const server = http.createServer(app);
 import { Server, Namespace, Socket } from "socket.io";
-import { MySocket, SocketData } from "../../shared/src/types/types";
+import { SocketData } from "../../shared/src/types/types";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import {
      ServerToClientEvents,
