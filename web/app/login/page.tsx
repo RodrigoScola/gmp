@@ -50,12 +50,13 @@ export default function LOGINPAGE() {
           await supabase.supabase.auth.signInWithOAuth({
                provider: provider,
                options: {
-                    redirectTo: window.location.origin,
+                    redirectTo: process.env.SITE_URL,
                },
           });
      };
      console.log(baseUrl);
      console.log(process.env.NODE_ENV);
+     console.log(process.env.SITE_URL);
 
      useEffectOnce(() => {
           supabase.supabase.auth.getUser().then(({ data: { user } }) => {
