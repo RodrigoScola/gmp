@@ -3,7 +3,7 @@ import ConnectFourComponent from "@/Components/games/Connectcomponent";
 import RPSComponent from "@/Components/games/RPSGameComponent";
 import { SimonSaysComponent } from "@/Components/games/SimonSaysComponent";
 import TicTacToeGameComponent from "@/Components/games/TicTacToeComponent";
-import { baseUrl } from "@/constants";
+import { baseUrl, serverURl } from "@/constants";
 
 export default async function RenderGame({
      params: { id },
@@ -11,12 +11,11 @@ export default async function RenderGame({
      params: { id: string };
 }) {
      // return <TicTacToeGameComponent />
-     const data = await fetch(`${baseUrl}/${id}`, {
+     const data = await fetch(`${serverURl}/${id}`, {
           cache: "no-store",
      });
      const jsondata = await data.json();
-     // console.log(data.json());
-
+     console.log(jsondata);
      try {
           console.log(jsondata.match.game.name);
      } catch (err) {

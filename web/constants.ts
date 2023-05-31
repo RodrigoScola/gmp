@@ -2,7 +2,7 @@ import { ExtendedUser } from "../shared/src/types/users";
 
 export const baseUrl =
      process.env.NODE_ENV == "development"
-          ? "http://localhost:3000/"
+          ? "http://localhost:3000"
           : "https://gmp-eta.vercel.app";
 
 export const conversationId = "thisisaconversation";
