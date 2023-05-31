@@ -54,6 +54,8 @@ export default function LOGINPAGE() {
                },
           });
      };
+     console.log(baseUrl);
+     console.log(process.env.NODE_ENV);
 
      useEffectOnce(() => {
           supabase.supabase.auth.getUser().then(({ data: { user } }) => {
