@@ -1,11 +1,11 @@
 "use client";
 import { Button, FormControl, FormLabel, Input } from "@chakra-ui/react";
+import { useSupabase } from "../supabase-provider";
 import {
      AccountProviderType,
      AccountProviders,
      ProviderButton,
-} from "../login/page";
-import { useSupabase } from "../supabase-provider";
+} from "@/Components/accountProviders/AccountProviderButtons";
 
 export default function REGISTERPAGE() {
      const { supabase } = useSupabase();

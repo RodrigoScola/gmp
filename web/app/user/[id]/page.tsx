@@ -9,7 +9,7 @@ import { db } from "@/db/supabase";
 import { useUser } from "@/hooks/useUser";
 import { FriendsList } from "@/Components/Friends/FriendsComponents";
 import { GameNames } from "../../../../shared/src/types/game";
-import { Button, Card, CardBody, CardHeader } from "@chakra-ui/react";
+import { Card, CardBody, CardHeader } from "@chakra-ui/react";
 import { LogoutButton } from "@/Components/buttons/LogoutButton";
 import { AddNewFriend } from "@/Components/Friends/AddNewFriend";
 import { chatSocket } from "@/lib/socket";

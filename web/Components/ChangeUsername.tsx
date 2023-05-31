@@ -5,6 +5,7 @@ import { useUser } from "@/hooks/useUser";
 import { Button, FormControl, FormLabel, Input } from "@chakra-ui/react";
 import { FormEvent, useState } from "react";
 import { User } from "@supabase/supabase-js";
+import { IUser } from "@/../shared/src/types/users";
 
 export const ChangeUsernameComponent = ({
      currentUser,
@@ -13,9 +14,9 @@ export const ChangeUsernameComponent = ({
 }) => {
      const [newUsername, setUsername] = useState<string>("");
      const mainUser = useUser();
-     const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(
-          null
-     );
+     // const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(
+     //      null
+     // );
      const { supabase } = useSupabase();
      const checkUsernameAvailable = async (username: string) => {
           const { data } = await supabase
@@ -51,10 +52,11 @@ export const ChangeUsernameComponent = ({
                                         username: newUsername,
                                    })
                                    .eq("id", currentUser?.id)
+                                   .select("*")
                                    .single()
-                                   .then((data) => {
-                                        if (data.data) {
-                                             mainUser.setCurrentUser(data.data);
+                                   .then(({ data }) => {
+                                        if (data) {
+                                             mainUser.setCurrentUser(data);
                                         }
                                    });
                          }

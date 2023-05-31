@@ -13,28 +13,17 @@ import {
 } from "@chakra-ui/react";
 import { useObject } from "@/hooks/useObject";
 import { useUser } from "@/hooks/useUser";
-import { BsDiscord, BsGithub, BsGoogle } from "react-icons/bs";
 import { useSupabase } from "../supabase-provider";
 import { useState } from "react";
 import { ChangeUsernameComponent } from "@/Components/ChangeUsername";
 import { User } from "@supabase/auth-helpers-nextjs";
 import { useEffectOnce } from "usehooks-ts";
+import {
+     AccountProviderType,
+     AccountProviders,
+     ProviderButton,
+} from "@/Components/accountProviders/AccountProviderButtons";
 
-export const AccountProviders = {
-     discord: {
-          color: "bg-blue-500",
-          Icon: BsDiscord,
-     },
-     github: {
-          color: "bg-slate-500",
-          Icon: BsGithub,
-     },
-     google: {
-          color: "bg-red-500",
-          Icon: BsGoogle,
-     },
-} as const;
-export type AccountProviderType = keyof typeof AccountProviders;
 export default function LOGINPAGE() {
      const [state, setState] = useObject({
           email: "",
@@ -147,21 +136,3 @@ export default function LOGINPAGE() {
           </div>
      );
 }
-
-export const ProviderButton = ({
-     handleClick,
-     provider,
-}: {
-     provider: AccountProviderType;
-     handleClick: (provider: AccountProviderType) => Promise<void>;
-}) => {
-     const [{ color, Icon }, _] = useState(AccountProviders[provider]);
-     return (
-          <div
-               onClick={() => handleClick(provider)}
-               className={`${color} hover:cursor-pointer rounded-md flex py-2 justify-center`}
-          >
-               <Icon />
-          </div>
-     );
-};
