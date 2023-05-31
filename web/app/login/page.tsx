@@ -50,7 +50,7 @@ export default function LOGINPAGE() {
           await supabase.supabase.auth.signInWithOAuth({
                provider: provider,
                options: {
-                    redirectTo: `${baseUrl}/login`,
+                    redirectTo: `${window.location.href}`,
                },
           });
      };
