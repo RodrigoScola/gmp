@@ -89,7 +89,8 @@ gamequeueHandler.on("connection", (socket) =>
 io.on("connection", (socket) => gameHandlerConnection(io, socket));
 export const gameId = "a0s9df0a9sdjf";
 
-export const getRoomId = (socket: Socket) => socket.handshake.auth["roomId"];
+export const getRoomId = (socket: Socket<any, any, any, any>) =>
+     socket.handshake.auth["roomId"];
 
 app.get("/conversation/:roomId", async (req, res) => {
      const conversationId = req.params.roomId;
