@@ -14,8 +14,8 @@ export const serverURl =
 
 export const socketUrl =
      process.env.NODE_ENV == "development"
-          ? "ws://localhost:3001"
-          : "ws://gmp-server.onrender.com";
+          ? "wss://localhost:3001"
+          : "wss://gmp-server.onrender.com";
 export const baseUser: ExtendedUser = {
      id: "a5daa2be-77f4-4ba0-b5e3-717cabf20ab5",
      created_at: new Date().toISOString(),
