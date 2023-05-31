@@ -89,6 +89,7 @@ export const RenderChatMesages = (props: {
 
      const handleNewMessage = (e: FormEvent<HTMLFormElement>) => {
           e.preventDefault();
+          if (!user) return;
           const message = newMessage(currentChat, user.id);
           setAllChat((current) => ({
                ...current,
