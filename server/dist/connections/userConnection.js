@@ -11,10 +11,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.userHandlerConnection = void 0;
 const server_1 = require("../server");
-const users_1 = require("../../../shared/types/users");
-const usersHandler_1 = require("../../../shared/handlers/usersHandler");
-const room_1 = require("../../../shared/handlers/room");
-const gameHandlers_1 = require("../../../shared/handlers/gameHandlers");
+const users_1 = require("../../../shared/src/types/users");
+const usersHandler_1 = require("../../../shared/src/handlers/usersHandler");
+const room_1 = require("../../../shared/src/handlers/room");
+const gameHandlers_1 = require("../../../shared/src/handlers/gameHandlers");
 const db_1 = require("../lib/db");
 const userHandlerConnection = (userHandler, socket) => {
     const socketuser = (0, server_1.getUserFromSocket)(socket);
@@ -94,11 +94,7 @@ const userHandlerConnection = (userHandler, socket) => {
         }, gameName);
         if (!gameInvite)
             return;
-        // console.log(gameInvite);
-        // console.log(user.socketId);
-        userHandler
-            .to(user.user.socketId)
-            .emit("game_invite", gameInvite.gameName, mainUser.user.id);
+        userHandler.to(user.user.socketId).emit("game_invite", gameInvite);
     });
     socket.on("game_invite_response", (action, invite, callback) => {
         if (action == "accepted") {
@@ -112,9 +108,15 @@ const userHandlerConnection = (userHandler, socket) => {
             if (!to || !from)
                 return;
             console.log("this ga");
-            userHandler.to(to.user.socketId).emit("game_invite_accepted", ninvite);
-            userHandler.to(to.socketId).emit("game_invite_accepted", ninvite);
-            userHandler.to(from.socketId).emit("game_invite_accepted", ninvite);
+            userHandler
+                .to(to.user.socketId)
+                .emit("game_invite_accepted", ninvite);
+            userHandler
+                .to(to.socketId)
+                .emit("game_invite_accepted", ninvite);
+            userHandler
+                .to(from.socketId)
+                .emit("game_invite_accepted", ninvite);
             userHandler
                 .to(from.user.socketId)
                 .emit("game_invite_accepted", ninvite);

@@ -11,15 +11,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.chatHandlerConnection = void 0;
 const server_1 = require("../server");
-const room_1 = require("../../../shared/handlers/room");
-const users_1 = require("../../../shared/types/users");
-const usersHandler_1 = require("../../../shared/handlers/usersHandler");
-const ConversationHandler_1 = require("../../../shared/handlers/ConversationHandler");
+const room_1 = require("../../../shared/src/handlers/room");
+const users_1 = require("../../../shared/src/types/users");
+const usersHandler_1 = require("../../../shared/src/handlers/usersHandler");
+const ConversationHandler_1 = require("../../../shared/src/handlers/ConversationHandler");
+const db_1 = require("../../../shared/src/db");
 const chatHandlerConnection = (chatHandler, socket) => {
     var room;
     socket.on("join_room", (roomId) => __awaiter(void 0, void 0, void 0, function* () {
+        var _a;
+        console.log(room_1.roomHandler);
         const connInfo = {
-            roomId: socket.handshake.auth["roomId"],
+            roomId: (_a = socket.handshake.auth["roomId"]) !== null && _a !== void 0 ? _a : roomId.toString(),
             user: Object.assign(Object.assign({}, socket.handshake.auth["user"]), { socketId: socket.id }),
         };
         try {
@@ -28,11 +31,12 @@ const chatHandlerConnection = (chatHandler, socket) => {
                 state: users_1.UserState.online,
                 socketId: connInfo.user.socketId,
             });
-            room = room_1.roomHandler.getRoom((0, server_1.getRoomId)(socket));
+            room = room_1.roomHandler.getRoom(roomId);
         }
         catch (e) {
-            room = room_1.roomHandler.createRoom((0, server_1.getRoomId)(socket), new room_1.ChatRoom((0, server_1.getRoomId)(socket)));
-            yield room.getConversation();
+            room = room_1.roomHandler.createRoom(connInfo.roomId, new room_1.ChatRoom(roomId));
+            console.log(room_1.roomHandler);
+            yield room.getConversation(roomId);
             room_1.roomHandler.addUserToRoom(roomId, {
                 id: connInfo.user.id,
                 state: users_1.UserState.online,
@@ -42,7 +46,9 @@ const chatHandlerConnection = (chatHandler, socket) => {
             room = room_1.roomHandler.getRoom((0, server_1.getRoomId)(socket));
         }
         if (room) {
-            chatHandler.to(roomId).emit("user_joined", room.users.getUsers());
+            chatHandler
+                .to(roomId)
+                .emit("user_joined", room.users.getUsers());
         }
         socket.join(roomId);
         const hasRoom = room_1.roomHandler.getRoom((0, server_1.getRoomId)(socket));
@@ -50,8 +56,35 @@ const chatHandlerConnection = (chatHandler, socket) => {
             room = hasRoom;
         }
     }));
+    socket.on("find_conversation", (user1Id, user2Id, callback) => __awaiter(void 0, void 0, void 0, function* () {
+        var _b;
+        let d = yield db_1.db
+            .rpc("find_conversation", {
+            user1_id: user1Id,
+            user2_id: user2Id,
+        })
+            .single();
+        let nconversationId = (_b = d.data) === null || _b === void 0 ? void 0 : _b.id;
+        if (!nconversationId) {
+            const { data: nconv } = yield db_1.db
+                .from("conversations")
+                .insert({
+                user1: user1Id,
+                user2: user2Id,
+            })
+                .select("*")
+                .single();
+            nconversationId = nconv === null || nconv === void 0 ? void 0 : nconv.id;
+        }
+        socket.data.roomId = nconversationId.toString();
+        callback({
+            id: nconversationId,
+            users: [{ id: user1Id }, { id: user2Id }],
+            messages: [],
+        });
+    }));
     socket.on("state_change", (state) => {
-        var _a, _b;
+        var _a;
         if (!room && socket.data.roomId) {
             room = room_1.roomHandler.getRoom(socket.data.roomId);
         }
@@ -60,26 +93,27 @@ const chatHandlerConnection = (chatHandler, socket) => {
         room.users.updateUser((_a = (0, server_1.getUserFromSocket)(socket)) === null || _a === void 0 ? void 0 : _a.id, {
             state,
         });
-        const userFromSocket = room.users.getUser((_b = (0, server_1.getUserFromSocket)(socket)) === null || _b === void 0 ? void 0 : _b.id);
-        if (userFromSocket) {
-            socket.broadcast
-                .to((0, server_1.getRoomId)(socket))
-                .emit("state_change", userFromSocket);
-        }
+        socket.broadcast.to((0, server_1.getRoomId)(socket)).emit("state_change", {
+            id: room.id,
+            users: room.users.getUsers(),
+        });
     });
     socket.on("send_message", (message, callback) => __awaiter(void 0, void 0, void 0, function* () {
-        var _a;
-        const roomId = (_a = socket.data.roomId) !== null && _a !== void 0 ? _a : socket.handshake.auth["roomId"];
-        if (socket.data.roomId) {
-            room = room_1.roomHandler.getRoom(socket.data.roomId);
+        var _c, _d;
+        const roomId = (_d = (_c = socket.data.roomId) === null || _c === void 0 ? void 0 : _c.toString()) !== null && _d !== void 0 ? _d : socket.handshake.auth["roomId"];
+        if (roomId) {
+            room = room_1.roomHandler.getRoom(roomId);
         }
+        console.log(roomId, "this is the room id");
+        console.log(room, "this is the room");
+        console.log(room_1.roomHandler.getRoom(roomId));
         if (!room && roomId) {
             const tempRoom = (0, room_1.getRoom)(roomId);
             if (!tempRoom) {
                 room = room_1.roomHandler.createRoom(roomId, new room_1.ChatRoom(roomId));
             }
         }
-        yield room.getConversation();
+        yield room.getConversation(roomId);
         const nmessage = (0, ConversationHandler_1.newMessage)(message.userId, message.message);
         const conversationUsers = room.messages.users;
         const users = room.users.getUsers();
@@ -87,8 +121,10 @@ const chatHandlerConnection = (chatHandler, socket) => {
             var _a;
             const muser = usersHandler_1.uhandler.getUser(user.id);
             const inChannel = room.users.users.has(user.id);
-            if (!inChannel && muser) {
-                server_1.userHandler.to(muser.socketId).emit("notification_message", {
+            if (!inChannel && muser && user.id !== message.userId) {
+                server_1.userHandler
+                    .to(muser.socketId)
+                    .emit("notification_message", {
                     user: (_a = usersHandler_1.uhandler.getUser(message.userId)) === null || _a === void 0 ? void 0 : _a.user,
                 });
             }

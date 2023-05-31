@@ -18,12 +18,12 @@ const app = (0, express_1.default)();
 const http_1 = __importDefault(require("http"));
 const server = http_1.default.createServer(app);
 const socket_io_1 = require("socket.io");
-const room_1 = require("../../shared/handlers/room");
+const room_1 = require("../../shared/src/handlers/room");
 const chatConnection_1 = require("./connections/chatConnection");
 const userConnection_1 = require("./connections/userConnection");
 const gameQueueConnection_1 = require("./connections/gameQueueConnection");
 const db_1 = require("./lib/db");
-const usersHandler_1 = require("../../shared/handlers/usersHandler");
+const usersHandler_1 = require("../../shared/src/handlers/usersHandler");
 const usersConnection_1 = require("./connections/usersConnection");
 const gameConnection_1 = require("./connections/gameConnection");
 exports.io = new socket_io_1.Server(server);
@@ -55,7 +55,9 @@ app.get("/conversation/:roomId", (req, res) => __awaiter(void 0, void 0, void 0,
         .eq("id", conversationId)
         .single();
     if (!data)
-        return;
+        return res.status(500).json({
+            message: "Conversation not found",
+        });
     let users = yield Promise.all([
         db_1.db.from("profiles").select("*").eq("id", data["user1"]).single(),
         db_1.db.from("profiles").select("*").eq("id", data["user2"]).single(),
@@ -66,7 +68,7 @@ app.get("/conversation/:roomId", (req, res) => __awaiter(void 0, void 0, void 0,
         .select("*")
         .eq("conversationId", conversationId)
         .order("created");
-    res.json({
+    return res.json({
         id: data["id"],
         users: users,
         messages: messages.data,
@@ -86,7 +88,7 @@ app.get("/user/:usernameorId", (req, res) => __awaiter(void 0, void 0, void 0, f
             usersHandler_1.uhandler.addUser(Object.assign({ socketId: "" }, data));
         }
     }
-    res.send(user);
+    res.send(usersHandler_1.uhandler.getUser(usersHandler_1.uhandler.getUserByUsername(username)));
 }));
 app.get("/:roomId", (req, res) => {
     const room = (0, room_1.getRoom)(req.params.roomId);

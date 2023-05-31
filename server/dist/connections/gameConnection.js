@@ -10,10 +10,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.gameHandlerConnection = void 0;
-const users_1 = require("../../../shared/types/users");
-const gameHandlers_1 = require("../../../shared/handlers/gameHandlers");
-const room_1 = require("../../../shared/handlers/room");
-const usersHandler_1 = require("../../../shared/handlers/usersHandler");
+const users_1 = require("../../../shared/src/types/users");
+const gameHandlers_1 = require("../../../shared/src/handlers/gameHandlers");
+const room_1 = require("../../../shared/src/handlers/room");
+const usersHandler_1 = require("../../../shared/src/handlers/usersHandler");
 const server_1 = require("../server");
 const gameHandlerConnection = (io, socket) => {
     var _a;

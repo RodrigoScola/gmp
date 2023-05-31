@@ -11,8 +11,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.usersHandlerConnection = void 0;
 const server_1 = require("../server");
-const users_1 = require("../../../shared/types/users");
-const usersHandler_1 = require("../../../shared/handlers/usersHandler");
+const users_1 = require("../../../shared/src/types/users");
+const usersHandler_1 = require("../../../shared/src/handlers/usersHandler");
 const db_1 = require("../lib/db");
 const usersHandlerConnection = (_, socket) => {
     const socketuser = (0, server_1.getUserFromSocket)(socket);

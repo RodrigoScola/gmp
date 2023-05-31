@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.gamequeueHandlerConnection = void 0;
-const gameHandlers_1 = require("../../../shared/handlers/gameHandlers");
-const room_1 = require("../../../shared/handlers/room");
-const usersHandler_1 = require("../../../shared/handlers/usersHandler");
-const matchQueue_1 = require("../matchQueue");
+const gameHandlers_1 = require("../../../shared/src/handlers/gameHandlers");
+const room_1 = require("../../../shared/src/handlers/room");
+const usersHandler_1 = require("../../../shared/src/handlers/usersHandler");
+const matchQueue_1 = require("../../../shared/src/handlers/matchQueue");
 const server_1 = require("../server");
 const gamequeueHandlerConnection = (gamequeueHandler, socket) => {
     const connInfo = {

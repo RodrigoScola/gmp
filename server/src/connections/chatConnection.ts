@@ -152,7 +152,7 @@ export const chatHandlerConnection = (
                }
           }
 
-          await room.getConversation(socket.data.roomId);
+          await room.getConversation(roomId);
           const nmessage = newMessage(message.userId, message.message);
 
           const conversationUsers = room.messages.users;
