@@ -20,7 +20,7 @@ export default function FriendsMenu(props: FriendsMenuProps) {
      const f = useFriends();
      console.log(f);
      const go = async () => {
-          if (!user.id) return;
+          if (!user) return;
           const x = await f?.getFriends(user.id);
           if (x) setFriends(x);
      };
