@@ -3,7 +3,7 @@ import ConnectFourComponent from "@/Components/games/Connectcomponent";
 import RPSComponent from "@/Components/games/RPSGameComponent";
 import { SimonSaysComponent } from "@/Components/games/SimonSaysComponent";
 import TicTacToeGameComponent from "@/Components/games/TicTacToeComponent";
-import { baseUrl, serverURl } from "@/constants";
+import { serverURl } from "@/constants";
 
 export default async function RenderGame({
      params: { id },
