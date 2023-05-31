@@ -24,18 +24,8 @@ export const gameHandlerConnection = (
           SocketData
      >
 ) => {
-     // TODO:change it to be in socket.data
      const gameStr = socket.handshake.auth;
      var room = roomHandler.getRoom(getRoomId(socket)) as GameRoom;
-     // console.log(roomHandler);
-     // if (!room) {
-     //   const Games = getGame(gameStr["gameName"] as GameNames);
-     //   if (!Games) return;
-     //   room = roomHandler.createRoom<GameRoom>(
-     //     getRoomId(socket),
-     //     new GameRoom(getRoomId(socket), Games)
-     //   );
-     // }
      var game: IGame;
 
      if (room?.match?.game) {
@@ -79,7 +69,6 @@ export const gameHandlerConnection = (
           callback(game.getState());
      });
      socket.on("player_ready", () => {
-          // if (game?.isReady()) {
           const roomId = getRoomId(socket);
           io.to(roomId).emit("start_game");
           room.users.getUsers().forEach((user: SocketUser) => {
@@ -91,21 +80,18 @@ export const gameHandlerConnection = (
                });
           });
           const s: MyIo = io;
-          room?.match.playGame(s as unknown as MyIo, socket as MySocket, game);
-          // }
+          room?.match.playGame(
+               s as unknown as MyIo,
+               socket as unknown as MySocket,
+               game
+          );
      });
 
      socket.on("rematch", (_) => {
-          // check if other player has rematched
-          console.log(
-               room?.match.players.getPlayer(connInfo.user.id).state ==
-                    MatchPlayerState.playing
-          );
           room?.match.changePlayerState(
                connInfo.user.id,
                MatchPlayerState.waiting_rematch
           );
-          console.log(room?.match.canRematch());
           if (room?.match.canRematch()) {
                console.log("rematchh");
                const state = room?.match.rematch();
