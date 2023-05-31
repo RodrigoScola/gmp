@@ -14,7 +14,7 @@ export interface FriendsListProps {
 }
 export interface FriendCardProps {
      friend: IFriend;
-     isOpen: boolean;
+     isOpen?: boolean;
 }
 const FriendCardOpen = ({
      friend,
@@ -29,7 +29,7 @@ const FriendCardOpen = ({
      const [message, setMessage] = useState<string>("");
 
      useEffect(() => {
-          if (!isOpen) return;
+          if (!isOpen || !user) return;
           if (!chatSocket.connected) {
                chatSocket.auth = {
                     user: user,
@@ -50,7 +50,7 @@ const FriendCardOpen = ({
 
      const handleNewMessage = (e: FormEvent<HTMLFormElement>) => {
           e.preventDefault();
-
+          if (!user) return;
           chatSocket.emit(
                "send_message",
                {
