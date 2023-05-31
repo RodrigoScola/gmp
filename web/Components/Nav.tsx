@@ -6,6 +6,7 @@ import { useNotifications } from "@/hooks/useToast";
 import { Heading, useColorMode } from "@chakra-ui/react";
 import { useEffectOnce } from "usehooks-ts";
 import { useEffect, useState } from "react";
+import { baseUrl } from "@/constants";
 
 export const Nav = () => {
      const { user } = useUser();
@@ -27,7 +28,7 @@ export const Nav = () => {
      return (
           <div className="  bg-blue-900 w-screen ">
                <nav className="flex justify-around m-auto w-[90%] items-center py-2 flex-row">
-                    <Link className="text-4xl" href={`/`}>
+                    <Link className="text-4xl" href={`${baseUrl}`}>
                          <Heading>TGZ</Heading>
                     </Link>
 
@@ -40,8 +41,8 @@ export const Nav = () => {
                               </Link>
                          ) : (
                               <div className="flex flex-row gap-2">
-                                   <Link href={`/login`}>login</Link>
-                                   <Link href={`/register`}>
+                                   <Link href={`${baseUrl}/login`}>login</Link>
+                                   <Link href={`${baseUrl}/register`}>
                                         create account
                                    </Link>
                               </div>

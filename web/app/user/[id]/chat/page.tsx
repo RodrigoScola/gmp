@@ -2,20 +2,18 @@ import { FriendHandler } from "../../../../../shared/src/handlers/FriendHandler"
 import { RenderChatMesages } from "@/Components/RenderChat2";
 import { ChatConversationType } from "../../../../../shared/src/types/users";
 import { RedirectPage } from "@/Components/RedirectPage";
+import { baseUrl } from "@/constants";
 
 export default async function CHATPAGE({
      params: { id },
 }: {
      params: { id: string };
 }) {
-     const conversationBlob = await fetch(
-          "http://localhost:3001/conversation/" + id,
-          {
-               headers: {
-                    "Content-Type": "application/json",
-               },
-          }
-     );
+     const conversationBlob = await fetch(baseUrl + "/conversation/" + id, {
+          headers: {
+               "Content-Type": "application/json",
+          },
+     });
      if (!conversationBlob.ok) {
           return <div>Conversation not found</div>;
      }

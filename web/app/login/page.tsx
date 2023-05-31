@@ -23,6 +23,7 @@ import {
      AccountProviders,
      ProviderButton,
 } from "@/Components/accountProviders/AccountProviderButtons";
+import { baseUrl } from "@/constants";
 
 export default function LOGINPAGE() {
      const [state, setState] = useObject({
@@ -49,7 +50,7 @@ export default function LOGINPAGE() {
           await supabase.supabase.auth.signInWithOAuth({
                provider: provider,
                options: {
-                    redirectTo: "http://localhost:3000/login",
+                    redirectTo: `${baseUrl}/login`,
                },
           });
      };

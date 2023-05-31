@@ -6,6 +6,7 @@ import {
      AccountProviders,
      ProviderButton,
 } from "@/Components/accountProviders/AccountProviderButtons";
+import { baseUrl } from "@/constants";
 
 export default function REGISTERPAGE() {
      const { supabase } = useSupabase();
@@ -14,6 +15,9 @@ export default function REGISTERPAGE() {
      ): Promise<void> => {
           await supabase.auth.signInWithOAuth({
                provider: provider,
+               options: {
+                    redirectTo: `${baseUrl}/login`,
+               },
           });
      };
 
