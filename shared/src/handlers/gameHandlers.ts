@@ -246,6 +246,10 @@ export class MatchHandler {
 
 const saveGame = (_: IGame) => {
      console.log("game saved");
+     console.log("game saved");
+     console.log("game saved");
+     console.log("game saved");
+     console.log("game saved");
 };
 
 export const getGame = (gameName: GameNames): IGame => {
