@@ -68,7 +68,10 @@ export const RenderChatMesages = (props: {
                console.log(data);
           });
           chatSocket.on("state_change", (data) => {
-               setReceiverState(data.state);
+               const receiverState = data.users.find((u) => user?.id !== u.id);
+               if (receiverState) {
+                    setReceiverState(receiverState.state);
+               }
           });
           chatSocket.on(
                "receive_message",
