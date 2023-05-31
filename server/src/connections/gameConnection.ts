@@ -14,7 +14,7 @@ import { GameRoom, roomHandler } from "../../../shared/src/handlers/room";
 import { uhandler } from "../../../shared/src/handlers/usersHandler";
 import { getRoomId } from "../server";
 import { Socket } from "socket.io";
-import { SocketData } from "../../../shared/src/types/types";
+import { MyIo, MySocket, SocketData } from "../../../shared/src/types/types";
 
 export const gameHandlerConnection = (
      io: Server<
@@ -30,7 +30,6 @@ export const gameHandlerConnection = (
           SocketData
      >
 ) => {
-     console.log("connected");
      // TODO:change it to be in socket.data
      const gameStr = socket.handshake.auth;
      var room = roomHandler.getRoom(getRoomId(socket)) as GameRoom;
@@ -97,7 +96,7 @@ export const gameHandlerConnection = (
                     },
                });
           });
-          room?.match.playGame(io, socket, game);
+          room?.match.playGame(io as MyIo, socket as MySocket, game);
           // }
      });
 
