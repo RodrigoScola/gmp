@@ -7,9 +7,9 @@ import {
      QueueRoom,
      roomHandler,
 } from "../../../shared/src/handlers/room";
-import { uhandler } from "../../../shared/src/handlers/usersHandler";
+import { MainUser, uhandler } from "../../../shared/src/handlers/usersHandler";
 import { gameQueue } from "../../../shared/src/handlers/matchQueue";
-import { gameId, getUserFromSocket } from "../server";
+import { gameId, getUserFromSocket, userHandler } from "../server";
 import {
      GameQueueClientEvents,
      GameQueueServerEvents,
@@ -53,7 +53,9 @@ export const gamequeueHandlerConnection = (
           if (!user) {
                user = uhandler.addUser(connInfo.user);
           }
-
+          user = uhandler.getUser(
+               getUserFromSocket(socket)?.id as string
+          ) as MainUser;
           room.addUser({
                games: games,
                id: user.id,
