@@ -217,7 +217,7 @@ export default function TicTacToeGameComponent(props: GameComponentProps) {
                                                             addBlock(i, j);
                                                        }}
                                                        key={j}
-                                                       className={`${clas} h-24 w-24 border border-black flex align-middle justify-center items-center`}
+                                                       className={`${clas} h-24 w-24 border border-white flex align-middle justify-center items-center`}
                                                   >
                                                        <div className="relative text-4xl">
                                                             {col?.choice}

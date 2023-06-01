@@ -5,14 +5,14 @@ export const AccountProviders = {
           color: "bg-blue-500",
           Icon: BsDiscord,
      },
-     github: {
-          color: "bg-slate-500",
-          Icon: BsGithub,
-     },
-     google: {
-          color: "bg-red-500",
-          Icon: BsGoogle,
-     },
+     // github: {
+     //      color: "bg-slate-500",
+     //      Icon: BsGithub,
+     // },
+     // google: {
+     //      color: "bg-red-500",
+     //      Icon: BsGoogle,
+     // },
 } as const;
 export type AccountProviderType = keyof typeof AccountProviders;
 export const ProviderButton = ({

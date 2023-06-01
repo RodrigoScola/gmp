@@ -10,7 +10,8 @@ import {
      useEffect,
      useState,
 } from "react";
-import { useEffectOnce } from "usehooks-ts";
+
+import { useEffectOnce, useUpdateEffect } from "usehooks-ts";
 import { GameInviteComponent } from "@/Components/Notifications/GameInvite";
 import { Socket } from "socket.io-client";
 import { useSupabase } from "@/app/supabase-provider";
@@ -29,6 +30,7 @@ interface UserContext {
      updateUser: (user: IUser) => void;
      socket: Socket<ChatClientEvents, ChatServerEvents>;
      friends: IFriend[];
+     isLoggedIn: boolean | null;
 }
 export const UserContext = createContext<UserContext | null>(null);
 
@@ -114,30 +116,36 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
                email,
                password,
           });
-
-          if (data?.user) {
-               const { data: profile } = await supabase
-                    .from("profiles")
-                    .select("*")
-                    .eq("id", data.user.id)
-                    .single();
-               if (profile) {
-                    setCurrentUser(profile);
-                    localStorage?.setItem("user", JSON.stringify(profile));
-               }
+          if (!data.user) return;
+          const { data: profile } = await supabase
+               .from("profiles")
+               .select("*")
+               .eq("id", data.user.id)
+               .single();
+          if (profile) {
+               setCurrentUser(profile);
+               localStorage?.setItem("user", JSON.stringify(profile));
           }
           return data;
      }, []);
      const logout = useCallback(async () => {
           await db.auth.signOut();
+          await supabase.auth.signOut();
           localStorage?.removeItem("user");
-          console.log(localStorage?.getItem("user"));
      }, []);
+     const [isLoggedIn, setLoggedIn] = useState<boolean | null>(null);
+     useUpdateEffect(() => {
+          if (currentUser) {
+               setLoggedIn(true);
+          } else {
+               setLoggedIn(false);
+          }
+     }, [currentUser]);
      return (
           <UserContext.Provider
                value={{
                     user: currentUser,
-
+                    isLoggedIn,
                     updateUser,
                     getFriends,
                     login,

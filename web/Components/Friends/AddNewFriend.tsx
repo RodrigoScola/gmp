@@ -1,5 +1,4 @@
 "use client";
-
 import { IFriend, IUser } from "@/../shared/src/types/users";
 import { usersSocket } from "@/lib/socket";
 import { useEffect, useState } from "react";
@@ -23,6 +22,7 @@ export const AddNewFriend = () => {
      const handleChange = (term: string) => {
           setSearchTerm(term);
      };
+
      useEffect(() => {
           if (!usersSocket.connected) {
                usersSocket.auth = {

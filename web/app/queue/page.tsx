@@ -9,13 +9,15 @@ import { useEffect, useState } from "react";
 import { FriendsList } from "@/Components/Friends/FriendsComponents";
 import { useEffectOnce, useInterval } from "usehooks-ts";
 import { GameQueueState } from "@/../shared/src/types/socketEvents";
+import { useProtectedRoute } from "@/hooks/useProtectedRoute";
 
 export default function QueueHoldingPage({
      searchParams,
 }: {
      searchParams: any;
 }) {
-     const { user, friends: userFriends, getFriends } = useUser();
+     useProtectedRoute();
+     const { user, isLoggedIn, friends: userFriends, getFriends } = useUser();
      const [queueState, setQueueState] = useState<GameQueueState>({
           length: 1,
      });

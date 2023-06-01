@@ -6,10 +6,10 @@ import { useUser } from "@/hooks/useUser";
 import { IFriend } from "../../shared/src/types/users";
 import Link from "next/link";
 import { useState } from "react";
-import { useEffectOnce } from "usehooks-ts";
+import { useEffectOnce, useUpdateEffect } from "usehooks-ts";
 import { AddNewFriend } from "@/Components/Friends/AddNewFriend";
 export default function Home() {
-     const { user } = useUser();
+     const { user, isLoggedIn } = useUser();
      const [userFriends, setFriends] = useState<IFriend[]>([]);
      const friends = useFriends();
      useEffectOnce(() => {
@@ -30,12 +30,14 @@ export default function Home() {
                          </Link>
                     </div>
                </div>
-               <div>
-                    <div className="text-white">
+               {isLoggedIn ? (
+                    <div>
                          <AddNewFriend />
                          <FriendsList friends={userFriends} />
                     </div>
-               </div>
+               ) : (
+                    <div></div>
+               )}
           </div>
      );
 }
