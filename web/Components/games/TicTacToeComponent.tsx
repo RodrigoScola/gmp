@@ -1,8 +1,10 @@
 "use client";
 import { baseUrl, baseUser } from "@/constants";
+import { useUser } from "@/hooks/useUser";
 import { newSocketAuth, socket } from "@/lib/socket";
 import { useEffect, useMemo, useState } from "react";
 import { useEffectOnce } from "usehooks-ts";
+import { generateBoard, isValid } from "../../../shared/src/game/TicTacToeGame";
 import {
      GameComponentProps,
      TTCCombination,
@@ -12,8 +14,6 @@ import {
      TicTacToeGameState,
 } from "../../../shared/src/types/game";
 import { IUser } from "../../../shared/src/types/users";
-import { generateBoard, isValid } from "../../../shared/src/game/TicTacToeGame";
-import { useUser } from "@/hooks/useUser";
 
 type TicTacToeState = {
      moves: TTCMove[];

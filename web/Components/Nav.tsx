@@ -1,8 +1,9 @@
 "use client";
 
-import { useUser } from "@/hooks/useUser";
-import Link from "next/link";
+import { useSupabase } from "@/app/supabase-provider";
+import { baseUrl } from "@/constants";
 import { useNotifications } from "@/hooks/useToast";
+import { useUser } from "@/hooks/useUser";
 import {
      Heading,
      Modal,
@@ -14,12 +15,11 @@ import {
      useColorMode,
      useDisclosure,
 } from "@chakra-ui/react";
-import { useEffectOnce } from "usehooks-ts";
-import { useEffect, useState } from "react";
-import { baseUrl } from "@/constants";
 import { User } from "@supabase/auth-helpers-nextjs";
+import Link from "next/link";
+import { useState } from "react";
+import { useEffectOnce } from "usehooks-ts";
 import { ChangeUsernameComponent } from "./ChangeUsername";
-import { useSupabase } from "@/app/supabase-provider";
 
 export const Nav = () => {
      const { user, isLoggedIn, updateUser } = useUser();
@@ -35,11 +35,12 @@ export const Nav = () => {
      const [canSetUsername, setCanSetUsername] = useState<boolean>(false);
      const [currentUser, setCurrentUser] = useState<User | null>(null);
      const supabase = useSupabase();
-     const { isOpen, onClose, onOpen } = useDisclosure();
+     const { onClose } = useDisclosure();
      const handleClose = () => {
           onClose();
           setCanSetUsername(false);
      };
+
      useEffectOnce(() => {
           supabase.supabase.auth.getUser().then(({ data: { user } }) => {
                if (user) {
