@@ -132,9 +132,14 @@ export class UsersHandlers<T = { socketId: string }> {
 }
 export class PlayerHandler<T extends Player> {
      players: Record<string, T & { id: string }> = {};
+     length: number;
+     constructor() {
+          this.length = 0;
+     }
      addPlayer(player: T & { id: string }) {
           if (this.players[player.id]) return;
           this.players[player.id] = player;
+          this.length = Object.keys(this.players).length;
      }
      getPlayers(): T[] {
           return Object.values(this.players);
@@ -143,7 +148,11 @@ export class PlayerHandler<T extends Player> {
           return this.players[playerId];
      }
      removePlayer(playerId: string) {
+          console.log(this.players[playerId], "aaaaaaa");
           delete this.players[playerId];
+          this.length = Object.keys(this.players).length;
+
+          console.log(this.players[playerId], "aaaaaaa");
      }
      hasPlayer(playerId: string) {
           return !!this.players[playerId];

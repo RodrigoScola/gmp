@@ -93,13 +93,12 @@ export const gamequeueHandlerConnection = (
                     gamequeueHandler
                          .to(roomUser?.socketId)
                          .emit("game_found", matchId);
-                    gameQueue.removePlayer(player);
+                    gameQueue.removePlayer(player.id);
                     room.users.deleteUser(user?.id as string);
                });
           }
      });
      socket.on("get_state", (callback) => {
-          console.log(gameQueue.players.length);
           callback({
                length: gameQueue.players.length,
           });
