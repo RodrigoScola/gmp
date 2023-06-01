@@ -139,9 +139,6 @@ export const chatHandlerConnection = (
           if (roomId) {
                room = roomHandler.getRoom<ChatRoom>(roomId) as ChatRoom;
           }
-          console.log(roomId, "this is the room id");
-          console.log(room, "this is the room");
-          console.log(roomHandler.getRoom(roomId));
           if (!room && roomId) {
                const tempRoom = getRoom(roomId);
                if (!tempRoom) {
