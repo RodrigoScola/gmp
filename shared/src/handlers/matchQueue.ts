@@ -68,7 +68,7 @@ export class MatchQueue {
           if (queue.length == data.playerCount) {
                const players = queue.players.slice(0, data.playerCount);
                players.forEach((player) => {
-                    this.removePlayer(player);
+                    this.removePlayer(player.id);
                });
                return players;
           }
