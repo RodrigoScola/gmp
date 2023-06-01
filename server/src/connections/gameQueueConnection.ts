@@ -47,16 +47,13 @@ export const gamequeueHandlerConnection = (
                );
           }
           const room = roomHandler.getRoom<QueueRoom>("queueroom") as QueueRoom;
-          if (!room) {
+          if (!room || !connInfo.user) {
                return;
           }
           let user = uhandler.getUser(getUserFromSocket(socket)?.id as string);
           if (!user) {
                user = uhandler.addUser(connInfo.user);
           }
-          user = uhandler.getUser(
-               getUserFromSocket(socket)?.id as string
-          ) as MainUser;
           room.addUser({
                games: games,
                id: user.id,
