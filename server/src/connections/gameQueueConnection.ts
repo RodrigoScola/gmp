@@ -7,7 +7,7 @@ import {
      QueueRoom,
      roomHandler,
 } from "../../../shared/src/handlers/room";
-import { MainUser, uhandler } from "../../../shared/src/handlers/usersHandler";
+import { uhandler } from "../../../shared/src/handlers/usersHandler";
 import { gameQueue } from "../../../shared/src/handlers/matchQueue";
 import { getUserFromSocket } from "../server";
 import {
