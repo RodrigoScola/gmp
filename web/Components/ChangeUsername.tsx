@@ -1,6 +1,7 @@
 "use client";
 
 import { useSupabase } from "@/app/supabase-provider";
+import { useNotification } from "@/hooks/useToast";
 import { useUser } from "@/hooks/useUser";
 import {
      Button,
@@ -9,9 +10,8 @@ import {
      FormLabel,
      Input,
 } from "@chakra-ui/react";
-import { FormEvent, useState } from "react";
 import { User } from "@supabase/supabase-js";
-import { useNotification } from "@/hooks/useToast";
+import { FormEvent, useState } from "react";
 
 export const ChangeUsernameComponent = ({
      currentUser,
@@ -27,7 +27,7 @@ export const ChangeUsernameComponent = ({
      // );
      const { supabase } = useSupabase();
      const { addNotification } = useNotification();
-     const [message, setMessage] = useState<string>("");
+     const [message, _] = useState<string>("");
      const checkUsernameAvailable = async (username: string) => {
           const { data } = await supabase
                .from("profiles")
