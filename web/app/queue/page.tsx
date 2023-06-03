@@ -1,15 +1,15 @@
 "use client";
 
-import { Card, Text, Heading } from "@chakra-ui/react";
-import { getGameData } from "../../../shared/src/game/gameUtils";
+import { GameQueueState } from "@/../shared/src/types/socketEvents";
+import { FriendsList } from "@/Components/Friends/FriendsComponents";
+import { useProtectedRoute } from "@/hooks/useProtectedRoute";
 import { useUser } from "@/hooks/useUser";
 import { queueSocket } from "@/lib/socket";
-import { GameType } from "../../../shared/src/types/game";
+import { Card, Heading, Text } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { FriendsList } from "@/Components/Friends/FriendsComponents";
 import { useEffectOnce, useInterval } from "usehooks-ts";
-import { GameQueueState } from "@/../shared/src/types/socketEvents";
-import { useProtectedRoute } from "@/hooks/useProtectedRoute";
+import { getGameData } from "../../../shared/src/game/gameUtils";
+import { GameType } from "../../../shared/src/types/game";
 
 export default function QueueHoldingPage({
      searchParams,
@@ -17,7 +17,7 @@ export default function QueueHoldingPage({
      searchParams: any;
 }) {
      useProtectedRoute();
-     const { user, isLoggedIn, friends: userFriends, getFriends } = useUser();
+     const { user, friends: userFriends, getFriends } = useUser();
      const [queueState, setQueueState] = useState<GameQueueState>({
           length: 1,
      });

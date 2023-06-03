@@ -1,14 +1,14 @@
 "use client";
-import { Button, FormControl, FormLabel, Input } from "@chakra-ui/react";
-import { useSupabase } from "../supabase-provider";
 import {
      AccountProviderType,
      AccountProviders,
      ProviderButton,
 } from "@/Components/accountProviders/AccountProviderButtons";
 import { baseUrl } from "@/constants";
-import { FormEvent, useMemo, useState } from "react";
 import { useNotification } from "@/hooks/useToast";
+import { Button, FormControl, FormLabel, Input } from "@chakra-ui/react";
+import { FormEvent, useState } from "react";
+import { useSupabase } from "../supabase-provider";
 
 export default function REGISTERPAGE() {
      const { supabase } = useSupabase();
@@ -84,16 +84,6 @@ export default function REGISTERPAGE() {
                });
           }
      };
-     const isDisabled = useMemo(() => {
-          if (
-               data.email === "" ||
-               data.password === "" ||
-               data.username === ""
-          ) {
-               return true;
-          }
-          return false;
-     }, [data]);
      return (
           <div className="h-[80vh]  flex">
                <div className="w-fit m-auto  p-3 rounded-lg">
