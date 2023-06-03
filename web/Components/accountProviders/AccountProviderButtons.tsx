@@ -1,4 +1,4 @@
-import { BsDiscord, BsGithub, BsGoogle } from "react-icons/bs";
+import { BsDiscord } from "react-icons/bs";
 
 export const AccountProviders = {
      discord: {
