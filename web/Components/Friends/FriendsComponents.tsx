@@ -51,7 +51,7 @@ const FriendCardOpen = ({
                if (chatSocket.connected) chatSocket.disconnect();
           };
      }, [isOpen]);
-
+     console.log(friend);
      const handleNewMessage = (e: FormEvent<HTMLFormElement>) => {
           e.preventDefault();
           if (!user) return;
@@ -176,6 +176,40 @@ export const FriendsList = ({ friends }: FriendsListProps) => {
                {friends?.map((friend) => {
                     return <FriendCard key={friend.id} friend={friend} />;
                })}
+          </div>
+     );
+};
+
+export const InviteFriendComponent = (friendId: string) => {
+     const handleFriend = useFriend();
+
+     useEffect(() => {
+          handleFriend.setFriendId(friendId);
+     }, [friendId]);
+
+     return (
+          <div>
+               <div
+                    onClick={() => {
+                         handleFriend.sendInvite("connect Four");
+                    }}
+               >
+                    connect4
+               </div>
+               <div
+                    onClick={() => {
+                         handleFriend.sendInvite("Tic Tac Toe");
+                    }}
+               >
+                    tic tac toe
+               </div>
+               <div
+                    onClick={() => {
+                         handleFriend.sendInvite("Rock Paper Scissors");
+                    }}
+               >
+                    rock paper scissors
+               </div>
           </div>
      );
 };
