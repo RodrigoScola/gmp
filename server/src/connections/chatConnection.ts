@@ -1,24 +1,24 @@
 import { Namespace, Socket } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
-import {
-     ChatClientEvents,
-     ChatServerEvents,
-} from "../../../shared/src/types/socketEvents";
-import { getRoomId, getUserFromSocket, userHandler } from "../server";
+import { db } from "../../../shared/src/db";
+import { newMessage } from "../../../shared/src/handlers/ConversationHandler";
 import {
      ChatRoom,
      getRoom,
      roomHandler,
 } from "../../../shared/src/handlers/room";
+import { uhandler } from "../../../shared/src/handlers/usersHandler";
+import {
+     ChatClientEvents,
+     ChatServerEvents,
+} from "../../../shared/src/types/socketEvents";
+import { SocketData } from "../../../shared/src/types/types";
 import {
      ChatUser,
      SocketUser,
      UserState,
 } from "../../../shared/src/types/users";
-import { uhandler } from "../../../shared/src/handlers/usersHandler";
-import { newMessage } from "../../../shared/src/handlers/ConversationHandler";
-import { SocketData } from "../../../shared/src/types/types";
-import { db } from "../../../shared/src/db";
+import { getRoomId, getUserFromSocket, userHandler } from "../server";
 
 export const chatHandlerConnection = (
      chatHandler: Namespace<
@@ -160,6 +160,12 @@ export const chatHandlerConnection = (
                if (!inChannel && muser && user.id !== message.userId) {
                     userHandler
                          .to(muser.socketId)
+                         .emit("notification_message", {
+                              user: uhandler.getUser(message.userId)
+                                   ?.user as SocketUser,
+                         });
+                    userHandler
+                         .to(muser.user.socketId)
                          .emit("notification_message", {
                               user: uhandler.getUser(message.userId)
                                    ?.user as SocketUser,
