@@ -82,19 +82,17 @@ export const Nav = () => {
                          <Heading>TGZ</Heading>
                     </Link>
 
-                    <div>
+                    {/* <div>
                          {isLoggedIn ? (
                               <Link href={`/user/${user?.username}`}>
-                                   {/* <Text className="font-bold capitalize"> */}
                                    {user?.username}
-                                   {/* </Text> */}
                               </Link>
                          ) : (
                               <div className="flex flex-row gap-2">
                                    <Link href={`${baseUrl}/login`}>login</Link>
                               </div>
                          )}
-                    </div>
+                    </div> */}
                </nav>
           </div>
      );

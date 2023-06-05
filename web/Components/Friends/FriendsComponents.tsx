@@ -25,7 +25,6 @@ const FriendCardOpen = ({
      isOpen,
      ...props
 }: ComponentProps<"div"> & FriendCardProps) => {
-     // const drawer = useDrawer();
      const handleFriend = useFriend(friend.id);
      const { user } = useUser();
      const [chatInformation, setChatInformation] =
@@ -50,7 +49,7 @@ const FriendCardOpen = ({
           return () => {
                if (chatSocket.connected) chatSocket.disconnect();
           };
-     }, [isOpen]);
+     }, [isOpen, friend.id]);
      console.log(friend);
      const handleNewMessage = (e: FormEvent<HTMLFormElement>) => {
           e.preventDefault();
