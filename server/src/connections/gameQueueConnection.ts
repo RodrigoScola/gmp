@@ -1,21 +1,21 @@
 import { Namespace, Socket } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
-import { GameNames, GameType } from "../../../shared/src/types/game";
+import { getGameData } from "../../../shared/src/game/gameUtils";
 import { getGame } from "../../../shared/src/handlers/gameHandlers";
+import { gameQueue } from "../../../shared/src/handlers/matchQueue";
 import {
      GameRoom,
      QueueRoom,
      roomHandler,
 } from "../../../shared/src/handlers/room";
-import { MainUser, uhandler } from "../../../shared/src/handlers/usersHandler";
-import { gameQueue } from "../../../shared/src/handlers/matchQueue";
-import { getUserFromSocket } from "../server";
+import { uhandler } from "../../../shared/src/handlers/usersHandler";
+import { GameNames, GameType } from "../../../shared/src/types/game";
 import {
      GameQueueClientEvents,
      GameQueueServerEvents,
 } from "../../../shared/src/types/socketEvents";
 import { SocketData } from "../../../shared/src/types/types";
-import { getGameData } from "../../../shared/src/game/gameUtils";
+import { getUserFromSocket } from "../server";
 
 export const gamequeueHandlerConnection = (
      gamequeueHandler: Namespace<
@@ -47,16 +47,13 @@ export const gamequeueHandlerConnection = (
                );
           }
           const room = roomHandler.getRoom<QueueRoom>("queueroom") as QueueRoom;
-          if (!room) {
+          if (!room || !connInfo.user) {
                return;
           }
           let user = uhandler.getUser(getUserFromSocket(socket)?.id as string);
           if (!user) {
                user = uhandler.addUser(connInfo.user);
           }
-          user = uhandler.getUser(
-               getUserFromSocket(socket)?.id as string
-          ) as MainUser;
           room.addUser({
                games: games,
                id: user.id,
@@ -93,13 +90,12 @@ export const gamequeueHandlerConnection = (
                     gamequeueHandler
                          .to(roomUser?.socketId)
                          .emit("game_found", matchId);
-                    gameQueue.removePlayer(player);
+                    gameQueue.removePlayer(player.id);
                     room.users.deleteUser(user?.id as string);
                });
           }
      });
      socket.on("get_state", (callback) => {
-          console.log(gameQueue.players.length);
           callback({
                length: gameQueue.players.length,
           });

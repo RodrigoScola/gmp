@@ -4,7 +4,10 @@ import { FriendsList } from "@/Components/Friends/FriendsComponents";
 import { LogoutButton } from "@/Components/buttons/LogoutButton";
 import { db } from "@/db/supabase";
 import { useUser } from "@/hooks/useUser";
+<<<<<<< HEAD
 import { useUserSocket } from "@/hooks/useUserSocket";
+=======
+>>>>>>> 8e02ec11482aa4e4c7e27cd19ffd90ea7c3d049a
 import Profile from "@/images/profile.webp";
 import { chatSocket } from "@/lib/socket";
 import { Card, CardBody, CardHeader } from "@chakra-ui/react";

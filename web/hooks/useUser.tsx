@@ -10,14 +10,15 @@ import {
      useEffect,
      useState,
 } from "react";
+
 import { Socket } from "socket.io-client";
+import { useUpdateEffect } from "usehooks-ts";
 import {
      ChatClientEvents,
      ChatServerEvents,
 } from "../../shared/src/types/socketEvents";
 import { IFriend, IUser } from "../../shared/src/types/users";
 import { useFriends } from "./useFriends";
-import { useNotification } from "./useToast";
 interface UserContext {
      user: IUser | null;
      getFriends: () => Promise<IFriend[] | undefined>;
@@ -26,11 +27,11 @@ interface UserContext {
      updateUser: (user: IUser) => void;
      socket: Socket<ChatClientEvents, ChatServerEvents>;
      friends: IFriend[];
+     isLoggedIn: boolean | null;
 }
 export const UserContext = createContext<UserContext | null>(null);
 
 export const UserProvider = ({ children }: { children: ChildrenType }) => {
-     // const [token, setTOken] = useState(db.authStore.token);
      const [localStorage] = useState(
           typeof window !== "undefined" ? window.localStorage : null
      );
@@ -42,8 +43,6 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
      const [friends, setFriends] = useState<IFriend[]>([]);
      const friendHandler = useFriends();
      const { supabase, session } = useSupabase();
-
-     const toast = useNotification();
 
      const handleFetch = async () => {
           if (session && !currentUser) {
@@ -78,30 +77,36 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
                email,
                password,
           });
-
-          if (data?.user) {
-               const { data: profile } = await supabase
-                    .from("profiles")
-                    .select("*")
-                    .eq("id", data.user.id)
-                    .single();
-               if (profile) {
-                    setCurrentUser(profile);
-                    localStorage?.setItem("user", JSON.stringify(profile));
-               }
+          if (!data.user) return;
+          const { data: profile } = await supabase
+               .from("profiles")
+               .select("*")
+               .eq("id", data.user.id)
+               .single();
+          if (profile) {
+               setCurrentUser(profile);
+               localStorage?.setItem("user", JSON.stringify(profile));
           }
           return data;
      }, []);
      const logout = useCallback(async () => {
           await db.auth.signOut();
+          await supabase.auth.signOut();
           localStorage?.removeItem("user");
-          console.log(localStorage?.getItem("user"));
      }, []);
+     const [isLoggedIn, setLoggedIn] = useState<boolean | null>(null);
+     useUpdateEffect(() => {
+          if (currentUser) {
+               setLoggedIn(true);
+          } else {
+               setLoggedIn(false);
+          }
+     }, [currentUser]);
      return (
           <UserContext.Provider
                value={{
                     user: currentUser,
-
+                    isLoggedIn,
                     updateUser,
                     getFriends,
                     login,

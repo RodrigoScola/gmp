@@ -131,9 +131,14 @@ export class UsersHandlers<T = { socketId: string }> {
 }
 export class PlayerHandler<T extends Player> {
      players: Record<string, T & { id: string }> = {};
+     length: number;
+     constructor() {
+          this.length = 0;
+     }
      addPlayer(player: T & { id: string }) {
           if (this.players[player.id]) return;
           this.players[player.id] = player;
+          this.length++;
      }
      getPlayers(): T[] {
           return Object.values(this.players);
@@ -142,7 +147,10 @@ export class PlayerHandler<T extends Player> {
           return this.players[playerId];
      }
      removePlayer(playerId: string) {
-          delete this.players[playerId];
+          if (this.players[playerId]) {
+               delete this.players[playerId];
+               this.length--;
+          }
      }
      hasPlayer(playerId: string) {
           return !!this.players[playerId];

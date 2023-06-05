@@ -1,21 +1,26 @@
 "use client";
 
-import { Card, Text, Heading } from "@chakra-ui/react";
-import { getGameData } from "../../../shared/src/game/gameUtils";
+import { GameQueueState } from "@/../shared/src/types/socketEvents";
+import { FriendsList } from "@/Components/Friends/FriendsComponents";
+import { useProtectedRoute } from "@/hooks/useProtectedRoute";
 import { useUser } from "@/hooks/useUser";
 import { queueSocket } from "@/lib/socket";
-import { GameType } from "../../../shared/src/types/game";
+import { Card, Heading, Text } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { FriendsList } from "@/Components/Friends/FriendsComponents";
-import { useEffectOnce } from "usehooks-ts";
+import { useEffectOnce, useInterval } from "usehooks-ts";
+import { getGameData } from "../../../shared/src/game/gameUtils";
+import { GameType } from "../../../shared/src/types/game";
 
 export default function QueueHoldingPage({
      searchParams,
 }: {
      searchParams: any;
 }) {
+     useProtectedRoute();
      const { user, friends: userFriends, getFriends } = useUser();
-
+     const [queueState, setQueueState] = useState<GameQueueState>({
+          length: 1,
+     });
      useEffect(() => {
           getFriends();
      }, []);
@@ -45,8 +50,10 @@ export default function QueueHoldingPage({
                clearInterval(timer);
           } else {
                const timerId = setInterval(() => {
-                    // queueSocket.emit("get_state", (data) => {});
-               }, 10000);
+                    queueSocket.emit("get_state", (data) => {
+                         setQueueState(data);
+                    });
+               }, 3000);
                setTimer(timerId);
           }
      }, []);
@@ -68,6 +75,11 @@ export default function QueueHoldingPage({
                }
           };
      }, [games]);
+
+     const [waitingTime, setWaitingTime] = useState<number>(0);
+     useInterval(() => {
+          setWaitingTime((curr) => curr + 1);
+     }, 1000);
      return (
           <div
                className="flex flex-row
@@ -86,11 +98,13 @@ export default function QueueHoldingPage({
                     </ul>
                     <div className="pb-6 text-center">
                          <Text className="text-xl">
-                              You have been waiting for <span>12 minutes</span>
+                              You have been waiting for{" "}
+                              <span>{waitingTime} seconds</span>
                          </Text>
                     </div>
                     <div className="text-center text-2xl">
-                         Currently there are <span>0</span> people in queue.
+                         Currently there are <span>{queueState.length}</span>{" "}
+                         people in queue.
                     </div>
                </div>
                <div>

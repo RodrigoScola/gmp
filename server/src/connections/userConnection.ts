@@ -37,13 +37,14 @@ export const userHandlerConnection = (
           ...socketuser,
           socketId: socket.id,
      } as SocketUser;
-     uhandler.addUser(socketUser);
      if (socketuser) {
+          uhandler.addUser(socketUser);
           socket.data.user = socketuser;
+          console.log("connecting", uhandler.getUser(socketuser.id));
      }
+
      socket.on("get_friends", async (userid: string, callback) => {
           const user = uhandler.getUser(userid);
-
           if (!user) return;
 
           const friends = await user.friends.getFriends();
@@ -58,21 +59,31 @@ export const userHandlerConnection = (
           const currentUser = uhandler.getUser(
                getUserFromSocket(socket)?.id as string
           );
+          if (!user || !currentUser) {
+               console.log(user);
+               console.log(currentUser);
+               return;
+          }
+          console.log(user, currentUser);
 
-          if (!user || !currentUser?.user) return;
           const isFriend = await currentUser?.friends.getRequest(user.id);
-
           if (!isFriend) {
                await currentUser?.friends.addFriendRequest(user.id);
           }
-          if (isFriend?.status == "pending") {
-               socket.to(user?.socketId).emit("add_friend_response", {
-                    created_at: currentUser.user.created_at ?? "",
-                    id: currentUser.user.id,
-                    username: currentUser.user.username ?? "",
-                    email: currentUser.user.email ?? "",
-               });
-          }
+
+          console.log("sending to friend");
+          socket.to(user.user.socketId).emit("add_friend_response", {
+               created_at: currentUser.user.created_at ?? "",
+               id: currentUser.user.id,
+               username: currentUser.user.username ?? "",
+               email: currentUser.user.email ?? "",
+          });
+          socket.to(user.socketId).emit("add_friend_response", {
+               created_at: currentUser.user.created_at ?? "",
+               id: currentUser.user.id,
+               username: currentUser.user.username ?? "",
+               email: currentUser.user.email ?? "",
+          });
      });
 
      socket.on("add_friend_answer", async (user, response) => {
@@ -127,6 +138,7 @@ export const userHandlerConnection = (
           console.log(user);
           console.log(uhandler.getUser(user.id));
           if (!user || !mainUser) return;
+
           const gameInvite = uhandler.invites.addInvite(
                {
                     id: mainUser.user.id,
@@ -142,8 +154,23 @@ export const userHandlerConnection = (
                },
                gameName
           );
+<<<<<<< HEAD
           if (!gameInvite) return;
           userHandler.to(user.socketId).emit("game_invite", gameInvite);
+=======
+          if (!gameInvite) {
+               console.log("game invite not created");
+               return;
+          }
+          console.log("sending game invite");
+          console.log(gameInvite);
+          userHandler
+               .to(user.user.socketId)
+               .emit("game_invite", gameInvite, (data) => console.log(data));
+          userHandler
+               .to(user.socketId)
+               .emit("game_invite", gameInvite, (data) => console.log(data));
+>>>>>>> 8e02ec11482aa4e4c7e27cd19ffd90ea7c3d049a
      });
      socket.on(
           "game_invite_response",
@@ -184,6 +211,7 @@ export const userHandlerConnection = (
           if (socket.data.user) {
                uhandler.updateUser(socket.data.user?.id, {
                     currentState: UserState.offline,
+                    socketId: "",
                });
           }
      });

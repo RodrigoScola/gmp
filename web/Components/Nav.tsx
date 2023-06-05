@@ -32,6 +32,10 @@ export const Nav = () => {
      useSocket<{ user: IUser | null }>(
           userSocket,
           () => {
+               userSocket.auth = {
+                    user: user,
+               };
+               console.log("a");
                userSocket.on("add_friend_response", (data) => {
                     addNotification("Game Request", {
                          duration: 15000,

@@ -1,14 +1,18 @@
 "use client";
-import { ChatConversationType, IFriend } from "../../../shared/src/types/users";
-import { Popover, PopoverTrigger, PopoverContent } from "@chakra-ui/react";
-import { ComponentProps, FormEvent, useEffect, useState } from "react";
+import { useFriend } from "@/hooks/useFriends";
+import { useUser } from "@/hooks/useUser";
+import Profile from "@/images/profile.webp";
+import { chatSocket } from "@/lib/socket";
+import {
+     Popover,
+     PopoverContent,
+     PopoverTrigger,
+     useDisclosure,
+} from "@chakra-ui/react";
 import Image from "next/image";
 import Link from "next/link";
-import Profile from "@/images/profile.webp";
-import { useFriend } from "@/hooks/useFriends";
-import { chatSocket } from "@/lib/socket";
-import { useUser } from "@/hooks/useUser";
-import { useDisclosure } from "@chakra-ui/react";
+import { ComponentProps, FormEvent, useEffect, useState } from "react";
+import { ChatConversationType, IFriend } from "../../../shared/src/types/users";
 export interface FriendsListProps {
      friends?: IFriend[];
 }
@@ -21,7 +25,6 @@ const FriendCardOpen = ({
      isOpen,
      ...props
 }: ComponentProps<"div"> & FriendCardProps) => {
-     // const drawer = useDrawer();
      const handleFriend = useFriend(friend.id);
      const { user } = useUser();
      const [chatInformation, setChatInformation] =
@@ -46,8 +49,8 @@ const FriendCardOpen = ({
           return () => {
                if (chatSocket.connected) chatSocket.disconnect();
           };
-     }, [isOpen]);
-
+     }, [isOpen, friend.id]);
+     console.log(friend);
      const handleNewMessage = (e: FormEvent<HTMLFormElement>) => {
           e.preventDefault();
           if (!user) return;
@@ -66,7 +69,7 @@ const FriendCardOpen = ({
      };
 
      return (
-          <div {...props} className=" bg-blue-200 z-10 ">
+          <div {...props} className=" text-white bg-blue-200 z-10 ">
                <div>
                     <Image
                          src={Profile.src}
@@ -132,7 +135,7 @@ const FriendCardOpen = ({
                     <p>Note: </p>
                     <p>{friend.note}</p>
                </div>
-               <div>
+               <div className="m-auto">
                     <form onSubmit={handleNewMessage}>
                          <input
                               onChange={(e) => setMessage(e.target.value)}
@@ -172,6 +175,40 @@ export const FriendsList = ({ friends }: FriendsListProps) => {
                {friends?.map((friend) => {
                     return <FriendCard key={friend.id} friend={friend} />;
                })}
+          </div>
+     );
+};
+
+export const InviteFriendComponent = (friendId: string) => {
+     const handleFriend = useFriend();
+
+     useEffect(() => {
+          handleFriend.setFriendId(friendId);
+     }, [friendId]);
+
+     return (
+          <div>
+               <div
+                    onClick={() => {
+                         handleFriend.sendInvite("connect Four");
+                    }}
+               >
+                    connect4
+               </div>
+               <div
+                    onClick={() => {
+                         handleFriend.sendInvite("Tic Tac Toe");
+                    }}
+               >
+                    tic tac toe
+               </div>
+               <div
+                    onClick={() => {
+                         handleFriend.sendInvite("Rock Paper Scissors");
+                    }}
+               >
+                    rock paper scissors
+               </div>
           </div>
      );
 };

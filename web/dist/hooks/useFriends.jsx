@@ -1,10 +1,10 @@
 "use client";
+import { userSocket } from "@/lib/socket";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useMap } from "usehooks-ts";
-import { useNotification } from "./useToast";
-import { userSocket } from "@/lib/socket";
 import { db } from "../../shared/src/db";
 import { FriendHandler } from "../../shared/src/handlers/FriendHandler";
+import { useNotification } from "./useToast";
 export const FriendsContext = createContext(null);
 export const FriendsProvider = ({ children }) => {
     const [friendsMap, actions] = useMap();
@@ -83,7 +83,7 @@ export const useFriend = (id) => {
         },
         sendInvite: (gameName) => {
             if (friendId)
-                userSocket.emit("game_invite", gameName.toString(), friendId);
+                userSocket.emit("game_invite", gameName.toString(), friendId, "chess");
             console.log(`Invite ${friendId} to ${gameName}`);
             t.addNotification("Invite sent");
         },
