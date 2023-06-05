@@ -1,3 +1,4 @@
+"use client";
 import { userSocket } from "@/lib/socket";
 import { useEffect } from "react";
 import { useUser } from "./useUser";
