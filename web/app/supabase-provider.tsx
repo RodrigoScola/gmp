@@ -42,6 +42,9 @@ export default function SupabaseProvider({
           const {
                data: { subscription },
           } = supabase.auth.onAuthStateChange((eventType, session) => {
+               console.log(eventType);
+               console.log(session);
+
                if (eventType == "SIGNED_OUT") {
                     setSession(null);
                } else {

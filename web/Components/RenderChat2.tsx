@@ -1,23 +1,25 @@
 "use client";
 
 import { useFriend } from "@/hooks/useFriends";
+import { useProtectedRoute } from "@/hooks/useProtectedRoute";
 import { useUser } from "@/hooks/useUser";
 import { chatSocket, socket } from "@/lib/socket";
+import { Popover, PopoverContent, PopoverTrigger } from "@chakra-ui/react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { useUpdateEffect } from "usehooks-ts";
 import {
      ChatConversationType,
      ChatMessageType,
      UserState,
 } from "../../shared/src/types/users";
-import { Popover, PopoverContent, PopoverTrigger } from "@chakra-ui/react";
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { FriendsList } from "./Friends/FriendsComponents";
-import { useUpdateEffect } from "usehooks-ts";
 
 var timer: NodeJS.Timeout;
 export const RenderChatMesages = (props: {
      conversation: ChatConversationType;
      isFriend?: boolean;
 }) => {
+     useProtectedRoute();
      const { user, friends: userFriends, getFriends } = useUser();
      const friend = useFriend();
      useUpdateEffect(() => {

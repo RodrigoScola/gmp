@@ -28,7 +28,6 @@ export class MatchQueue {
      }
      addPlayer(player: MatchQueuePlayer): MatchQueuePlayer {
           this.players.addPlayer(player);
-          console.log(player);
           player.games = Array.isArray(player.games)
                ? player.games
                : [player.games];
@@ -39,10 +38,12 @@ export class MatchQueue {
 
           return player;
      }
-     removePlayer(player: MatchQueuePlayer): void {
+     removePlayer(player: string): void {
           const queues = Object.values(this.gamesQueue);
+
+          this.players.removePlayer(player);
           queues.forEach((queue) => {
-               queue.remove(player.id);
+               queue.remove(player);
           });
      }
      findMatch(userId: string) {
@@ -65,10 +66,11 @@ export class MatchQueue {
      }
      matchPlayer(queue: GameQueue): MatchQueuePlayer[] | undefined {
           const data = getGameData(queue.gameName);
-          console.log(queue.length, data.playerCount);
           if (queue.length == data.playerCount) {
                const players = queue.players.slice(0, data.playerCount);
-               console.log(players);
+               players.forEach((player) => {
+                    this.removePlayer(player.id);
+               });
                return players;
           }
           return;

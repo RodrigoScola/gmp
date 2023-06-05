@@ -148,10 +148,10 @@ export class PlayerHandler<T extends Player> {
           return this.players[playerId];
      }
      removePlayer(playerId: string) {
-          if (!this.players[playerId]) return;
-          delete this.players[playerId];
-
-          this.length--;
+          if (this.players[playerId]) {
+               delete this.players[playerId];
+               this.length--;
+          }
      }
      hasPlayer(playerId: string) {
           return !!this.players[playerId];

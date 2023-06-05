@@ -1,15 +1,24 @@
 "use client";
 
 import { useSupabase } from "@/app/supabase-provider";
+import { useNotification } from "@/hooks/useToast";
 import { useUser } from "@/hooks/useUser";
-import { Button, FormControl, FormLabel, Input } from "@chakra-ui/react";
-import { FormEvent, useState } from "react";
+import {
+     Button,
+     FormControl,
+     FormErrorMessage,
+     FormLabel,
+     Input,
+} from "@chakra-ui/react";
 import { User } from "@supabase/supabase-js";
+import { FormEvent, useState } from "react";
 
 export const ChangeUsernameComponent = ({
      currentUser,
+     onClose,
 }: {
      currentUser: User | null;
+     onClose: () => void;
 }) => {
      const [newUsername, setUsername] = useState<string>("");
      const mainUser = useUser();
@@ -17,6 +26,8 @@ export const ChangeUsernameComponent = ({
      //      null
      // );
      const { supabase } = useSupabase();
+     const { addNotification } = useNotification();
+     const [message, _] = useState<string>("");
      const checkUsernameAvailable = async (username: string) => {
           const { data } = await supabase
                .from("profiles")
@@ -31,7 +42,13 @@ export const ChangeUsernameComponent = ({
      const handleSubmitNewUsername = async (e: FormEvent<HTMLFormElement>) => {
           e.preventDefault();
           const available = await checkUsernameAvailable(newUsername);
-          console.log(available);
+          if (!available) {
+               addNotification("username already taken", {
+                    status: "error",
+                    position: "top",
+               });
+               return;
+          }
           if (available && currentUser) {
                await supabase
                     .from("profiles")
@@ -43,7 +60,6 @@ export const ChangeUsernameComponent = ({
                     .select("*")
                     .single()
                     .then((data) => {
-                         console.log(data);
                          if (data.error) {
                               supabase
                                    .from("profiles")
@@ -60,6 +76,7 @@ export const ChangeUsernameComponent = ({
                                    });
                          }
                     });
+               onClose();
           }
      };
      return (
@@ -71,6 +88,9 @@ export const ChangeUsernameComponent = ({
                          onChange={(e) => setUsername(e.target.value)}
                     />
                </FormControl>
+               <FormErrorMessage>
+                    {message ? "username already taken" : ""}
+               </FormErrorMessage>
                <div>
                     <Button type="submit">Finish</Button>
                </div>
