@@ -12,7 +12,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { ComponentProps, FormEvent, useEffect, useState } from "react";
-import { useEffectOnce } from "usehooks-ts";
+import { useUpdateEffect } from "usehooks-ts";
 import { ChatConversationType, IFriend } from "../../../shared/src/types/users";
 export interface FriendsListProps {
      friends?: IFriend[];
@@ -33,18 +33,17 @@ const FriendCardOpen = ({
           useState<ChatConversationType | null>(null);
      const [message, setMessage] = useState<string>("");
 
-     useEffectOnce(() => {
-          handleFriend.setFriendId(friend.id);
-     });
+     useUpdateEffect(() => {
+          if (handleFriend.id != friend.id) {
+               handleFriend.setFriendId(friend.id);
+          }
+     }, [friend]);
      useEffect(() => {
           if (!isOpen || !user) {
                console.log("no user");
                return;
           }
 
-          console.log(user);
-          console.log(friend);
-          console.log(handleFriend);
           if (!chatSocket.connected) {
                chatSocket.auth = {
                     user: user,
@@ -99,11 +98,11 @@ const FriendCardOpen = ({
                     </div>
                </div>
                <div>Friends Since 1 - Feb - 2023</div>
-               <Popover offset={[1, 2]}>
+               <Popover>
                     <PopoverTrigger>
                          <div>Invite to game</div>
                     </PopoverTrigger>
-                    <PopoverContent className=" gap-2 z-50">
+                    <PopoverContent className="flex gap-2">
                          <div
                               onClick={() => {
                                    handleFriend.sendInvite("connect Four");
@@ -125,7 +124,7 @@ const FriendCardOpen = ({
                                    );
                               }}
                          >
-                              rock paper scissors 2
+                              rock paper scissors
                          </div>
                     </PopoverContent>
                </Popover>
