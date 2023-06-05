@@ -147,9 +147,7 @@ export const userHandlerConnection = (
                .emit("game_invite", gameInvite, (data) => console.log(data));
           userHandler
                .to(user.socketId)
-               .emit("game_invite", gameInvite, (data) => {
-                    console.log(data);
-               });
+               .emit("game_invite", gameInvite, (data) => console.log(data));
      });
      socket.on(
           "game_invite_response",
