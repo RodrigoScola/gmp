@@ -43,6 +43,11 @@ export default function REGISTERPAGE() {
           ) {
                return;
           }
+          if (data.password.length < 8) {
+               addNotification("password must be at least 8 characters");
+
+               return;
+          }
           const { error, data: usernameTaken } = await supabase
                .from("profiles")
                .select("username")

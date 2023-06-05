@@ -2,7 +2,6 @@
 import { db } from "@/db/supabase";
 import { userSocket } from "@/lib/socket";
 import { ChildrenType } from "@/types";
-import { useNotification } from "./useToast";
 import {
      createContext,
      useCallback,
@@ -10,17 +9,18 @@ import {
      useEffect,
      useState,
 } from "react";
+import { useNotification } from "./useToast";
 
-import { useEffectOnce, useUpdateEffect } from "usehooks-ts";
+import { AddFiendComponent } from "@/Components/Notifications/AddFriend";
 import { GameInviteComponent } from "@/Components/Notifications/GameInvite";
-import { Socket } from "socket.io-client";
 import { useSupabase } from "@/app/supabase-provider";
-import { IUser, IFriend, GameInvite } from "../../shared/src/types/users";
+import { Socket } from "socket.io-client";
+import { useUpdateEffect } from "usehooks-ts";
 import {
      ChatClientEvents,
      ChatServerEvents,
 } from "../../shared/src/types/socketEvents";
-import { AddFiendComponent } from "@/Components/Notifications/AddFriend";
+import { GameInvite, IFriend, IUser } from "../../shared/src/types/users";
 import { useFriends } from "./useFriends";
 interface UserContext {
      user: IUser | null;
@@ -64,13 +64,14 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
      useEffect(() => {
           handleFetch();
      }, [session]);
-     useEffectOnce(() => {
-          if (!currentUser) return;
+     useUpdateEffect(() => {
+          if (!currentUser || userSocket.connected) return;
           userSocket.auth = {
                user: currentUser,
           };
           userSocket.connect();
           userSocket.on("add_friend_response", (data) => {
+               console.log(data);
                toast.addNotification("Game Request", {
                     duration: 15000,
                     render: () => <AddFiendComponent friend={data} />,
@@ -96,7 +97,7 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
                     userSocket.disconnect();
                }
           };
-     });
+     }, [currentUser]);
      const getFriends = async () => {
           if (!currentUser) return;
           const friendss = await friendHandler?.getFriends(currentUser.id);
