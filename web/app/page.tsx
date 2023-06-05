@@ -1,29 +1,11 @@
 "use client";
 import { AddNewFriend } from "@/Components/Friends/AddNewFriend";
 import { FriendsList } from "@/Components/Friends/FriendsComponents";
-import { userSocket } from "@/lib/socket";
 import Link from "next/link";
-import { useState } from "react";
-import { useEffectOnce } from "usehooks-ts";
-import { IFriend } from "../../shared/src/types/users";
 import { useUser } from "../hooks/useUser";
 
 export default function Home() {
-     const { user, isLoggedIn, getFriends } = useUser();
-     const [userFriends, setFriends] = useState<IFriend[]>([]);
-
-     const getInformation = async () => {
-          if (!user) return;
-          const f = await getFriends();
-          if (f?.length) {
-               setFriends(f);
-          }
-     };
-     console.table(userSocket);
-     console.log(userSocket.connected);
-     useEffectOnce(() => {
-          getInformation();
-     });
+     const { friends, isLoggedIn } = useUser();
      return (
           <div className="flex flex-row">
                <div className="flex flex-col text-white w-screen h-screen">
@@ -39,7 +21,7 @@ export default function Home() {
                {isLoggedIn ? (
                     <div>
                          <AddNewFriend />
-                         <FriendsList friends={userFriends} />
+                         <FriendsList friends={friends} />
                     </div>
                ) : (
                     <div></div>
