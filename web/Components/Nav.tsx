@@ -25,7 +25,6 @@ export const Nav = () => {
      const { user, isLoggedIn, updateUser } = useUser();
      useNotifications();
      // NOTE: this is a hack to get the username to show up in the nav bar
-     console.log(isLoggedIn);
      const { colorMode, setColorMode } = useColorMode();
      useEffectOnce(() => {
           if (colorMode == "light") {
