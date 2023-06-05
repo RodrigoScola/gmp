@@ -9,7 +9,7 @@ import { chatSocket } from "@/lib/socket";
 import { Card, CardBody, CardHeader } from "@chakra-ui/react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useEffectOnce } from "usehooks-ts";
 import { GameNames } from "../../../../shared/src/types/game";
 import { IFriend, IUser } from "../../../../shared/src/types/users";
@@ -28,17 +28,6 @@ export default function PROFILEPAGE({
           id: "defaultid",
           username: "defaultusername",
      });
-     useEffect(() => {
-          if (!chatSocket.connected) {
-               chatSocket.auth = {
-                    user: currentUser,
-               };
-               chatSocket.connect();
-          }
-          return () => {
-               if (chatSocket.connected) chatSocket.disconnect();
-          };
-     }, []);
 
      const [userFriends, setUserfriends] = useState<IFriend[]>([]);
      const [conversationId, setConversationId] = useState<string | null>(null);

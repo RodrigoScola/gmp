@@ -1,6 +1,6 @@
 "use client";
 import { db } from "@/db/supabase";
-import { userSocket } from "@/lib/socket";
+import { chatSocket, userSocket } from "@/lib/socket";
 import { ChildrenType } from "@/types";
 import {
      createContext,
@@ -71,6 +71,12 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
           userSocket.auth = {
                user: currentUser,
           };
+          if (!chatSocket.connected) {
+               chatSocket.auth = {
+                    user: currentUser,
+               };
+               chatSocket.connect();
+          }
           userSocket.connect();
           console.log(userSocket.connected);
           userSocket.on("add_friend_response", (data) => {
@@ -96,7 +102,10 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
                window.location.href = `/play/${data.roomId}`;
           });
           return () => {
-               if (userSocket) {
+               if (chatSocket.connected) {
+                    chatSocket.disconnect();
+               }
+               if (userSocket.connected) {
                     userSocket.disconnect();
                }
           };

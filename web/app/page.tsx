@@ -1,7 +1,6 @@
 "use client";
 import { AddNewFriend } from "@/Components/Friends/AddNewFriend";
 import { FriendsList } from "@/Components/Friends/FriendsComponents";
-import { useFriends } from "@/hooks/useFriends";
 import { useUser } from "@/hooks/useUser";
 import { userSocket } from "@/lib/socket";
 import Link from "next/link";
@@ -9,14 +8,18 @@ import { useState } from "react";
 import { useEffectOnce } from "usehooks-ts";
 import { IFriend } from "../../shared/src/types/users";
 export default function Home() {
-     const { user, isLoggedIn } = useUser();
+     const { user, isLoggedIn, getFriends } = useUser();
      const [userFriends, setFriends] = useState<IFriend[]>([]);
-     const friends = useFriends();
-     useEffectOnce(() => {
+
+     const getInformation = async () => {
           if (!user) return;
-          friends?.getFriends(user.id).then((friends) => {
-               setFriends(friends);
-          });
+          const f = await getFriends();
+          if (f?.length) {
+               setFriends(f);
+          }
+     };
+     useEffectOnce(() => {
+          getInformation();
      });
      console.log(userSocket);
      console.log(userSocket.connected, "the user socket is connected");
