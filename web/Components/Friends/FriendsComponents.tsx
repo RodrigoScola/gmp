@@ -12,7 +12,6 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { ComponentProps, FormEvent, useEffect, useState } from "react";
-import { useUpdateEffect } from "usehooks-ts";
 import { ChatConversationType, IFriend } from "../../../shared/src/types/users";
 export interface FriendsListProps {
      friends?: IFriend[];
@@ -27,24 +26,14 @@ const FriendCardOpen = ({
      ...props
 }: ComponentProps<"div"> & FriendCardProps) => {
      // const drawer = useDrawer();
-     const handleFriend = useFriend();
+     const handleFriend = useFriend(friend.id);
      const { user } = useUser();
      const [chatInformation, setChatInformation] =
           useState<ChatConversationType | null>(null);
      const [message, setMessage] = useState<string>("");
 
-     useUpdateEffect(() => {
-          if (handleFriend.id != friend.id) {
-               handleFriend.setFriendId(friend.id);
-          }
-     }, [friend]);
      useEffect(() => {
-          if (!isOpen || !user) {
-               console.log("no user");
-               console.log(user);
-               return;
-          }
-
+          if (!isOpen || !user) return;
           if (!chatSocket.connected) {
                chatSocket.auth = {
                     user: user,
@@ -61,7 +50,7 @@ const FriendCardOpen = ({
           return () => {
                if (chatSocket.connected) chatSocket.disconnect();
           };
-     }, [isOpen, user, handleFriend.id]);
+     }, [isOpen]);
 
      const handleNewMessage = (e: FormEvent<HTMLFormElement>) => {
           e.preventDefault();
@@ -99,11 +88,11 @@ const FriendCardOpen = ({
                     </div>
                </div>
                <div>Friends Since 1 - Feb - 2023</div>
-               <Popover>
+               <Popover offset={[1, 2]}>
                     <PopoverTrigger>
                          <div>Invite to game</div>
                     </PopoverTrigger>
-                    <PopoverContent className="flex gap-2">
+                    <PopoverContent className=" gap-2 z-50">
                          <div
                               onClick={() => {
                                    handleFriend.sendInvite("connect Four");
