@@ -34,6 +34,9 @@ const FriendCardOpen = ({
 
      useEffect(() => {
           if (!isOpen || !user) return;
+          console.log(user);
+          console.log(friend);
+          console.log(handleFriend);
           if (!chatSocket.connected) {
                chatSocket.auth = {
                     user: user,
