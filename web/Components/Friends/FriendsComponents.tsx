@@ -1,14 +1,18 @@
 "use client";
-import { ChatConversationType, IFriend } from "../../../shared/src/types/users";
-import { Popover, PopoverTrigger, PopoverContent } from "@chakra-ui/react";
-import { ComponentProps, FormEvent, useEffect, useState } from "react";
+import { useFriend } from "@/hooks/useFriends";
+import { useUser } from "@/hooks/useUser";
+import Profile from "@/images/profile.webp";
+import { chatSocket } from "@/lib/socket";
+import {
+     Popover,
+     PopoverContent,
+     PopoverTrigger,
+     useDisclosure,
+} from "@chakra-ui/react";
 import Image from "next/image";
 import Link from "next/link";
-import Profile from "@/images/profile.webp";
-import { useFriend } from "@/hooks/useFriends";
-import { chatSocket } from "@/lib/socket";
-import { useUser } from "@/hooks/useUser";
-import { useDisclosure } from "@chakra-ui/react";
+import { ComponentProps, FormEvent, useEffect, useState } from "react";
+import { ChatConversationType, IFriend } from "../../../shared/src/types/users";
 export interface FriendsListProps {
      friends?: IFriend[];
 }
@@ -110,7 +114,7 @@ const FriendCardOpen = ({
                                    );
                               }}
                          >
-                              rock paper scissors
+                              rock paper scissors 2
                          </div>
                     </PopoverContent>
                </Popover>
