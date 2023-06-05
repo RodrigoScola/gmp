@@ -1,22 +1,22 @@
 import { Namespace, Socket } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
-import { getUserFromSocket } from "../server";
+import { getGame } from "../../../shared/src/handlers/gameHandlers";
+import { GameRoom, roomHandler } from "../../../shared/src/handlers/room";
+import { uhandler } from "../../../shared/src/handlers/usersHandler";
+import { GameNames } from "../../../shared/src/types/game";
 import {
      UserClientEvents,
      UserServerEvents,
 } from "../../../shared/src/types/socketEvents";
+import { SocketData } from "../../../shared/src/types/types";
 import {
      GameInvite,
      GameInviteOptions,
      SocketUser,
      UserState,
 } from "../../../shared/src/types/users";
-import { uhandler } from "../../../shared/src/handlers/usersHandler";
-import { GameRoom, roomHandler } from "../../../shared/src/handlers/room";
-import { getGame } from "../../../shared/src/handlers/gameHandlers";
-import { GameNames } from "../../../shared/src/types/game";
 import { db } from "../lib/db";
-import { SocketData } from "../../../shared/src/types/types";
+import { getUserFromSocket } from "../server";
 
 export const userHandlerConnection = (
      userHandler: Namespace<
@@ -43,7 +43,6 @@ export const userHandlerConnection = (
      }
      socket.on("get_friends", async (userid: string, callback) => {
           const user = uhandler.getUser(userid);
-
           if (!user) return;
 
           const friends = await user.friends.getFriends();
@@ -58,21 +57,24 @@ export const userHandlerConnection = (
           const currentUser = uhandler.getUser(
                getUserFromSocket(socket)?.id as string
           );
+          if (!user || !currentUser) {
+               console.log(user);
+               console.log(currentUser);
+               return;
+          }
 
-          if (!user || !currentUser?.user) return;
           const isFriend = await currentUser?.friends.getRequest(user.id);
-
           if (!isFriend) {
                await currentUser?.friends.addFriendRequest(user.id);
           }
-          if (isFriend?.status == "pending") {
-               socket.to(user?.socketId).emit("add_friend_response", {
-                    created_at: currentUser.user.created_at ?? "",
-                    id: currentUser.user.id,
-                    username: currentUser.user.username ?? "",
-                    email: currentUser.user.email ?? "",
-               });
-          }
+
+          console.log("sending to friend");
+          socket.to(user.socketId).emit("add_friend_response", {
+               created_at: currentUser.user.created_at ?? "",
+               id: currentUser.user.id,
+               username: currentUser.user.username ?? "",
+               email: currentUser.user.email ?? "",
+          });
      });
 
      socket.on("add_friend_answer", async (user, response) => {
@@ -173,6 +175,7 @@ export const userHandlerConnection = (
           if (socket.data.user) {
                uhandler.updateUser(socket.data.user?.id, {
                     currentState: UserState.offline,
+                    socketId: "",
                });
           }
      });
