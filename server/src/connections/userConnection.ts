@@ -127,7 +127,12 @@ export const userHandlerConnection = (
                },
                gameName
           );
-          if (!gameInvite) return;
+          if (!gameInvite) {
+               console.log("game invite not created");
+               return;
+          }
+          console.log("sending game invite");
+          console.log(gameInvite);
           userHandler.to(user.user.socketId).emit("game_invite", gameInvite);
      });
      socket.on(
