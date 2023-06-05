@@ -52,13 +52,15 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
 
      const handleFetch = async () => {
           if (session && !currentUser) {
-               const data = await supabase
-                    .from("profiles")
-                    .select("*")
-                    .eq("id", session?.user.id)
-                    .single();
-               localStorage?.setItem("user", JSON.stringify(data.data));
-               setCurrentUser(data.data);
+               if (session.user.id) {
+                    const data = await supabase
+                         .from("profiles")
+                         .select("*")
+                         .eq("id", session?.user.id)
+                         .single();
+                    localStorage?.setItem("user", JSON.stringify(data.data));
+                    setCurrentUser(data.data);
+               }
           }
      };
      useEffect(() => {
