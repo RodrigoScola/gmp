@@ -37,10 +37,10 @@ export const userHandlerConnection = (
           ...socketuser,
           socketId: socket.id,
      } as SocketUser;
-     console.log("connecting");
-     uhandler.addUser(socketUser);
      if (socketuser) {
+          uhandler.addUser(socketUser);
           socket.data.user = socketuser;
+          console.log("connecting", uhandler.getUser(socketuser.id));
      }
 
      socket.on("get_friends", async (userid: string, callback) => {
