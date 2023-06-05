@@ -64,7 +64,7 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
      useEffect(() => {
           handleFetch();
      }, [session]);
-     useUpdateEffect(() => {
+     useEffect(() => {
           if (userSocket.connected) return;
           userSocket.auth = {
                user: currentUser,
