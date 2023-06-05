@@ -32,6 +32,10 @@ export type ChatRoomState = {
      users: ChatUser[];
 };
 
+export type GameQueueState = {
+     length: number;
+};
+
 // game events
 export interface ServerToClientEvents {
      join_room: (roomId: string) => void;
@@ -147,9 +151,11 @@ export type UserClientEvents = {
 
 export type GameQueueClientEvents = {
      join_queue: (gameName: GameType | GameType[]) => void;
+     get_state: (callback: (state: GameQueueState) => void) => void;
 };
 export type GameQueueServerEvents = {
      game_found: (gameid: string) => void;
+     state_change: (state: GameQueueState) => void;
 };
 
 export type UsersServerEvents = {

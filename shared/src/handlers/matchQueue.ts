@@ -1,8 +1,8 @@
-import { GameNames, GameType, gameNames } from "../types/game";
-import { GameData, getGameData } from "../game/gameUtils";
-import { PlayerHandler } from "./usersHandler";
-import { GameQueue } from "./GamesQueue";
 import { randomUUID } from "crypto";
+import { GameData, getGameData } from "../game/gameUtils";
+import { GameNames, GameType, gameNames } from "../types/game";
+import { GameQueue } from "./GamesQueue";
+import { PlayerHandler } from "./usersHandler";
 
 export type MatchQueuePlayer = {
      games: GameType | GameType[];
@@ -36,6 +36,7 @@ export class MatchQueue {
                const gameId = getGameData(game.name as GameNames).id;
                this.gamesQueue[gameId].add(player.id, player);
           });
+
           return player;
      }
      removePlayer(player: MatchQueuePlayer): void {
