@@ -5,18 +5,18 @@ import { useFriends } from "@/hooks/useFriends";
 import { useUser } from "@/hooks/useUser";
 import Link from "next/link";
 import { useState } from "react";
-import { useEffectOnce } from "usehooks-ts";
+import { useUpdateEffect } from "usehooks-ts";
 import { IFriend } from "../../shared/src/types/users";
 export default function Home() {
      const { user, isLoggedIn } = useUser();
      const [userFriends, setFriends] = useState<IFriend[]>([]);
      const friends = useFriends();
-     useEffectOnce(() => {
-          if (!user) return;
+     useUpdateEffect(() => {
+          if (isLoggedIn == null || !user || isLoggedIn == false) return;
           friends?.getFriends(user.id).then((friends) => {
                setFriends(friends);
           });
-     });
+     }, [isLoggedIn]);
      return (
           <div className="flex flex-row">
                <div className="flex flex-col text-white w-screen h-screen">
