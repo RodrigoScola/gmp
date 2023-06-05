@@ -62,6 +62,7 @@ export const userHandlerConnection = (
                console.log(currentUser);
                return;
           }
+          console.log(user, currentUser);
 
           const isFriend = await currentUser?.friends.getRequest(user.id);
           if (!isFriend) {
