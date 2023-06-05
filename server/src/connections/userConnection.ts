@@ -70,6 +70,12 @@ export const userHandlerConnection = (
           }
 
           console.log("sending to friend");
+          socket.to(user.user.socketId).emit("add_friend_response", {
+               created_at: currentUser.user.created_at ?? "",
+               id: currentUser.user.id,
+               username: currentUser.user.username ?? "",
+               email: currentUser.user.email ?? "",
+          });
           socket.to(user.socketId).emit("add_friend_response", {
                created_at: currentUser.user.created_at ?? "",
                id: currentUser.user.id,
@@ -133,7 +139,7 @@ export const userHandlerConnection = (
           }
           console.log("sending game invite");
           console.log(gameInvite);
-          userHandler.to(user.user.socketId).emit("game_invite", gameInvite);
+          userHandler.to(user.socketId).emit("game_invite", gameInvite);
      });
      socket.on(
           "game_invite_response",
