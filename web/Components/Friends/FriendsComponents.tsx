@@ -12,6 +12,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { ComponentProps, FormEvent, useEffect, useState } from "react";
+import { useEffectOnce } from "usehooks-ts";
 import { ChatConversationType, IFriend } from "../../../shared/src/types/users";
 export interface FriendsListProps {
      friends?: IFriend[];
@@ -26,14 +27,21 @@ const FriendCardOpen = ({
      ...props
 }: ComponentProps<"div"> & FriendCardProps) => {
      // const drawer = useDrawer();
-     const handleFriend = useFriend(friend.id);
+     const handleFriend = useFriend();
      const { user } = useUser();
      const [chatInformation, setChatInformation] =
           useState<ChatConversationType | null>(null);
      const [message, setMessage] = useState<string>("");
 
+     useEffectOnce(() => {
+          handleFriend.setFriendId(friend.id);
+     });
      useEffect(() => {
-          if (!isOpen || !user) return;
+          if (!isOpen || !user) {
+               console.log("no user");
+               return;
+          }
+
           console.log(user);
           console.log(friend);
           console.log(handleFriend);
@@ -53,7 +61,7 @@ const FriendCardOpen = ({
           return () => {
                if (chatSocket.connected) chatSocket.disconnect();
           };
-     }, [isOpen]);
+     }, [isOpen, user, handleFriend.id]);
 
      const handleNewMessage = (e: FormEvent<HTMLFormElement>) => {
           e.preventDefault();
