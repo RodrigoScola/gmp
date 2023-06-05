@@ -1,9 +1,8 @@
 "use client";
+import { AddNewFriend } from "@/Components/Friends/AddNewFriend";
 import { FriendsList } from "@/Components/Friends/FriendsComponents";
 import { useFriends } from "@/hooks/useFriends";
 import { useUser } from "@/hooks/useUser";
-// import { getUrl } from "@/lib/utils";
-import { AddNewFriend } from "@/Components/Friends/AddNewFriend";
 import Link from "next/link";
 import { useState } from "react";
 import { useEffectOnce } from "usehooks-ts";

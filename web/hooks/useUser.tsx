@@ -65,7 +65,6 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
           handleFetch();
      }, [session]);
      useUpdateEffect(() => {
-          if (!currentUser || userSocket.connected) return;
           userSocket.auth = {
                user: currentUser,
           };
@@ -78,6 +77,7 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
                });
           });
           userSocket.on("notification_message", (data) => {
+               console.log(data);
                toast.addNotification(
                     `${data.user.username} sent you a message`
                );
