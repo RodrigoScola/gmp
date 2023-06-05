@@ -61,6 +61,7 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
                     setCurrentUser(data.data);
                }
           }
+     }
           useEffect(() => {
                handleFetch();
           }, [session]);
