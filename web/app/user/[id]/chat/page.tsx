@@ -1,15 +1,15 @@
-import { FriendHandler } from "../../../../../shared/src/handlers/FriendHandler";
-import { RenderChatMesages } from "@/Components/RenderChat2";
-import { ChatConversationType } from "../../../../../shared/src/types/users";
 import { RedirectPage } from "@/Components/RedirectPage";
-import { baseUrl } from "@/constants";
+import { RenderChatMesages } from "@/Components/RenderChat2";
+import { serverURl } from "@/constants";
+import { FriendHandler } from "../../../../../shared/src/handlers/FriendHandler";
+import { ChatConversationType } from "../../../../../shared/src/types/users";
 
 export default async function CHATPAGE({
      params: { id },
 }: {
      params: { id: string };
 }) {
-     const conversationBlob = await fetch(baseUrl + "/conversation/" + id, {
+     const conversationBlob = await fetch(serverURl + "/conversation/" + id, {
           headers: {
                "Content-Type": "application/json",
           },

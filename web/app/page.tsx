@@ -3,11 +3,12 @@ import { FriendsList } from "@/Components/Friends/FriendsComponents";
 import { useFriends } from "@/hooks/useFriends";
 import { useUser } from "@/hooks/useUser";
 // import { getUrl } from "@/lib/utils";
-import { IFriend } from "../../shared/src/types/users";
+import { AddNewFriend } from "@/Components/Friends/AddNewFriend";
+import { useUserSocket } from "@/hooks/useUserSocket";
 import Link from "next/link";
 import { useState } from "react";
 import { useEffectOnce } from "usehooks-ts";
-import { AddNewFriend } from "@/Components/Friends/AddNewFriend";
+import { IFriend } from "../../shared/src/types/users";
 export default function Home() {
      const { user } = useUser();
      const [userFriends, setFriends] = useState<IFriend[]>([]);
@@ -18,6 +19,8 @@ export default function Home() {
                setFriends(friends);
           });
      });
+
+     useUserSocket();
      return (
           <div className="flex flex-row">
                <div className="flex flex-col text-white w-screen h-screen">

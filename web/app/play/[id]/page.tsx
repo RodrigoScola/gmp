@@ -4,6 +4,7 @@ import RPSComponent from "@/Components/games/RPSGameComponent";
 import { SimonSaysComponent } from "@/Components/games/SimonSaysComponent";
 import TicTacToeGameComponent from "@/Components/games/TicTacToeComponent";
 import { serverURl } from "@/constants";
+import { useUserSocket } from "@/hooks/useUserSocket";
 
 export default async function RenderGame({
      params: { id },
@@ -23,6 +24,7 @@ export default async function RenderGame({
           // window.location.href = "/play";
      }
 
+     useUserSocket();
      switch (jsondata.match.game.name) {
           case "Rock Paper Scissors":
                return (

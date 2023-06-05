@@ -1,8 +1,8 @@
 "use client";
+import { useSupabase } from "@/app/supabase-provider";
 import { db } from "@/db/supabase";
 import { userSocket } from "@/lib/socket";
 import { ChildrenType } from "@/types";
-import { useNotification } from "./useToast";
 import {
      createContext,
      useCallback,
@@ -10,17 +10,14 @@ import {
      useEffect,
      useState,
 } from "react";
-import { useEffectOnce } from "usehooks-ts";
-import { GameInviteComponent } from "@/Components/Notifications/GameInvite";
 import { Socket } from "socket.io-client";
-import { useSupabase } from "@/app/supabase-provider";
-import { IUser, IFriend, GameInvite } from "../../shared/src/types/users";
 import {
      ChatClientEvents,
      ChatServerEvents,
 } from "../../shared/src/types/socketEvents";
-import { AddFiendComponent } from "@/Components/Notifications/AddFriend";
+import { IFriend, IUser } from "../../shared/src/types/users";
 import { useFriends } from "./useFriends";
+import { useNotification } from "./useToast";
 interface UserContext {
      user: IUser | null;
      getFriends: () => Promise<IFriend[] | undefined>;
@@ -62,39 +59,7 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
      useEffect(() => {
           handleFetch();
      }, [session]);
-     useEffectOnce(() => {
-          if (!currentUser) return;
-          userSocket.auth = {
-               user: currentUser,
-          };
-          userSocket.connect();
-          userSocket.on("add_friend_response", (data) => {
-               toast.addNotification("Game Request", {
-                    duration: 15000,
-                    render: () => <AddFiendComponent friend={data} />,
-               });
-          });
-          userSocket.on("notification_message", (data) => {
-               toast.addNotification(
-                    `${data.user.username} sent you a message`
-               );
-          });
-          userSocket.on("game_invite", (data: GameInvite) => {
-               console.log(data);
-               toast.addNotification("Game Request", {
-                    duration: 15000,
-                    render: () => <GameInviteComponent gameInvite={data} />,
-               });
-          });
-          userSocket.on("game_invite_accepted", (data) => {
-               window.location.href = `/play/${data.roomId}`;
-          });
-          return () => {
-               if (userSocket) {
-                    userSocket.disconnect();
-               }
-          };
-     });
+
      const getFriends = async () => {
           if (!currentUser) return;
           const friendss = await friendHandler?.getFriends(currentUser.id);
@@ -103,7 +68,6 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
           }
           return friendss;
      };
-
      const updateUser = (user: IUser) => {
           setCurrentUser(user);
           localStorage?.setItem("user", JSON.stringify(user));

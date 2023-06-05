@@ -1,22 +1,22 @@
 import { Namespace, Socket } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
-import { getUserFromSocket } from "../server";
+import { getGame } from "../../../shared/src/handlers/gameHandlers";
+import { GameRoom, roomHandler } from "../../../shared/src/handlers/room";
+import { uhandler } from "../../../shared/src/handlers/usersHandler";
+import { GameNames } from "../../../shared/src/types/game";
 import {
      UserClientEvents,
      UserServerEvents,
 } from "../../../shared/src/types/socketEvents";
+import { SocketData } from "../../../shared/src/types/types";
 import {
      GameInvite,
      GameInviteOptions,
      SocketUser,
      UserState,
 } from "../../../shared/src/types/users";
-import { uhandler } from "../../../shared/src/handlers/usersHandler";
-import { GameRoom, roomHandler } from "../../../shared/src/handlers/room";
-import { getGame } from "../../../shared/src/handlers/gameHandlers";
-import { GameNames } from "../../../shared/src/types/game";
 import { db } from "../lib/db";
-import { SocketData } from "../../../shared/src/types/types";
+import { getUserFromSocket } from "../server";
 
 export const userHandlerConnection = (
      userHandler: Namespace<
@@ -100,14 +100,32 @@ export const userHandlerConnection = (
                // change definition to declined
           }
      });
-
+     socket.on("update_user", (user) => {
+          if (!user) return;
+          uhandler.updateUser(user.id, {
+               user: {
+                    id: user.id,
+                    socketId: user.socketId,
+                    created_at: user.created_at ?? "",
+                    email: user.email ?? "",
+                    username: user.username ?? "",
+               },
+               socketId: user.socketId,
+          });
+          console.log(
+               uhandler.getUser(user.id).socketId,
+               uhandler.getUser(user.id).user.socketId,
+               socket.id
+          );
+     });
      socket.on("game_invite", (gameName: GameNames, userId: string) => {
           const user = uhandler.getUser(userId);
 
           const mainUser = uhandler.getUser(
                getUserFromSocket(socket)?.id as string
           );
-
+          console.log(user);
+          console.log(uhandler.getUser(user.id));
           if (!user || !mainUser) return;
           const gameInvite = uhandler.invites.addInvite(
                {
@@ -125,7 +143,7 @@ export const userHandlerConnection = (
                gameName
           );
           if (!gameInvite) return;
-          userHandler.to(user.user.socketId).emit("game_invite", gameInvite);
+          userHandler.to(user.socketId).emit("game_invite", gameInvite);
      });
      socket.on(
           "game_invite_response",
@@ -150,18 +168,11 @@ export const userHandlerConnection = (
                     const from = uhandler.getUser(ninvite.from.id);
                     console.log(to, from);
                     if (!to || !from) return;
-                    console.log("this ga");
-                    userHandler
-                         .to(to.user.socketId)
-                         .emit("game_invite_accepted", ninvite);
-                    userHandler
-                         .to(to.socketId)
-                         .emit("game_invite_accepted", ninvite);
                     userHandler
                          .to(from.socketId)
                          .emit("game_invite_accepted", ninvite);
                     userHandler
-                         .to(from.user.socketId)
+                         .to(to.socketId)
                          .emit("game_invite_accepted", ninvite);
                     callback(invite);
                } else if (action == "declined") {

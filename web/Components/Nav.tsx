@@ -1,16 +1,20 @@
 "use client";
 
-import { useUser } from "@/hooks/useUser";
-import Link from "next/link";
-import { useNotifications } from "@/hooks/useToast";
-import { Heading, useColorMode } from "@chakra-ui/react";
-import { useEffectOnce } from "usehooks-ts";
-import { useEffect, useState } from "react";
+import { GameInvite, IUser } from "@/../shared/src/types/users";
 import { baseUrl } from "@/constants";
+import { useSocket } from "@/hooks/useSocket";
+import { useNotification } from "@/hooks/useToast";
+import { useUser } from "@/hooks/useUser";
+import { userSocket } from "@/lib/socket";
+import { Heading, useColorMode } from "@chakra-ui/react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useEffectOnce } from "usehooks-ts";
+import { AddFiendComponent } from "./Notifications/AddFriend";
+import { GameInviteComponent } from "./Notifications/GameInvite";
 
 export const Nav = () => {
      const { user } = useUser();
-     useNotifications();
      // NOTE: this is a hack to get the username to show up in the nav bar
      const [username, setUsername] = useState<string>("");
      useEffect(() => {
@@ -18,13 +22,43 @@ export const Nav = () => {
                setUsername(user.username);
           }
      }, [user]);
-
      const { colorMode, setColorMode } = useColorMode();
      useEffectOnce(() => {
           if (colorMode == "light") {
                setColorMode("dark");
           }
      });
+     const { addNotification } = useNotification();
+     useSocket<{ user: IUser | null }>(
+          userSocket,
+          () => {
+               userSocket.on("add_friend_response", (data) => {
+                    addNotification("Game Request", {
+                         duration: 15000,
+                         render: () => <AddFiendComponent friend={data} />,
+                    });
+               });
+               userSocket.on("notification_message", (data) => {
+                    addNotification(`${data.user.username} sent you a message`);
+               });
+               userSocket.on("game_invite", (data: GameInvite) => {
+                    console.log(data);
+                    addNotification("Game Request", {
+                         duration: 15000,
+                         render: () => (
+                              <GameInviteComponent gameInvite={data} />
+                         ),
+                    });
+               });
+               userSocket.on("game_invite_accepted", (data) => {
+                    console.log("game acepted");
+                    window.location.href = `/play/${data.roomId}`;
+               });
+          },
+          {
+               user: user,
+          }
+     );
      return (
           <div className="  bg-blue-900 w-screen ">
                <nav className="flex justify-around m-auto w-[90%] items-center py-2 flex-row">

@@ -70,7 +70,6 @@ class MainUserHandler {
           const nuser: IMainUser = {
                ...user,
                ...info,
-               socketId: user.socketId,
           };
           this.users.set(userId, new MainUser(nuser));
           return this.getUser(userId);

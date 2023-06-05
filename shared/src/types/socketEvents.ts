@@ -105,6 +105,7 @@ export type UserServerEvents = {
           friendid: string,
           callback: (...args: any) => void
      ) => void;
+     update_user: (user: SocketUser) => void;
      add_friend: (friendid: string, callback?: (...args: any) => void) => void;
      game_invite_response: (
           action: GameInviteOptions,
