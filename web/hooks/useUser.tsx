@@ -1,6 +1,6 @@
 "use client";
 import { db } from "@/db/supabase";
-import { chatSocket, userSocket } from "@/lib/socket";
+import { userSocket } from "@/lib/socket";
 import { ChildrenType } from "@/types";
 import {
      createContext,
@@ -35,7 +35,6 @@ interface UserContext {
 export const UserContext = createContext<UserContext | null>(null);
 
 export const UserProvider = ({ children }: { children: ChildrenType }) => {
-     // const [token, setTOken] = useState(db.authStore.token);
      const [localStorage] = useState(
           typeof window !== "undefined" ? window.localStorage : null
      );
@@ -52,33 +51,27 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
 
      const handleFetch = async () => {
           if (session && !currentUser) {
-               if (session.user.id) {
-                    const data = await supabase
-                         .from("profiles")
-                         .select("*")
-                         .eq("id", session?.user.id)
-                         .single();
-                    localStorage?.setItem("user", JSON.stringify(data.data));
-                    setCurrentUser(data.data);
-               }
+               if (session.user.id)  {
+
+               const data = await supabase
+                    .from("profiles")
+                    .select("*")
+                    .eq("id", session?.user.id)
+                    .single();
+               localStorage?.setItem("user", JSON.stringify(data.data));
+               setCurrentUser(data.data);
           }
      };
      useEffect(() => {
           handleFetch();
      }, [session]);
      useEffect(() => {
-          if (userSocket.connected) return;
+          if (userSocket.connected) {
           userSocket.auth = {
                user: currentUser,
           };
-          if (!chatSocket.connected) {
-               chatSocket.auth = {
-                    user: currentUser,
-               };
-               chatSocket.connect();
-          }
           userSocket.connect();
-          console.log(userSocket.connected);
+          }
           userSocket.on("add_friend_response", (data) => {
                console.log(data);
                toast.addNotification("Game Request", {
@@ -102,10 +95,7 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
                window.location.href = `/play/${data.roomId}`;
           });
           return () => {
-               if (chatSocket.connected) {
-                    chatSocket.disconnect();
-               }
-               if (userSocket.connected) {
+               if (userSocket) {
                     userSocket.disconnect();
                }
           };
