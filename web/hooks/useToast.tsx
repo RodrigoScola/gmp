@@ -49,15 +49,7 @@ export const useNotification = () => {
 };
 
 export const useNotifications = () => {
-<<<<<<< HEAD
-     const { addNotification } = useNotification();
-
-     return {
-          addNotification,
-     };
-=======
      const toast = useNotification();
 
      return toast;
->>>>>>> 8e02ec11482aa4e4c7e27cd19ffd90ea7c3d049a
 };

@@ -31,6 +31,9 @@ export const Nav = () => {
      const { addNotification } = useNotification();
      useSocket<{ user: IUser | null }>(
           userSocket,
+          {
+               user: user,
+          },
           () => {
                userSocket.auth = {
                     user: user,
@@ -58,9 +61,6 @@ export const Nav = () => {
                     console.log("game acepted");
                     window.location.href = `/play/${data.roomId}`;
                });
-          },
-          {
-               user: user,
           }
      );
      return (

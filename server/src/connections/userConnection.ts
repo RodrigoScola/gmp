@@ -154,23 +154,14 @@ export const userHandlerConnection = (
                },
                gameName
           );
-<<<<<<< HEAD
-          if (!gameInvite) return;
-          userHandler.to(user.socketId).emit("game_invite", gameInvite);
-=======
           if (!gameInvite) {
                console.log("game invite not created");
                return;
           }
           console.log("sending game invite");
           console.log(gameInvite);
-          userHandler
-               .to(user.user.socketId)
-               .emit("game_invite", gameInvite, (data) => console.log(data));
-          userHandler
-               .to(user.socketId)
-               .emit("game_invite", gameInvite, (data) => console.log(data));
->>>>>>> 8e02ec11482aa4e4c7e27cd19ffd90ea7c3d049a
+          userHandler.to(user.user.socketId).emit("game_invite", gameInvite);
+          userHandler.to(user.socketId).emit("game_invite", gameInvite);
      });
      socket.on(
           "game_invite_response",

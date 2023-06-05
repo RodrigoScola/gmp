@@ -18,15 +18,9 @@ export class GameInviteHandler {
           const inviteId = Date.now().toString();
           const gameInvite: GameInvite = {
                gameName: gameName,
-<<<<<<< HEAD
-               roomId: randomUUID(),
-               from: from,
-               inviteId,
-=======
                roomId: "a0s9df0a9sdjf",
                from: from,
                inviteId: randomUUID(),
->>>>>>> 8e02ec11482aa4e4c7e27cd19ffd90ea7c3d049a
                to: to,
                state: "pending",
           };
