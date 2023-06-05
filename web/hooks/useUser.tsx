@@ -65,10 +65,12 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
           handleFetch();
      }, [session]);
      useUpdateEffect(() => {
+          if (!currentUser || userSocket.connected) return;
           userSocket.auth = {
                user: currentUser,
           };
           userSocket.connect();
+          console.log(userSocket.connected);
           userSocket.on("add_friend_response", (data) => {
                console.log(data);
                toast.addNotification("Game Request", {
@@ -77,7 +79,6 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
                });
           });
           userSocket.on("notification_message", (data) => {
-               console.log(data);
                toast.addNotification(
                     `${data.user.username} sent you a message`
                );
