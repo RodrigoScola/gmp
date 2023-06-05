@@ -37,10 +37,12 @@ export const userHandlerConnection = (
           ...socketuser,
           socketId: socket.id,
      } as SocketUser;
+     console.log("connecting");
      uhandler.addUser(socketUser);
      if (socketuser) {
           socket.data.user = socketuser;
      }
+
      socket.on("get_friends", async (userid: string, callback) => {
           const user = uhandler.getUser(userid);
           if (!user) return;
@@ -118,6 +120,7 @@ export const userHandlerConnection = (
           );
 
           if (!user || !mainUser) return;
+
           const gameInvite = uhandler.invites.addInvite(
                {
                     id: mainUser.user.id,
@@ -139,7 +142,6 @@ export const userHandlerConnection = (
           }
           console.log("sending game invite");
           console.log(gameInvite);
-
           userHandler.to(user.user.socketId).emit("game_invite", gameInvite);
           userHandler.to(user.socketId).emit("game_invite", gameInvite);
      });
