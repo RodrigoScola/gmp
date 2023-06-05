@@ -3,6 +3,7 @@ import { AddNewFriend } from "@/Components/Friends/AddNewFriend";
 import { FriendsList } from "@/Components/Friends/FriendsComponents";
 import { useFriends } from "@/hooks/useFriends";
 import { useUser } from "@/hooks/useUser";
+import { userSocket } from "@/lib/socket";
 import Link from "next/link";
 import { useState } from "react";
 import { useEffectOnce } from "usehooks-ts";
@@ -17,6 +18,8 @@ export default function Home() {
                setFriends(friends);
           });
      });
+     console.log(userSocket);
+     console.log(userSocket.connected, "the user socket is connected");
      return (
           <div className="flex flex-row">
                <div className="flex flex-col text-white w-screen h-screen">

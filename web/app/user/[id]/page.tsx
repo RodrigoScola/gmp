@@ -1,18 +1,18 @@
 "use client";
-import Profile from "@/images/profile.webp";
-import Image from "next/image";
-import Link from "next/link";
-import { useEffectOnce } from "usehooks-ts";
-import { useEffect, useState } from "react";
-import { IFriend, IUser } from "../../../../shared/src/types/users";
+import { AddNewFriend } from "@/Components/Friends/AddNewFriend";
+import { FriendsList } from "@/Components/Friends/FriendsComponents";
+import { LogoutButton } from "@/Components/buttons/LogoutButton";
 import { db } from "@/db/supabase";
 import { useUser } from "@/hooks/useUser";
-import { FriendsList } from "@/Components/Friends/FriendsComponents";
-import { GameNames } from "../../../../shared/src/types/game";
-import { Card, CardBody, CardHeader } from "@chakra-ui/react";
-import { LogoutButton } from "@/Components/buttons/LogoutButton";
-import { AddNewFriend } from "@/Components/Friends/AddNewFriend";
+import Profile from "@/images/profile.webp";
 import { chatSocket } from "@/lib/socket";
+import { Card, CardBody, CardHeader } from "@chakra-ui/react";
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useEffectOnce } from "usehooks-ts";
+import { GameNames } from "../../../../shared/src/types/game";
+import { IFriend, IUser } from "../../../../shared/src/types/users";
 
 export default function PROFILEPAGE({
      params,
@@ -58,7 +58,6 @@ export default function PROFILEPAGE({
                currentUser.id,
                user.data.id,
                (data) => {
-                    console.log(data);
                     setConversationId(data.id as string);
                }
           );
