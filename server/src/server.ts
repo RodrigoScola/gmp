@@ -1,30 +1,30 @@
 import express from "express";
-const app = express();
 import http from "http";
-const server = http.createServer(app);
-import { Server, Namespace, Socket } from "socket.io";
-import { MyIo, SocketData } from "../../shared/src/types/types";
+import { Namespace, Server, Socket } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import {
-     ServerToClientEvents,
      ChatClientEvents,
      ChatServerEvents,
+     ClientToServerEvents,
      GameQueueClientEvents,
      GameQueueServerEvents,
-     ClientToServerEvents,
-     UsersServerEvents,
+     ServerToClientEvents,
      UsersClientEvents,
+     UsersServerEvents,
 } from "../../shared/src/types/socketEvents";
+import { MyIo, SocketData } from "../../shared/src/types/types";
+const app = express();
+const server = http.createServer(app);
 
 import { getRoom } from "../../shared/src/handlers/room";
+import { uhandler } from "../../shared/src/handlers/usersHandler";
 import { IUser, SocketUser } from "../../shared/src/types/users";
 import { chatHandlerConnection } from "./connections/chatConnection";
-import { userHandlerConnection } from "./connections/userConnection";
-import { gamequeueHandlerConnection } from "./connections/gameQueueConnection";
-import { db } from "./lib/db";
-import { uhandler } from "../../shared/src/handlers/usersHandler";
-import { usersHandlerConnection } from "./connections/usersConnection";
 import { gameHandlerConnection } from "./connections/gameConnection";
+import { gamequeueHandlerConnection } from "./connections/gameQueueConnection";
+import { userHandlerConnection } from "./connections/userConnection";
+import { usersHandlerConnection } from "./connections/usersConnection";
+import { db } from "./lib/db";
 
 export const io = new Server<
      ServerToClientEvents,

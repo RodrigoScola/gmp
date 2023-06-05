@@ -1,14 +1,14 @@
 import { Namespace, Socket } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
-import { getUserFromSocket } from "../server";
+import { uhandler } from "../../../shared/src/handlers/usersHandler";
 import {
      UsersClientEvents,
      UsersServerEvents,
 } from "../../../shared/src/types/socketEvents";
-import { SocketUser, UserState } from "../../../shared/src/types/users";
-import { uhandler } from "../../../shared/src/handlers/usersHandler";
-import { db } from "../lib/db";
 import { SocketData } from "../../../shared/src/types/types";
+import { SocketUser, UserState } from "../../../shared/src/types/users";
+import { db } from "../lib/db";
+import { getUserFromSocket } from "../server";
 
 export const usersHandlerConnection = (
      _: Namespace<
@@ -29,7 +29,11 @@ export const usersHandlerConnection = (
           ...socketuser,
           socketId: socket.id,
      } as SocketUser;
-     uhandler.addUser(socketUser);
+
+     const hasUser = uhandler.getUser(socketuser?.id as string);
+     if (!hasUser) {
+          uhandler.addUser(socketUser);
+     }
      if (socketuser) {
           socket.data.user = socketuser;
      }

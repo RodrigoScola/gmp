@@ -135,10 +135,9 @@ export const userHandlerConnection = (
           const mainUser = uhandler.getUser(
                getUserFromSocket(socket)?.id as string
           );
-          console.log(user);
-          console.log(uhandler.getUser(user.id));
           if (!user || !mainUser) return;
-
+          console.log(user.socketId);
+          console.log(user.user.socketId);
           const gameInvite = uhandler.invites.addInvite(
                {
                     id: mainUser.user.id,
@@ -158,8 +157,6 @@ export const userHandlerConnection = (
                console.log("game invite not created");
                return;
           }
-          console.log("sending game invite");
-          console.log(gameInvite);
           userHandler.to(user.user.socketId).emit("game_invite", gameInvite);
           userHandler.to(user.socketId).emit("game_invite", gameInvite);
      });
