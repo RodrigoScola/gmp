@@ -134,7 +134,10 @@ export type UserClientEvents = {
           userId: string,
           callback: (friends: IUser[]) => void
      ) => void;
-     game_invite: (gameInvite: GameInvite) => void;
+     game_invite: (
+          gameInvite: GameInvite,
+          callback: (data: any) => void
+     ) => void;
      add_friend_answer: (
           user: IUser,
           response: "accepted" | "declined"
