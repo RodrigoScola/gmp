@@ -22,7 +22,7 @@ import { useEffectOnce } from "usehooks-ts";
 import { ChangeUsernameComponent } from "./ChangeUsername";
 
 export const Nav = () => {
-     const { user, isLoggedIn, updateUser } = useUser();
+     const { isLoggedIn, updateUser } = useUser();
      useNotifications();
      // NOTE: this is a hack to get the username to show up in the nav bar
      console.log(isLoggedIn);
