@@ -84,8 +84,9 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
                     `${data.user.username} sent you a message`
                );
           });
-          userSocket.on("game_invite", (data: GameInvite) => {
+          userSocket.on("game_invite", (data: GameInvite, ca) => {
                console.log(data);
+               ca("received")
                toast.addNotification("Game Request", {
                     duration: 15000,
                     render: () => <GameInviteComponent gameInvite={data} />,
