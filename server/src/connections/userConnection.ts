@@ -139,6 +139,8 @@ export const userHandlerConnection = (
           }
           console.log("sending game invite");
           console.log(gameInvite);
+
+          userHandler.to(user.user.socketId).emit("game_invite", gameInvite);
           userHandler.to(user.socketId).emit("game_invite", gameInvite);
      });
      socket.on(
