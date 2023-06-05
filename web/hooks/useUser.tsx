@@ -65,6 +65,7 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
           handleFetch();
      }, [session]);
      useUpdateEffect(() => {
+          if (userSocket.connected) return;
           userSocket.auth = {
                user: currentUser,
           };
@@ -97,7 +98,7 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
                     userSocket.disconnect();
                }
           };
-     }, [currentUser]);
+     }, [currentUser, userSocket.connected]);
      const getFriends = async () => {
           if (!currentUser) return;
           const friendss = await friendHandler?.getFriends(currentUser.id);
