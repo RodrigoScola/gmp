@@ -41,6 +41,7 @@ const FriendCardOpen = ({
      useEffect(() => {
           if (!isOpen || !user) {
                console.log("no user");
+               console.log(user);
                return;
           }
 
