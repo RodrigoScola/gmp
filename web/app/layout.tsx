@@ -1,6 +1,8 @@
-import { Nav } from "@/Components/Nav";
 import { FriendsProvider } from "@/hooks/useFriends";
 import "./globals.css";
+
+import { Nav } from "@/Components/Nav";
+import { ginto, poppins, whitney } from "@/constants";
 import { Providers } from "./providers";
 import SupabaseProvider from "./supabase-provider";
 
@@ -18,12 +20,14 @@ export default function RootLayout({
 }) {
      return (
           <html lang="en">
-               <body className="bg-blue-1000">
+               <body
+                    className={`bg-blue-1000 ${poppins.variable} ${whitney.variable} ${ginto.variable} font-sans`}
+               >
                     <SupabaseProvider>
                          <FriendsProvider>
                               <Providers {...props}>
                                    <Nav />
-                                   <div className="max-w-6xl z-10 m-auto">
+                                   <div className="  max-w-6xl z-10 m-auto">
                                         {children}
                                    </div>
                               </Providers>

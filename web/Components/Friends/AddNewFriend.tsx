@@ -12,7 +12,7 @@ import {
 import { useEffect, useState } from "react";
 var timer: NodeJS.Timeout;
 export const AddNewFriend = () => {
-     const [searchTerm, setSearchTerm] = useState<string>("");
+     const [searchTerm, setSearchTerm] = useState<string>("a");
      const { user } = useUser();
      const [resultFriends, setResultFriends] = useState<IFriend[]>([]);
      const handleSubmit = (e: { preventDefault: () => void }) => {
@@ -50,11 +50,11 @@ export const AddNewFriend = () => {
           }, 500);
      }, [searchTerm]);
      return (
-          <Popover>
+          <Popover isLazy defaultIsOpen>
                <PopoverTrigger>
                     <Button>Add New</Button>
                </PopoverTrigger>
-               <PopoverContent>
+               <PopoverContent className="px-2 ">
                     <form onSubmit={handleSubmit} className="flex flex-row">
                          <label className="flex flex-col">
                               Username
@@ -67,18 +67,16 @@ export const AddNewFriend = () => {
                          </label>
                          <button>Search</button>
                     </form>
-                    <div>
+                    <div className="flex flex-col gap-2 ">
                          {resultFriends.map((friend: IFriend) => (
-                              <div key={friend.id}>
-                                   <div>{friend.username}</div>
-
-                                   <button
-                                        onClick={() => {
-                                             sendFriendRequest(friend.id);
-                                        }}
-                                   >
-                                        add friend
-                                   </button>
+                              <div
+                                   key={friend.id}
+                                   onClick={() => sendFriendRequest(friend.id)}
+                                   className="flex hover:bg-gray-400 px-1"
+                              >
+                                   <p className="capitalize">
+                                        {friend.username}
+                                   </p>
                               </div>
                          ))}
                     </div>

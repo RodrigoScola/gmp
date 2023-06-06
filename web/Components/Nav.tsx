@@ -6,7 +6,7 @@ import { useSocket } from "@/hooks/useSocket";
 import { useNotification } from "@/hooks/useToast";
 import { useUser } from "@/hooks/useUser";
 import { userSocket } from "@/lib/socket";
-import { Heading, useColorMode } from "@chakra-ui/react";
+import { Heading, Text, useColorMode } from "@chakra-ui/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useEffectOnce } from "usehooks-ts";
@@ -72,9 +72,9 @@ export const Nav = () => {
                     <div>
                          {username ? (
                               <Link href={`/user/${username}`}>
-                                   {/* <Text className="font-bold capitalize"> */}
-                                   {username}
-                                   {/* </Text> */}
+                                   <Text className="font-bold capitalize">
+                                        {username}
+                                   </Text>
                               </Link>
                          ) : (
                               <div className="flex flex-row gap-2">

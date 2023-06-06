@@ -12,10 +12,11 @@
 	"dependencies": {
 		"@chakra-ui/icons": "^2.0.19",
 		"@chakra-ui/next-js": "^2.1.3",
-		"@chakra-ui/react": "^2.6.1",
+		"@chakra-ui/react": "^2.7.0",
 		"@emotion/react": "^11.10.6",
 		"@emotion/styled": "^11.10.6",
 		"@headlessui/react": "^1.7.13",
+		"@next/font": "^13.4.4",
 		"@supabase/auth-helpers-nextjs": "^0.6.1",
 		"@supabase/auth-helpers-react": "^0.3.1",
 		"@supabase/supabase-js": "^2.22.0",
@@ -39,6 +40,7 @@
 		"react-p5": "^1.3.35",
 		"socket.io-client": "^4.6.1",
 		"swr": "^2.1.2",
+		"tailwindcss-opentype": "^1.1.0",
 		"typescript": "5.0.2",
 		"usehooks-ts": "^2.9.1",
 		"utf-8-validate": "^5.0.10"
