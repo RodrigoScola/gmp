@@ -22,6 +22,7 @@ import {
      ChatUser,
      GameInvite,
      GameInviteOptions,
+     IFriend,
      IUser,
      NewChatChatMessageType,
      SocketUser,
@@ -163,12 +164,20 @@ export type UsersServerEvents = {
           userId: string,
           callback?: (user: IUser | null, ...args: any) => void
      ) => void;
+     get_friends: (
+          userId: string,
+          callback?: (friends: IFriend[]) => void
+     ) => void;
      search_users: (
           username: string,
           callback?: (...args: any) => void
      ) => void;
 };
 export type UsersClientEvents = {
+     get_friends: (
+          userId: string,
+          callback?: (friends: IFriend[]) => void
+     ) => void;
      search_users: (
           username: string,
           callback?: (...args: any) => void

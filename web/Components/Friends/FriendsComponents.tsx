@@ -1,7 +1,6 @@
 "use client";
 import { useFriend } from "@/hooks/useFriends";
 import { useUser } from "@/hooks/useUser";
-import Profile from "@/images/profile.webp";
 import { chatSocket } from "@/lib/socket";
 import {
      Popover,
@@ -9,10 +8,10 @@ import {
      PopoverTrigger,
      useDisclosure,
 } from "@chakra-ui/react";
-import Image from "next/image";
 import Link from "next/link";
 import { ComponentProps, FormEvent, useEffect, useState } from "react";
 import { ChatConversationType, IFriend } from "../../../shared/src/types/users";
+import { FriendAvatar } from "./FriendAvatar";
 export interface FriendsListProps {
      friends?: IFriend[];
 }
@@ -40,9 +39,7 @@ const FriendCardOpen = ({
                chatSocket.connect();
           }
           chatSocket.emit("find_conversation", user?.id, friend.id, (data) => {
-               console.log(data);
                setChatInformation(data);
-               console.log(data.id.toString());
                chatSocket.emit("join_room", data.id.toString());
           });
 
@@ -50,7 +47,6 @@ const FriendCardOpen = ({
                if (chatSocket.connected) chatSocket.disconnect();
           };
      }, [isOpen, friend.id]);
-     console.log(friend);
      const handleNewMessage = (e: FormEvent<HTMLFormElement>) => {
           e.preventDefault();
           if (!user) return;
@@ -69,17 +65,20 @@ const FriendCardOpen = ({
      };
 
      return (
-          <div {...props} className=" text-white bg-blue-200 z-10 ">
+          <div className="px-4 py-2 text-white bg-gradient-to-b to-blue-600  from-blue-500  z-10 ">
                <div>
-                    <Image
-                         src={Profile.src}
-                         alt={`profile image for ${friend.username}`}
-                         width={75}
-                         height={75}
-                    />
-                    <Link href={`/user/${friend.username}`}>
-                         {friend.username}
-                    </Link>
+                    <div className="flex flex-row items-center gap-4">
+                         <FriendAvatar
+                              badgeProps={{
+                                   boxSize: "1em",
+                              }}
+                              friend={friend}
+                         />
+
+                         <Link href={`/user/${friend.username}`}>
+                              {friend.username}
+                         </Link>
+                    </div>
                     <div className="flex">
                          {/* {friend.expand?.badges?.badges?.map((badge) => {
             return <div key={friend?.id + "_" + badge?.id}>{badge?.name}</div>;
@@ -117,31 +116,26 @@ const FriendCardOpen = ({
                          </div>
                     </PopoverContent>
                </Popover>
-               <div>
-                    <h3>Stats</h3>
-                    <div className="grid grid-cols-2">
-                         {/* {Object.values(friend?.expand?.games ?? []).map((game) => {
-            return (
-              <div key={game.id}>
-                <p>{game.name}</p>
-                <p>Wins {game.won}</p>
-                <p>Losses {game.lost}</p>
-              </div>
-            );
-          })} */}
+               {friend.note && (
+                    <div>
+                         <p>Note: </p>
+                         <p>{friend.note}</p>
                     </div>
-               </div>
-               <div>
-                    <p>Note: </p>
-                    <p>{friend.note}</p>
-               </div>
-               <div className="m-auto">
-                    <form onSubmit={handleNewMessage}>
+               )}
+               <div className="">
+                    <form
+                         className="gap-1 inline-flex w-full"
+                         onSubmit={handleNewMessage}
+                    >
                          <input
                               onChange={(e) => setMessage(e.target.value)}
+                              className="rounded-md bg-blue-1000"
                               value={message}
                               placeholder={`message @${friend.username}`}
                          />
+                         <button className="bg-blue-600  rounded-md px-1">
+                              send Icon
+                         </button>
                     </form>
                </div>
           </div>
@@ -154,11 +148,25 @@ export const FriendCard = (props: ComponentProps<"div"> & FriendCardProps) => {
      });
      return (
           <>
-               <Popover isOpen={isOpen} onOpen={onOpen} onClose={onClose}>
+               <Popover
+                    isLazy
+                    placement="left-start"
+                    isOpen={isOpen}
+                    onOpen={onOpen}
+                    onClose={onClose}
+               >
                     <PopoverTrigger>
-                         <div>{props.friend.username}</div>
+                         <div className="inline-flex gap-2 cursor-pointer">
+                              <FriendAvatar size={"xs"} friend={props.friend} />
+                              <p className="capitalize">
+                                   {props.friend.username}
+                              </p>
+                         </div>
                     </PopoverTrigger>
-                    <PopoverContent className="text-black p-0 mr-4 left-20 z-10">
+                    <PopoverContent
+                         dir="left"
+                         className="text-black p-0 mr-4 left-20 z-10"
+                    >
                          <FriendCardOpen
                               isOpen={isOpen}
                               friend={props.friend}

@@ -1,7 +1,7 @@
 "use client";
 
 import { GameQueueState } from "@/../shared/src/types/socketEvents";
-import { FriendsList } from "@/Components/Friends/FriendsComponents";
+import { FriendsTab } from "@/Components/tabs/FriendsTab";
 import { useProtectedRoute } from "@/hooks/useProtectedRoute";
 import { useUser } from "@/hooks/useUser";
 import { queueSocket } from "@/lib/socket";
@@ -108,7 +108,7 @@ export default function QueueHoldingPage({
                     </div>
                </div>
                <div>
-                    <FriendsList friends={userFriends} />
+                    <FriendsTab friends={userFriends} />
                </div>
           </div>
      );

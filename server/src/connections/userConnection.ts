@@ -158,7 +158,6 @@ export const userHandlerConnection = (
                return;
           }
           userHandler.to(user.user.socketId).emit("game_invite", gameInvite);
-          userHandler.to(user.socketId).emit("game_invite", gameInvite);
      });
      socket.on(
           "game_invite_response",
@@ -167,11 +166,14 @@ export const userHandlerConnection = (
                invite: GameInvite,
                callback: (invite: GameInvite) => void
           ) => {
+               console.log("a");
                if (action == "accepted") {
+                    console.log(invite);
                     const ninvite = uhandler.invites.acceptInvite(
                          invite.inviteId
                     );
                     if (!ninvite) return;
+                    console.log(ninvite);
                     roomHandler.createRoom<GameRoom>(
                          ninvite?.roomId,
                          new GameRoom(
@@ -179,6 +181,7 @@ export const userHandlerConnection = (
                               getGame(ninvite?.gameName as GameNames)
                          )
                     );
+                    console.log("a");
                     const to = uhandler.getUser(ninvite.to.id);
                     const from = uhandler.getUser(ninvite.from.id);
                     console.log(to, from);

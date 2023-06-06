@@ -12,7 +12,7 @@ import {
      ChatMessageType,
      UserState,
 } from "../../shared/src/types/users";
-import { FriendsList } from "./Friends/FriendsComponents";
+import { FriendsTab } from "./tabs/FriendsTab";
 
 var timer: NodeJS.Timeout;
 export const RenderChatMesages = (props: {
@@ -261,7 +261,7 @@ export const RenderChatMesages = (props: {
                </div>
                <div>
                     <div>
-                         <FriendsList friends={userFriends} />
+                         <FriendsTab friends={userFriends} />
                     </div>
                </div>
           </div>

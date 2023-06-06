@@ -78,6 +78,9 @@ class MainUserHandler {
           const users = Array.from(this.users.values());
           return users.map((user) => user);
      }
+     hasUser(userid: string): boolean {
+          return this.users.has(userid);
+     }
 
      getUser(id: string): MainUser | undefined {
           // console.log(this.users.get(id));
@@ -111,6 +114,9 @@ export class UsersHandlers<T = { socketId: string }> {
      addUser(user: T & { id: string }) {
           // if (!user.id) return;
           this.users.set(user.id, user);
+     }
+     hasUser(userid: string): boolean {
+          return this.users.has(userid);
      }
      updateUser(userId: string, info: Partial<T>) {
           const user = this.users.get(userId);

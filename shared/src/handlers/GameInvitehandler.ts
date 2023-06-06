@@ -15,12 +15,12 @@ export class GameInviteHandler {
           to: IUser,
           gameName: GameNames
      ): undefined | GameInvite {
-          const inviteId = Date.now().toString();
+          const inviteId = randomUUID();
           const gameInvite: GameInvite = {
                gameName: gameName,
-               roomId: "a0s9df0a9sdjf",
+               roomId: randomUUID(),
                from: from,
-               inviteId: randomUUID(),
+               inviteId: inviteId,
                to: to,
                state: "pending",
           };

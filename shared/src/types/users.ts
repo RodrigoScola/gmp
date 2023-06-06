@@ -2,102 +2,102 @@ import { GameNames, GameType } from "./game";
 import { Badges } from "./types";
 
 export type IUser = {
-  id: string;
-  username: string;
-  email: string;
-  created_at: string;
+     id: string;
+     username: string;
+     email: string;
+     created_at: string;
 };
 
 export interface SocketUser {
-  socketId: string;
-  id: string;
-  email?: string | null;
-  username?: string | null;
-  created_at?: string | null;
+     socketId: string;
+     id: string;
+     email?: string | null;
+     username?: string | null;
+     created_at?: string | null;
 }
 
 export type OnlineStatusType = "online" | "offline" | "away";
 
 export type ChatUser = {
-  state: UserState;
-  id: string;
-  socketId: string;
+     state: UserState;
+     id: string;
+     socketId: string;
 };
 
 export type MessageUser = {
-  id: string;
-  state: UserState;
+     id: string;
+     state: UserState;
 };
 export type QueueRoomuser = {
-  id: string;
-  games: GameType[] | GameType;
-  socketId: string;
+     id: string;
+     games: GameType[] | GameType;
+     socketId: string;
 };
 export type ChatMessageType = {
-  userId: string;
-  message: string;
-  created: string;
-  id: string;
+     userId: string;
+     message: string;
+     created: string;
+     id: string;
 };
 export type NewChatChatMessageType = Omit<ChatMessageType, "id" | "created">;
 export type ChatConversationType = {
-  id: string | number;
-  users: Partial<IUser> & { id: string }[];
-  messages: ChatMessageType[];
+     id: string | number;
+     users: Partial<IUser> & { id: string }[];
+     messages: ChatMessageType[];
 };
 
 export interface IFriend extends IUser {
-  badges?: Badges;
-  games?: FriendsGamesType;
-  status?: OnlineStatusType;
-  note?: string;
+     badges?: Badges;
+     games?: FriendsGamesType;
+     status?: UserState;
+     note?: string;
 }
 
 export interface ExtendedUser extends IUser {
-  badges?: Badges;
-  games?: FriendsGamesType;
+     badges?: Badges;
+     games?: FriendsGamesType;
 }
 
 export type GameInviteOptions = "accepted" | "declined" | "pending";
 export type GameInvite = {
-  from: IUser;
-  to: IUser;
-  inviteId: string;
-  gameName: GameNames;
-  roomId: string;
-  state: GameInviteOptions;
+     from: IUser;
+     to: IUser;
+     inviteId: string;
+     gameName: GameNames;
+     roomId: string;
+     state: GameInviteOptions;
 };
 
 export interface FriendGameType {
-  played: number;
-  won: number;
-  name: GameNames;
-  id: number;
-  lost: number;
+     played: number;
+     won: number;
+     name: GameNames;
+     id: number;
+     lost: number;
 }
 
 export type FriendsGamesType = {
-  [key in GameNames]: FriendGameType;
+     [key in GameNames]: FriendGameType;
 };
 
 export enum UserState {
-  typing = "typing",
-  inChat = "inChat",
-  online = "online",
-  offline = "offline",
+     typing = "typing",
+     inChat = "inChat",
+     online = "online",
+     offline = "offline",
 }
 
 export enum UserGameState {
-  playing = "playing",
-  waiting = "waiting",
-  selecting = "selecting",
-  idle = "idle",
+     playing = "playing",
+     waiting = "waiting",
+     selecting = "selecting",
+     idle = "idle",
 }
 
 export enum GamePlayState {
-  selecting,
-  waiting,
-  playing,
-  results,
-  end,
+     selecting,
+     waiting,
+     playing,
+     results,
+     end,
 }

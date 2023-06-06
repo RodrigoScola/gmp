@@ -4,7 +4,6 @@ import { FriendsList } from "@/Components/Friends/FriendsComponents";
 import { LogoutButton } from "@/Components/buttons/LogoutButton";
 import { db } from "@/db/supabase";
 import { useUser } from "@/hooks/useUser";
-import { useUserSocket } from "@/hooks/useUserSocket";
 import Profile from "@/images/profile.webp";
 import { chatSocket } from "@/lib/socket";
 import { Card, CardBody, CardHeader } from "@chakra-ui/react";
@@ -23,7 +22,6 @@ export default function PROFILEPAGE({
      };
 }) {
      const { user: currentUser, getFriends } = useUser();
-     useUserSocket();
      const [user, setUser] = useState<IUser>({
           created_at: Date.now().toString(),
           email: "defaultemail@gmail.com",

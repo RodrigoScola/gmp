@@ -1,7 +1,7 @@
 "use client";
 import { useSupabase } from "@/app/supabase-provider";
 import { db } from "@/db/supabase";
-import { userSocket } from "@/lib/socket";
+import { userSocket, usersSocket } from "@/lib/socket";
 import { ChildrenType } from "@/types";
 import {
      createContext,
@@ -12,13 +12,11 @@ import {
 } from "react";
 
 import { Socket } from "socket.io-client";
-import { useUpdateEffect } from "usehooks-ts";
 import {
      ChatClientEvents,
      ChatServerEvents,
 } from "../../shared/src/types/socketEvents";
 import { IFriend, IUser } from "../../shared/src/types/users";
-import { useFriends } from "./useFriends";
 interface UserContext {
      user: IUser | null;
      getFriends: () => Promise<IFriend[] | undefined>;
@@ -41,7 +39,6 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
                : null
      );
      const [friends, setFriends] = useState<IFriend[]>([]);
-     const friendHandler = useFriends();
      const { supabase, session } = useSupabase();
 
      const handleFetch = async () => {
@@ -61,11 +58,13 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
 
      const getFriends = async () => {
           if (!currentUser) return;
-          const friendss = await friendHandler?.getFriends(currentUser.id);
-          if (friendss) {
-               setFriends(friendss);
-          }
-          return friendss;
+
+          usersSocket.emit("get_friends", currentUser.id, async (friends) => {
+               console.log("Manually getting friends");
+               console.log(friends);
+               setFriends(friends);
+          });
+          return friends;
      };
      const updateUser = (user: IUser) => {
           setCurrentUser(user);
@@ -95,7 +94,7 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
           localStorage?.removeItem("user");
      }, []);
      const [isLoggedIn, setLoggedIn] = useState<boolean | null>(null);
-     useUpdateEffect(() => {
+     useEffect(() => {
           if (currentUser) {
                setLoggedIn(true);
           } else {

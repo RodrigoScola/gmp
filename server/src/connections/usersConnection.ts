@@ -49,6 +49,12 @@ export const usersHandlerConnection = (
                callback(users.data);
           }
      });
+     socket.on("get_friends", async (userId, callback) => {
+          const user = uhandler.getUser(userId);
+          const friends = await user.friends.getFriends();
+
+          callback(friends);
+     });
      socket.on("disconnect", () => {
           if (socket.data.user) {
                uhandler.updateUser(socket.data.user?.id, {

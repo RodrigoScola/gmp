@@ -1,15 +1,15 @@
 "use client";
 import { IFriend, IUser } from "@/../shared/src/types/users";
-import { usersSocket } from "@/lib/socket";
-import { useEffect, useState } from "react";
-import { useUser } from "@/hooks/useUser";
 import { useFriend } from "@/hooks/useFriends";
+import { useUser } from "@/hooks/useUser";
+import { usersSocket } from "@/lib/socket";
 import {
      Button,
      Popover,
      PopoverContent,
      PopoverTrigger,
 } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
 var timer: NodeJS.Timeout;
 export const AddNewFriend = () => {
      const [searchTerm, setSearchTerm] = useState<string>("");
@@ -30,9 +30,6 @@ export const AddNewFriend = () => {
                };
                usersSocket.connect();
           }
-          return () => {
-               if (usersSocket.connected) usersSocket.disconnect();
-          };
      }, []);
      useEffect(() => {
           let es = searchTerm;
@@ -45,6 +42,7 @@ export const AddNewFriend = () => {
                          "search_users",
                          searchTerm,
                          (data: IUser[]) => {
+                              console.log(data);
                               setResultFriends(data as IFriend[]);
                          }
                     );
