@@ -4,7 +4,7 @@ import { GameData, getGameData } from "@/../shared/src/game/gameUtils";
 import { FriendsList } from "@/Components/Friends/FriendsComponents";
 import { baseUrl } from "@/constants";
 import { InfoIcon } from "@chakra-ui/icons";
-import { Button, Card, CardHeader, Heading, Tooltip } from "@chakra-ui/react";
+import { Button, Heading, Tooltip } from "@chakra-ui/react";
 import { useState } from "react";
 import { useEffectOnce } from "usehooks-ts";
 import { GameNames, gameNames } from "../../../shared/src/types/game";
@@ -134,25 +134,24 @@ type gameCardProps = {
 const GameCard = ({ game, isSelected, toggleGame }: gameCardProps) => {
      return (
           <>
-               <Card
+               <div
                     key={game.name}
-                    backgroundColor={isSelected ? "lightblue" : "gray"}
                     onClick={() => toggleGame(game.name)}
-                    textColor={isSelected ? "black" : "white"}
-                    variant={isSelected ? "filled" : "outline"}
-                    className={` `}
+                    className={`${
+                         isSelected ? "bg-blue" : "bg-gray-700"
+                    } rounded-lg `}
                >
-                    <CardHeader className="flex align-middle text-center items-center gap-1">
-                         <Heading as="h3" className=" capitalize text-center">
+                    <div className="flex align-middle text-center items-center gap-1">
+                         <h3 className="text-white font-ginto font-black text-4xl capitalize text-center">
                               {game.name}
-                         </Heading>
+                         </h3>
                          <Tooltip label={game.description}>
                               <div>
                                    <InfoIcon />
                               </div>
                          </Tooltip>
-                    </CardHeader>
-               </Card>
+                    </div>
+               </div>
           </>
      );
 };

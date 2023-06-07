@@ -1,6 +1,5 @@
 "use client";
 import { useUser } from "@/hooks/useUser";
-import { Button } from "@chakra-ui/react";
 import { useCallback } from "react";
 
 export const LogoutButton = () => {
@@ -12,5 +11,12 @@ export const LogoutButton = () => {
                window.location.href = process.env.SITE_URL ?? "/";
           }
      }, [user.logout]);
-     return <Button onClick={handleLogout}>Logout</Button>;
+     return (
+          <button
+               className="button bg-red rounded-lg font-whitney font-semibold"
+               onClick={handleLogout}
+          >
+               Logout
+          </button>
+     );
 };

@@ -1,12 +1,10 @@
 "use client";
-import { AddNewFriend } from "@/Components/Friends/AddNewFriend";
-import { FriendsList } from "@/Components/Friends/FriendsComponents";
 import { LogoutButton } from "@/Components/buttons/LogoutButton";
+import { FriendsTab } from "@/Components/tabs/FriendsTab";
 import { db } from "@/db/supabase";
 import { useUser } from "@/hooks/useUser";
 import Profile from "@/images/profile.webp";
 import { chatSocket } from "@/lib/socket";
-import { Card, CardBody, CardHeader } from "@chakra-ui/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -72,55 +70,62 @@ export default function PROFILEPAGE({
           getInformation();
      });
      return (
-          <div className="grid grid-cols-7">
-               <div className="col-span-6">
-                    <div className="m-auto w-fit">
-                         <div className="flex">
-                              {user?.id && (
-                                   <Image
-                                        src={Profile.src}
-                                        width={150}
-                                        height={150}
-                                        alt={`profile image for ${user.id}`}
-                                   />
-                              )}
-                              <div className="">
-                                   <h1 className="text-4xl">{user.username}</h1>
-                                   {user.id !== currentUser?.id ? (
-                                        <Link
-                                             href={`user/${conversationId}/chat`}
-                                        >
-                                             Start a Chat
-                                        </Link>
-                                   ) : (
-                                        <div>
-                                             <LogoutButton />
-                                        </div>
+          <div className="flex flex-row ">
+               <div className="w-fit m-auto mt-2 rounded-md px-24 bg-gray-700 ">
+                    <div className="m-auto w-full  ">
+                         <div className="w-full flex  justify-start gap-2 items-center">
+                              <div>
+                                   {user?.id && (
+                                        <Image
+                                             src={Profile.src}
+                                             width={150}
+                                             height={150}
+                                             alt={`profile image for ${user.id}`}
+                                        />
                                    )}
-                                   <ul className="flex gap-2">
-                                        {/* {user.badges?.badges?.map((badge, i) => {
-                  return (
-                    <li key={`badge_${i}`} id={`badge${i}`} className="">
-                      <Tooltip text={badge.description}>{badge.name}</Tooltip>
-                    </li>
-                  );
-                })} */}
-                                   </ul>
+                              </div>
+                              <div className="">
+                                   <h1 className="text-4xl font-ginto font-normal capitalize text-white ">
+                                        {user.username}
+                                   </h1>
+                                   <div className="inline-flex gap-3">
+                                        <div>23 friends</div>
+                                        <div>2 Badges</div>
+                                   </div>
+                                   <div>
+                                        {user.id !== currentUser?.id ? (
+                                             <Link
+                                                  href={`user/${conversationId}/chat`}
+                                             >
+                                                  Start a Chat
+                                             </Link>
+                                        ) : (
+                                             <div>
+                                                  <LogoutButton />
+                                             </div>
+                                        )}
+                                   </div>
                               </div>
                          </div>
-                         <div className="inline-flex gap-3">
-                              <div>23 friends</div>
-                              <div>2 Badges</div>
+                    </div>
+                    <div className="">
+                         <p className="text-2xl py-4  font-whitney font-semibold shadow-sm ">
+                              Game Stats
+                         </p>
+                         <div className="flex justify-evenly">
+                              <GameStatCard game="Tic Tac Toe" kd={0.3} />
+                              <GameStatCard game="connect Four" kd={0.4} />
+                              <GameStatCard
+                                   game="Rock Paper Scissors"
+                                   kd={20}
+                              />
+                              <GameStatCard game="Simon Says" kd={0.3} />
                          </div>
                     </div>
-                    <div className="flex justify-center gap-4">
-                         <GameStatCard game="Tic Tac Toe" kd={0.3} />
-                         <GameStatCard game="connect Four" kd={0.4} />
-                         <GameStatCard game="Rock Paper Scissors" kd={20} />
-                         <GameStatCard game="Simon Says" kd={0.3} />
-                    </div>
                     <div className="w-fit m-auto">
-                         <h3 className="text-3xl text-center">Matches</h3>
+                         <h3 className="text-2xl font-whitney py-4 font-semibold shadow-sm ">
+                              Matches
+                         </h3>
                          <ul className="space-y-2">
                               {new Array(4).fill(0).map((_, i) => {
                                    return (
@@ -146,13 +151,9 @@ export default function PROFILEPAGE({
                                    );
                               })}
                          </ul>
-                         <div>Loading Icon</div>
                     </div>
                </div>
-               <div>
-                    <AddNewFriend />
-                    <FriendsList friends={userFriends} />
-               </div>
+               <FriendsTab friends={userFriends} />
           </div>
      );
 }
@@ -168,7 +169,7 @@ type GameMatchCardProps = {
 };
 const GameMatchCard = (props: GameMatchCardProps) => {
      return (
-          <div className="flex flex-row">
+          <div className="flex flex-row   p-2 rounded-md shadow-md">
                <Image
                     src={props.image}
                     width={75}
@@ -176,8 +177,8 @@ const GameMatchCard = (props: GameMatchCardProps) => {
                     alt={`profile image for ${props.user1.id}`}
                />
                <div className="">
-                    <p>25 min ago</p>
-                    <p className="text-4xl">
+                    <p className="font-whitney text-gray-300/60">25 min ago</p>
+                    <p className="text-4xl font-ginto font-bold capitalize ">
                          {props.user1.username} vs {props.user2.username}
                     </p>
                </div>
@@ -187,13 +188,15 @@ const GameMatchCard = (props: GameMatchCardProps) => {
 
 const GameStatCard = (props: GameStatCardProps) => {
      return (
-          <Card>
-               <CardHeader>
-                    <p className="text-3xl">{props.kd} kd</p>
-               </CardHeader>
-               <CardBody>
-                    <p className="text-xl">{props.game}</p>
-               </CardBody>
-          </Card>
+          <div className="bg-gray-600  shadow-lg border rounded-lg p-2  border-gray-600">
+               <div>
+                    <p className=" text-center font-ginto shadow-sm font-bold text-3xl">
+                         {props.kd} KD
+                    </p>
+               </div>
+               <div>
+                    <p className="text-xl font-whitney ">{props.game}</p>
+               </div>
+          </div>
      );
 };

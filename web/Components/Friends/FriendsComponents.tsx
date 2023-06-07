@@ -155,7 +155,7 @@ export const FriendCard = (props: ComponentProps<"div"> & FriendCardProps) => {
           <>
                <Popover isOpen={isOpen} onOpen={onOpen} onClose={onClose}>
                     <PopoverTrigger>
-                         <div className="inline-flex  gap-2 cursor-pointer">
+                         <div className=" inline-flex hover:bg-gray-500 font-whitney  gap-2 cursor-pointer">
                               <FriendAvatar size={"xs"} friend={props.friend} />
                               <p className="capitalize">
                                    {props.friend.username}

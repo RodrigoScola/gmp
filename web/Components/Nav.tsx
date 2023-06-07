@@ -6,7 +6,7 @@ import { useSocket } from "@/hooks/useSocket";
 import { useNotification } from "@/hooks/useToast";
 import { useUser } from "@/hooks/useUser";
 import { userSocket } from "@/lib/socket";
-import { Heading, Text, useColorMode } from "@chakra-ui/react";
+import { Text, useColorMode } from "@chakra-ui/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useEffectOnce } from "usehooks-ts";
@@ -63,10 +63,10 @@ export const Nav = () => {
           }
      );
      return (
-          <div className="  bg-blue-900 w-screen ">
+          <div className="  bg-gray-700 w-screen ">
                <nav className="flex justify-around m-auto w-[90%] items-center py-2 flex-row">
                     <Link className="text-4xl" href={`${baseUrl}`}>
-                         <Heading>TGZ</Heading>
+                         <h3 className="font-ginto font-black">TGZ</h3>
                     </Link>
 
                     <div>

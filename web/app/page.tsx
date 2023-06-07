@@ -18,12 +18,11 @@ export default function DEFUALHOME() {
                setCanShow(true);
           }
      }, [user]);
-     console.log(friends);
      return (
-          <div className="flex flex-row">
+          <div className="flex flex-row px-12 ">
                <div className="flex flex-col text-white w-full h-fit">
                     <div className="w-fit m-auto font-ginto text-5xl">
-                         <p className="">The Game Zone</p>
+                         <p className="font-ginto font-bold">The Game Zone</p>
                     </div>
                     <div className=" m-auto w-fit ">
                          <Link
@@ -34,9 +33,7 @@ export default function DEFUALHOME() {
                          </Link>
                     </div>
                </div>
-               <div className="text-white">
-                    <FriendsTab friends={friends} />
-               </div>
+               <FriendsTab friends={friends} />
           </div>
      );
 }

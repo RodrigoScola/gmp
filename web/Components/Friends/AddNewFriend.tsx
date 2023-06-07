@@ -3,12 +3,8 @@ import { IFriend, IUser } from "@/../shared/src/types/users";
 import { useFriend } from "@/hooks/useFriends";
 import { useUser } from "@/hooks/useUser";
 import { usersSocket } from "@/lib/socket";
-import {
-     Button,
-     Popover,
-     PopoverContent,
-     PopoverTrigger,
-} from "@chakra-ui/react";
+import { Search2Icon } from "@chakra-ui/icons";
+import { Popover, PopoverContent, PopoverTrigger } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 var timer: NodeJS.Timeout;
 export const AddNewFriend = () => {
@@ -52,29 +48,38 @@ export const AddNewFriend = () => {
      return (
           <Popover isLazy defaultIsOpen>
                <PopoverTrigger>
-                    <Button>Add New</Button>
+                    <button className="bg-green button text-sm">
+                         Add Friend
+                    </button>
                </PopoverTrigger>
-               <PopoverContent className="px-2 ">
+               <PopoverContent className="px-2 bg-gray-700 ">
                     <form onSubmit={handleSubmit} className="flex flex-row">
                          <label className="flex flex-col">
                               Username
-                              <input
-                                   value={searchTerm}
-                                   onChange={(e) =>
-                                        handleChange(e.target.value)
-                                   }
-                              />
+                              <div className="bg-gray-800 rounded-md my-2 pr-4">
+                                   <input
+                                        className="search-input "
+                                        value={searchTerm}
+                                        placeholder="Examplename123"
+                                        onChange={(e) =>
+                                             handleChange(e.target.value)
+                                        }
+                                   />
+                                   <button>
+                                        <Search2Icon className="text-white/80 pb-1" />
+                                   </button>
+                              </div>
                          </label>
-                         <button>Search</button>
                     </form>
                     <div className="flex flex-col gap-2 ">
+                         <p className="font-whitney font-medium">Users</p>
                          {resultFriends.map((friend: IFriend) => (
                               <div
                                    key={friend.id}
                                    onClick={() => sendFriendRequest(friend.id)}
                                    className="flex hover:bg-gray-400 px-1"
                               >
-                                   <p className="capitalize">
+                                   <p className="capitalize font-medium hover:font-bold cursor-pointer">
                                         {friend.username}
                                    </p>
                               </div>
