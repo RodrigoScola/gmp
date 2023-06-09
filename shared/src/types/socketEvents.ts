@@ -162,7 +162,7 @@ export type GameQueueServerEvents = {
 export type UsersServerEvents = {
      get_user: (
           userId: string,
-          callback?: (user: IUser | null, ...args: any) => void
+          callback?: (user: IFriend | null, ...args: any) => void
      ) => void;
      get_friends: (
           userId: string,
@@ -174,6 +174,10 @@ export type UsersServerEvents = {
      ) => void;
 };
 export type UsersClientEvents = {
+     get_user: (
+          userId: string,
+          callback?: (user: IFriend | null, ...args: any) => void
+     ) => void;
      get_friends: (
           userId: string,
           callback?: (friends: IFriend[]) => void

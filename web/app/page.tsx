@@ -20,16 +20,14 @@ export default function DEFUALHOME() {
      }, [user]);
      return (
           <div className="flex flex-row px-12 ">
-               <div className="flex flex-col text-white w-full h-fit">
-                    <div className="w-fit m-auto font-ginto text-5xl">
+               <div className="flex flex-col items-center justify-center text-white w-full h-fit">
+                    <div className="font-ginto flex flex-col justify-center items-center text-5xl">
                          <p className="font-ginto font-bold">The Game Zone</p>
-                    </div>
-                    <div className=" m-auto w-fit ">
                          <Link
-                              className="border font-uni-sans text-2xl rounded-md "
+                              className="border w-full text-center border-none button bg-white mt-2 text-gray-700 font-semibold noselect font-uni-sans text-2xl rounded-md "
                               href={"/play"}
                          >
-                              Play a GAME
+                              Play a Game
                          </Link>
                     </div>
                </div>

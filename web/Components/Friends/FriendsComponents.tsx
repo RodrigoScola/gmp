@@ -65,7 +65,10 @@ const FriendCardOpen = ({
      };
 
      return (
-          <div className="px-4   py-2 text-white bg-gradient-to-b to-blue-600  from-blue-500  z-10 ">
+          <div
+               className={`px-4 bg-gray-800  rounded-lg py-2 text-white   z-10 ${props.className}`}
+               {...props}
+          >
                <div className="rounded-t-xl py-2 pl-1 rounded-b-md">
                     <div className="flex  flex-row items-center gap-4">
                          <FriendAvatar
@@ -84,31 +87,34 @@ const FriendCardOpen = ({
                          </Link>
                     </div>
                </div>
-               <div className="bg-gray-500 p-2 mt-2 shadow-md rounded-md rounded-b-xl rounded-t-md ">
+               <div className="bg-gray-900 p-2 mt-2 shadow-md rounded-sm rounded-b-xl rounded-t-md ">
                     <Popover isLazy offset={[1, 2]}>
                          <PopoverTrigger>
-                              <div className="py-2 px-1">
-                                   <p className="font-sans font-semibold">
+                              <div className="py-2 cursor-pointer w-fit px-1">
+                                   <p className="font-sans text-sm font-semibold">
                                         Invite to a Game
                                    </p>
                               </div>
                          </PopoverTrigger>
-                         <PopoverContent className=" gap-2 z-50">
+                         <PopoverContent className="capitalize border-none  outline-2  px-1 gap-2 z-50">
                               <div
+                                   className="selectable"
                                    onClick={() => {
                                         handleFriend.sendInvite("connect Four");
                                    }}
                               >
-                                   connect4
+                                   Connect Four
                               </div>
                               <div
+                                   className="selectable"
                                    onClick={() => {
                                         handleFriend.sendInvite("Tic Tac Toe");
                                    }}
                               >
-                                   tic tac toe
+                                   Tic Tac Toe
                               </div>
                               <div
+                                   className="selectable"
                                    onClick={() => {
                                         handleFriend.sendInvite(
                                              "Rock Paper Scissors"
@@ -125,17 +131,20 @@ const FriendCardOpen = ({
                               <p>{friend.note}</p>
                          </div>
                     )}
-                    <div className="">
+                    <div className="pt-1">
                          <form
                               className="gap-1 inline-flex w-full"
                               onSubmit={handleNewMessage}
                          >
-                              <div className="border-2 w-full py-1 rounded-md border-blue-1000/60">
+                              <div className="flex flex-col">
+                                   <p className="font-whitney font-semibold">
+                                        Message
+                                   </p>
                                    <input
                                         onChange={(e) =>
                                              setMessage(e.target.value)
                                         }
-                                        className="rounded-md focus:border-none focus:outline-none bg-transparent placeholder:text-gray-300    font-sans px-1 pl-2"
+                                        className="search-input w-full"
                                         value={message}
                                         placeholder={`Message @${friend.username}`}
                                    />
@@ -153,19 +162,21 @@ export const FriendCard = (props: ComponentProps<"div"> & FriendCardProps) => {
      });
      return (
           <>
-               <Popover isOpen={isOpen} onOpen={onOpen} onClose={onClose}>
+               <Popover
+                    isOpen={isOpen}
+                    placement="left"
+                    onOpen={onOpen}
+                    onClose={onClose}
+               >
                     <PopoverTrigger>
-                         <div className=" inline-flex hover:bg-gray-500 font-whitney  gap-2 cursor-pointer">
+                         <div className=" py-1 px-1 hover:rounded-md transition-all duration-75  inline-flex hover:bg-gray-500 font-whitney  gap-2 cursor-pointer">
                               <FriendAvatar size={"xs"} friend={props.friend} />
                               <p className="capitalize">
                                    {props.friend.username}
                               </p>
                          </div>
                     </PopoverTrigger>
-                    <PopoverContent
-                         dir="left"
-                         className="text-black p-0 mr-4 left-20 z-10"
-                    >
+                    <PopoverContent className="text-black noselect p-0 mr-4 left-20 border-none z-10">
                          <FriendCardOpen
                               isOpen={isOpen}
                               friend={props.friend}

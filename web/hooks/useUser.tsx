@@ -60,8 +60,6 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
           if (!currentUser) return;
 
           usersSocket.emit("get_friends", currentUser.id, async (friends) => {
-               console.log("Manually getting friends");
-               console.log(friends);
                setFriends(friends);
           });
           return friends;

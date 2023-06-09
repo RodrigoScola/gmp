@@ -2,34 +2,39 @@
 import { userSocket } from "@/lib/socket";
 import { GameInvite } from "../../../shared/src/types/users";
 export const GameInviteComponent = ({
-  gameInvite,
+     gameInvite,
 }: {
-  gameInvite: GameInvite;
+     gameInvite: GameInvite;
 }) => {
-  const handleAccept = () => {
-    if (userSocket.connected) {
-      userSocket.emit(
-        "game_invite_response",
-        "accepted",
-        gameInvite,
-        (data) => {
-          console.log(data);
-        }
-      );
-    }
-  };
-  return (
-    <div className="bg-blue-200">
-      <div>
-        <p>{gameInvite.from.username} invited you to a game!</p>
-      </div>
-      <div>
-        <p>Game: {gameInvite.gameName}</p>
-      </div>
-      <div className="bg-red-100 flex flex-row justify-between px-12">
-        <button onClick={handleAccept}>Accept</button>
-        <button>Decline</button>
-      </div>
-    </div>
-  );
+     const handleAccept = () => {
+          if (userSocket.connected) {
+               userSocket.emit(
+                    "game_invite_response",
+                    "accepted",
+                    gameInvite,
+                    (data) => {
+                         console.log(data);
+                    }
+               );
+          }
+     };
+     return (
+          <div className="bg-gray-800 rounded-md p-4">
+               <div className="text-xl">
+                    <p>{gameInvite.from.username} invited you to a game!</p>
+               </div>
+               <div>
+                    <p>Game: {gameInvite.gameName}</p>
+               </div>
+               <div className="bg-red-100 flex flex-row gap-5 justify-between ">
+                    <button
+                         className="button w-full bg-green"
+                         onClick={handleAccept}
+                    >
+                         Accept
+                    </button>
+                    <button className="button w-full bg-red">Decline</button>
+               </div>
+          </div>
+     );
 };

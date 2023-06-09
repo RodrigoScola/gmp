@@ -1,4 +1,5 @@
 "use client";
+import { GameData, getGameData } from "@/../shared/src/game/gameUtils";
 import { LogoutButton } from "@/Components/buttons/LogoutButton";
 import { FriendsTab } from "@/Components/tabs/FriendsTab";
 import { db } from "@/db/supabase";
@@ -9,7 +10,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useEffectOnce } from "usehooks-ts";
-import { GameNames } from "../../../../shared/src/types/game";
+import { GameNames, gameNames } from "../../../../shared/src/types/game";
 import { IFriend, IUser } from "../../../../shared/src/types/users";
 
 export default function PROFILEPAGE({
@@ -71,7 +72,7 @@ export default function PROFILEPAGE({
      });
      return (
           <div className="flex flex-row ">
-               <div className="w-fit m-auto mt-2 rounded-md px-24 bg-gray-700 ">
+               <div className="w-fit m-auto mt-2 rounded-md px-24  bg-gradient-to-b from-gray-800 to-90% to-gray-900/40 py-2 ">
                     <div className="m-auto w-full  ">
                          <div className="w-full flex  justify-start gap-2 items-center">
                               <div>
@@ -126,25 +127,34 @@ export default function PROFILEPAGE({
                          <h3 className="text-2xl font-whitney py-4 font-semibold shadow-sm ">
                               Matches
                          </h3>
-                         <ul className="space-y-2">
+                         <ul className="space-y-8">
                               {new Array(4).fill(0).map((_, i) => {
+                                   const choice = Math.random() < 0.5;
+                                   const user1 = {
+                                        created_at: Date.now().toString(),
+                                        email: "handomizando@gmail.com",
+                                        id: "asdfp9asd",
+                                        username: user.username,
+                                   };
+                                   const user2 = {
+                                        created_at: Date.now().toString(),
+                                        email: "opponent@gmail.com",
+                                        id: "thisopponentid",
+                                        username: "oppponent",
+                                   };
                                    return (
                                         <li key={i}>
                                              <GameMatchCard
-                                                  user1={{
-                                                       created_at:
-                                                            Date.now().toString(),
-                                                       email: "handomizando@gmail.com",
-                                                       id: "asdfp9asd",
-                                                       username: user.username,
-                                                  }}
-                                                  user2={{
-                                                       created_at:
-                                                            Date.now().toString(),
-                                                       email: "opponent@gmail.com",
-                                                       id: "thisopponentid",
-                                                       username: "oppponent",
-                                                  }}
+                                                  user1={
+                                                       choice == true
+                                                            ? user1
+                                                            : user2
+                                                  }
+                                                  user2={
+                                                       choice == false
+                                                            ? user1
+                                                            : user2
+                                                  }
                                                   image={Profile.src}
                                              />
                                         </li>
@@ -168,17 +178,18 @@ type GameMatchCardProps = {
      user1: IUser;
 };
 const GameMatchCard = (props: GameMatchCardProps) => {
+     const [randomGame, _] = useState<GameData>(
+          getGameData(gameNames[Math.floor(Math.random() * gameNames.length)])
+     );
+
      return (
-          <div className="flex flex-row   p-2 rounded-md shadow-md">
-               <Image
-                    src={props.image}
-                    width={75}
-                    height={50}
-                    alt={`profile image for ${props.user1.id}`}
-               />
+          <div className="flex flex-row   p-2 rounded-md ">
                <div className="">
-                    <p className="font-whitney text-gray-300/60">25 min ago</p>
-                    <p className="text-4xl font-ginto font-bold capitalize ">
+                    <p className="font-whitney text-left pt-2  text-gray-300/60">
+                         25 min ago *{" "}
+                         <span className="capitalize">{randomGame.name}</span>
+                    </p>
+                    <p className="text-2xl font-ginto font-bold capitalize ">
                          {props.user1.username} vs {props.user2.username}
                     </p>
                </div>

@@ -37,8 +37,19 @@ export const usersHandlerConnection = (
      if (socketuser) {
           socket.data.user = socketuser;
      }
+     socket.on("get_user", (userId, callback) => {
+          const user = uhandler.getUser(userId);
+          if (!user) return;
+          callback({
+               created_at: user.user.created_at ?? "",
+
+               email: user.user.email ?? "",
+               id: user.user.id ?? userId,
+               username: user.user.username ?? "",
+               status: user.currentState ?? UserState.offline,
+          });
+     });
      socket.on("search_users", async (username: string, callback) => {
-          console.log("ad");
           const users = await db
                .from("profiles")
                .select("*")

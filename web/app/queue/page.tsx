@@ -5,11 +5,12 @@ import { FriendsTab } from "@/Components/tabs/FriendsTab";
 import { useProtectedRoute } from "@/hooks/useProtectedRoute";
 import { useUser } from "@/hooks/useUser";
 import { queueSocket } from "@/lib/socket";
-import { Card, Heading, Text } from "@chakra-ui/react";
+import { Text } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useEffectOnce, useInterval } from "usehooks-ts";
 import { getGameData } from "../../../shared/src/game/gameUtils";
 import { GameType } from "../../../shared/src/types/game";
+import { GameCard } from "../play/page";
 
 export default function QueueHoldingPage({
      searchParams,
@@ -82,17 +83,22 @@ export default function QueueHoldingPage({
      }, 1000);
      return (
           <div
-               className="flex flex-row
+               className="flex flex-row text-white
     "
           >
-               <div className="m-auto pt-12 w-fit">
-                    <Heading>Currently Finding a Game</Heading>
-                    <ul className="grid-flow-col py-10 grid">
-                         {games.map((gameData, index) => {
+               <div className="m-auto mt-2 shadow-sm p-6 w-fit bg-gray-600 rounded-lg">
+                    <h3 className="text-4xl text-center font-ginto font-semibold">
+                         Finding a Game
+                    </h3>
+                    <ul className="grid-flow-col justify-evenly gap-3 py-10 grid">
+                         {games.map((GameType) => {
+                              const gameData = getGameData(GameType.name);
                               return (
-                                   <Card className="w-fit p-6 " key={index}>
-                                        <Text>{gameData.name}</Text>
-                                   </Card>
+                                   <GameCard
+                                        className="w-fit  p-2"
+                                        game={gameData}
+                                        isSelected={false}
+                                   />
                               );
                          })}
                     </ul>

@@ -3,9 +3,10 @@
 import { useFriend } from "@/hooks/useFriends";
 import { useProtectedRoute } from "@/hooks/useProtectedRoute";
 import { useUser } from "@/hooks/useUser";
-import { chatSocket, socket } from "@/lib/socket";
+import { chatSocket, socket, usersSocket } from "@/lib/socket";
 import { Popover, PopoverContent, PopoverTrigger } from "@chakra-ui/react";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { BsFillSendPlusFill } from "react-icons/bs";
 import { useUpdateEffect } from "usehooks-ts";
 import {
      ChatConversationType,
@@ -30,11 +31,19 @@ export const RenderChatMesages = (props: {
 
      useEffect(() => {
           if (user) {
+               getFriends();
                const friendId = props.conversation.users.find(
                     (i) => i.id != user.id
                );
                if (friendId) {
                     friend.setFriendId(friendId.id);
+                    usersSocket.emit("get_user", friendId.id, (user) => {
+                         if (user) {
+                              setReceiverState(
+                                   user?.status ?? UserState.offline
+                              );
+                         }
+                    });
                     setAllChat(props.conversation);
                }
           }
@@ -144,12 +153,27 @@ export const RenderChatMesages = (props: {
           if (!friend.id) return;
           friend.sendFriendRequest(friend.id);
      };
+
+     // NOTE: I LOVE REACT JESUS
+     const [friendUsername, setFriendUsername] = useState<string>("");
+     const [userUsername, setUserUsername] = useState<string>("");
+
+     useEffect(() => {
+          if (user?.username) {
+               setUserUsername(user.username);
+          }
+     }, [user?.username]);
+     useEffect(() => {
+          if (friend.friend) {
+               setFriendUsername(friend.friend?.username);
+          }
+     }, [friend.friend]);
      return (
-          <div className="grid-cols-7 grid gap-2">
-               <div className="col-span-6">
-                    <div className="sticky top-0  flex justify-between bg-red-300">
+          <div className="flex flex-row w-screen">
+               <div className="w-full m-auto  ">
+                    <div className="sticky top-2 mt-2 py-1 px-4  bg-gray-500 rounded-md  flex justify-between items-center bg-red-300">
                          <div className="flex gap-2">
-                              <p>{friend.friend?.username}</p>
+                              <p className="capitalize">{friendUsername}</p>
                               {!isFriend && (
                                    <button onClick={handleAddFriend}>
                                         add friend
@@ -157,13 +181,16 @@ export const RenderChatMesages = (props: {
                               )}
                               {receiverState.toString() !==
                                    "[Object Object]" && (
-                                   <div>{receiverState.toString()}</div>
+                                   <div className="capitalize">
+                                        {receiverState.toString()}
+                                   </div>
                               )}
                          </div>
-
                          <Popover>
                               <PopoverTrigger>
-                                   <div>Invite to game</div>
+                                   <div className="button  bg-green">
+                                        Invite to Game
+                                   </div>
                               </PopoverTrigger>
                               <PopoverContent className="flex gap-2">
                                    <div
@@ -196,72 +223,75 @@ export const RenderChatMesages = (props: {
                          {allChat.messages.map((message, i) => {
                               if (message.userId === user?.id) {
                                    return (
-                                        <div
-                                             key={i + message.created}
-                                             className="flex justify-end"
-                                        >
-                                             <div className=" bg-blue-700 flex items-center p-1 rounded-full right-0 w-fit space-x-2">
-                                                  <div className="flex text-sm text-gray-400/50">
-                                                       <p>
-                                                            {new Date(
-                                                                 message.created
-                                                            ).getHours()}{" "}
-                                                            :{" "}
-                                                       </p>
-                                                       <p>
-                                                            {new Date(
-                                                                 message.created
-                                                            ).getMinutes()}
-                                                       </p>
-                                                  </div>
-                                                  <p>{message.message}</p>
-                                             </div>
-                                        </div>
-                                   );
-                              } else {
-                                   return (
-                                        <div
-                                             key={i + message.created}
-                                             className="flex justify-start"
-                                        >
-                                             <div className=" bg-blue-700 flex items-center p-1 rounded-full right-0 w-fit space-x-2">
-                                                  <div className="flex text-sm text-gray-400/50">
-                                                       <p>
-                                                            {new Date(
-                                                                 message.created
-                                                            ).getHours()}{" "}
-                                                            :{" "}
-                                                       </p>
-                                                       <p>
-                                                            {new Date(
-                                                                 message.created
-                                                            ).getMinutes()}
-                                                       </p>
-                                                  </div>
-                                                  <p>{message.message}</p>
-                                             </div>
+                                        <div>
+                                             <MessageCard
+                                                  message={message}
+                                                  username={userUsername}
+                                             />
                                         </div>
                                    );
                               }
+                              return (
+                                   <div>
+                                        <MessageCard
+                                             message={message}
+                                             username={
+                                                  friend.friend?.username ?? ""
+                                             }
+                                        />
+                                   </div>
+                              );
                          })}
                     </div>
-                    <div className="px-6">
+                    <div className="px-6 pb-6">
                          <form ref={documentRef} onSubmit={handleNewMessage}>
-                              <input
-                                   className="w-full mt-2"
-                                   value={currentChat}
-                                   onChange={(e) => {
-                                        handleChange(e.target.value);
-                                   }}
-                                   ref={inputRef}
-                                   type="text"
-                              />
+                              <div className=" rounded-lg search-input flex flex-row pl-4 items-center align-middle">
+                                   <input
+                                        className="w-full input bg-gray-800  "
+                                        value={currentChat}
+                                        onChange={(e) => {
+                                             handleChange(e.target.value);
+                                        }}
+                                        ref={inputRef}
+                                        placeholder={`Message @${friendUsername}`}
+                                        type="text"
+                                   />
+                                   <button
+                                        type="submit"
+                                        className=" bg-blue rounded-lg p-2"
+                                   >
+                                        <BsFillSendPlusFill />
+                                   </button>
+                              </div>
                          </form>
                     </div>
                </div>
                <div>
-                    <div>
+                    <div className="sticky top-2">
                          <FriendsTab friends={userFriends} />
+                    </div>
+               </div>
+          </div>
+     );
+};
+
+const MessageCard = ({
+     message,
+     username,
+}: {
+     message: ChatMessageType;
+     username: string;
+}) => {
+     return (
+          <div className="flex hover:bg-gray-500/80 transition-all ease-out duration-75 rounded-md px-2 justify-start">
+               <div>
+                    <p>{username}</p>
+                    <div className=" bg-blue-700 flex items-center p-1 rounded-full right-0 w-fit space-x-2">
+                         <div className="flex text-sm text-gray-400/50">
+                              <p>{new Date(message.created).getHours()} : </p>
+                              <p>{new Date(message.created).getMinutes()}</p>
+                         </div>
+                         <p>{message.message}</p>
                     </div>
                </div>
           </div>

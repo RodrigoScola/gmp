@@ -135,16 +135,18 @@ export default function RootLayout({
      return (
           <html lang="en">
                <body
-                    className={`bg-gray-800 ${poppins.variable} ${whitney.variable} ${ginto.variable} font-sans`}
+                    className={`bg-gray-700 ${poppins.variable} ${whitney.variable} ${ginto.variable} font-sans`}
                >
                     <SupabaseProvider>
                          <FriendsProvider>
                               <Providers {...props}>
                                    <Nav />
-                                   <div className="z-10 m-auto">{children}</div>
+                                   <div className="z-10 px-6 m-auto">
+                                        {children}
+                                   </div>
                               </Providers>
                          </FriendsProvider>
-                         <div className="fixed h-96 -z-50 w-screen bottom-0 bg-gradient-to-t from-gray-800/10 to-gray-800"></div>
+                         <div className="fixed h-96 -z-50 w-screen bottom-0 bg-gradient-to-t from-gray-700/10 to-gray-700"></div>
                     </SupabaseProvider>
                </body>
           </html>

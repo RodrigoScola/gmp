@@ -17,7 +17,7 @@ export const FriendAvatar = (
                     bg={
                          props.friend.status == UserState.online
                               ? "green.500"
-                              : "gray.800"
+                              : "gray.500"
                     }
                ></AvatarBadge>
           </Avatar>

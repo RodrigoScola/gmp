@@ -41,7 +41,10 @@ export const Nav = () => {
                userSocket.on("add_friend_response", (data) => {
                     addNotification("Game Request", {
                          duration: 15000,
-                         render: () => <AddFiendComponent friend={data} />,
+                         isClosable: true,
+                         render: (a) => (
+                              <AddFiendComponent friend={data} {...a} />
+                         ),
                     });
                });
                userSocket.on("notification_message", (data) => {
@@ -51,6 +54,7 @@ export const Nav = () => {
                     console.log(data);
                     addNotification("Game Request", {
                          duration: 15000,
+
                          render: () => (
                               <GameInviteComponent gameInvite={data} />
                          ),
@@ -63,7 +67,7 @@ export const Nav = () => {
           }
      );
      return (
-          <div className="  bg-gray-700 w-screen ">
+          <div className="  bg-gray-800 w-screen ">
                <nav className="flex justify-around m-auto w-[90%] items-center py-2 flex-row">
                     <Link className="text-4xl" href={`${baseUrl}`}>
                          <h3 className="font-ginto font-black">TGZ</h3>

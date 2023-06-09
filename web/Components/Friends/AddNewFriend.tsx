@@ -8,7 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 var timer: NodeJS.Timeout;
 export const AddNewFriend = () => {
-     const [searchTerm, setSearchTerm] = useState<string>("a");
+     const [searchTerm, setSearchTerm] = useState<string>("");
      const { user } = useUser();
      const [resultFriends, setResultFriends] = useState<IFriend[]>([]);
      const handleSubmit = (e: { preventDefault: () => void }) => {
@@ -48,11 +48,11 @@ export const AddNewFriend = () => {
      return (
           <Popover isLazy defaultIsOpen>
                <PopoverTrigger>
-                    <button className="bg-green button text-sm">
+                    <button className="button bg-white text-gray-700 w-full">
                          Add Friend
                     </button>
                </PopoverTrigger>
-               <PopoverContent className="px-2 bg-gray-700 ">
+               <PopoverContent className="px-2  bg-gray-700 ">
                     <form onSubmit={handleSubmit} className="flex flex-row">
                          <label className="flex flex-col">
                               Username

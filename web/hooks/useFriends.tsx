@@ -6,7 +6,7 @@ import { useMap } from "usehooks-ts";
 import { db } from "../../shared/src/db";
 import { FriendHandler } from "../../shared/src/handlers/FriendHandler";
 import { GameNames } from "../../shared/src/types/game";
-import { IFriend as Friend } from "../../shared/src/types/users";
+import { IFriend as Friend, IFriend } from "../../shared/src/types/users";
 import { useNotification } from "./useToast";
 
 export type FriendsContext = {
@@ -37,13 +37,18 @@ export const FriendsProvider = ({ children }: { children: ChildrenType }) => {
           if (friendsMap.has(id)) {
                return friendsMap.get(id);
           }
-          const data = await db
+          let data = await db
                .from("profiles")
                .select("*")
                .eq("id", id)
                .single();
           if (!data.data) return;
-          addFriend(data.data);
+          let ndata: IFriend = data.data;
+          usersSocket.emit("get_user", id, (user) => {
+               ndata = { ...ndata, ...user };
+          });
+
+          addFriend(ndata);
           return friendsMap.get(id);
      };
      const updateFriend = (id: string, friend: Friend) => {
@@ -82,7 +87,7 @@ export const useFriends = () => {
 
 export const useFriend = (id?: string) => {
      const [friendId, setFriendId] = useState<string | null | undefined>(id);
-     const [friend, setFriend] = useState<Friend | null>(null);
+     const [friend, setFriend] = useState<IFriend | null>(null);
      const friendContext = useContext(FriendsContext);
      const t = useNotification();
 
