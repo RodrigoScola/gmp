@@ -46,13 +46,13 @@ export const AddNewFriend = () => {
           }, 500);
      }, [searchTerm]);
      return (
-          <Popover isLazy defaultIsOpen>
+          <Popover isLazy>
                <PopoverTrigger>
                     <button className="button bg-white text-gray-700 w-full">
                          Add Friend
                     </button>
                </PopoverTrigger>
-               <PopoverContent className="px-2  bg-gray-700 ">
+               <PopoverContent className="px-2  bg-gray-700 w-fit ">
                     <form onSubmit={handleSubmit} className="flex flex-row">
                          <label className="flex flex-col">
                               Username
@@ -72,14 +72,16 @@ export const AddNewFriend = () => {
                          </label>
                     </form>
                     <div className="flex flex-col gap-2 ">
-                         <p className="font-whitney font-medium">Users</p>
+                         {resultFriends.length !== 0 && (
+                              <p className="font-whitney font-medium">Users</p>
+                         )}
                          {resultFriends.map((friend: IFriend) => (
                               <div
                                    key={friend.id}
                                    onClick={() => sendFriendRequest(friend.id)}
-                                   className="flex hover:bg-gray-400 px-1"
+                                   className="flex hover:bg-gray-400 px-1 hover:font-bold"
                               >
-                                   <p className="capitalize font-medium hover:font-bold cursor-pointer">
+                                   <p className="capitalize font-medium  cursor-pointer">
                                         {friend.username}
                                    </p>
                               </div>

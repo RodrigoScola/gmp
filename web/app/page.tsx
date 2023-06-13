@@ -20,7 +20,7 @@ export default function DEFUALHOME() {
      }, [user]);
      return (
           <div className="flex flex-row px-12 ">
-               <div className="flex flex-col items-center justify-center text-white w-full h-fit">
+               <div className="flex flex-col items-center justify-center text-white pt-12 w-full h-fit">
                     <div className="font-ginto flex flex-col justify-center items-center text-5xl">
                          <p className="font-ginto font-bold">The Game Zone</p>
                          <Link

@@ -1,19 +1,18 @@
 import { Server } from "socket.io";
-import { RockPaperScissorsGame } from "../game/rockpaperScissors";
-import { Coords, SocketData } from "../types/types";
-import { TicTacToeGame } from "../game/TicTacToeGame";
-import { MyIo, MySocket } from "../types/types";
-import { Room, getRoom } from "./room";
-import { CFGame } from "../game/c4Game";
-import { PlayerHandler, uhandler } from "./usersHandler";
-import { SimonSaysGame } from "../game/simonSays";
-import { GameNames, SMSMove, CFMove, RPSMove, TTCMove } from "../types/game";
-import { IUser } from "../types/users";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
+import { TicTacToeGame } from "../game/TicTacToeGame";
+import { CFGame } from "../game/c4Game";
+import { RockPaperScissorsGame } from "../game/rockpaperScissors";
+import { SimonSaysGame } from "../game/simonSays";
+import { CFMove, GameNames, RPSMove, SMSMove, TTCMove } from "../types/game";
 import {
      ClientToServerEvents,
      ServerToClientEvents,
 } from "../types/socketEvents";
+import { Coords, MyIo, MySocket, SocketData } from "../types/types";
+import { IUser } from "../types/users";
+import { Room, getRoom } from "./room";
+import { PlayerHandler, uhandler } from "./usersHandler";
 
 export const getRoomId = (socket: MySocket) => socket.handshake.auth["roomId"];
 export type IGame = CFGame &
@@ -244,13 +243,7 @@ export class MatchHandler {
      }
 }
 
-const saveGame = (_: IGame) => {
-     console.log("game saved");
-     console.log("game saved");
-     console.log("game saved");
-     console.log("game saved");
-     console.log("game saved");
-};
+const saveGame = (_: IGame) => {};
 
 export const getGame = (gameName: GameNames): IGame => {
      switch (gameName) {

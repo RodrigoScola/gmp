@@ -67,7 +67,7 @@ export const Nav = () => {
           }
      );
      return (
-          <div className="  bg-gray-800 w-screen ">
+          <div className="  bg-gray-800  ">
                <nav className="flex justify-around m-auto w-[90%] items-center py-2 flex-row">
                     <Link className="text-4xl" href={`${baseUrl}`}>
                          <h3 className="font-ginto font-black">TGZ</h3>
@@ -76,7 +76,7 @@ export const Nav = () => {
                     <div>
                          {username ? (
                               <Link href={`/user/${username}`}>
-                                   <Text className="font-bold capitalize">
+                                   <Text className="font-bold selectable px-2 py-1 rounded-lg capitalize">
                                         {username}
                                    </Text>
                               </Link>

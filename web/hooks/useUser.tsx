@@ -33,10 +33,15 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
      const [localStorage] = useState(
           typeof window !== "undefined" ? window.localStorage : null
      );
-     const [currentUser, setCurrentUser] = useState<IUser | null>(
+     const [currentUser, setCurrentUser] = useState<IUser>(
           localStorage && localStorage.getItem("user")
                ? JSON.parse(localStorage.getItem("user") ?? "")
-               : null
+               : {
+                      created_at: Date.now().toString(),
+                      email: "",
+                      id: "",
+                      username: "",
+                 }
      );
      const [friends, setFriends] = useState<IFriend[]>([]);
      const { supabase, session } = useSupabase();
@@ -48,8 +53,10 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
                     .select("*")
                     .eq("id", session?.user.id)
                     .single();
-               localStorage?.setItem("user", JSON.stringify(data.data));
-               setCurrentUser(data.data);
+               if (data.data) {
+                    localStorage?.setItem("user", JSON.stringify(data.data));
+                    setCurrentUser(data.data);
+               }
           }
      };
      useEffect(() => {
@@ -75,6 +82,7 @@ export const UserProvider = ({ children }: { children: ChildrenType }) => {
                password,
           });
           if (!data.user) return;
+          if (typeof data.user.id == undefined) return;
           const { data: profile } = await supabase
                .from("profiles")
                .select("*")

@@ -1,4 +1,5 @@
 "use client";
+import { GameInviteSent } from "@/Components/Notifications/GameInviteSent";
 import { userSocket, usersSocket } from "@/lib/socket";
 import { ChildrenType } from "@/types";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
@@ -120,7 +121,9 @@ export const useFriend = (id?: string) => {
                          friendId
                     );
                console.log(`Invite ${friendId} to ${gameName}`);
-               t.addNotification("Invite sent");
+               t.addNotification("Invite sent", {
+                    render: () => <GameInviteSent user={friend} />,
+               });
           },
      };
 };

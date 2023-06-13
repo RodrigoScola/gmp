@@ -1,60 +1,60 @@
-import { RoundHandler } from "../handlers/RoundHandler";
-import { Coords } from "./types";
-import { PlayerHandler } from "../handlers/usersHandler";
-import { CFGame } from "../game/c4Game";
-import { SimonSaysGame } from "../game/simonSays";
 import { TicTacToeGame } from "../game/TicTacToeGame";
+import { CFGame } from "../game/c4Game";
 import { RockPaperScissorsGame } from "../game/rockpaperScissors";
+import { SimonSaysGame } from "../game/simonSays";
+import { RoundHandler } from "../handlers/RoundHandler";
+import { PlayerHandler } from "../handlers/usersHandler";
+import { Coords } from "./types";
 
 export type GameInfo<T extends GameNames> = GamesInfo[T];
 
 export abstract class Game<T extends GameNames> {
-  abstract name: GameNames;
-  abstract rounds: RoundHandler<GameInfo<T>["round"]>;
-  abstract isReady(): boolean;
-  abstract getPlayers(): GameInfo<T>["player"][];
-  abstract players: PlayerHandler<GameInfo<T>["player"]>;
-  abstract play(...args: any): void;
-  abstract newRound(): void;
-  abstract addPlayer(player: GameInfo<T>["player"]): void;
-  abstract getState(): GameInfo<T>["state"];
-  // isPlayerTurn(playerId: string): boolean;
+     abstract name: GameNames;
+     abstract rounds: RoundHandler<GameInfo<T>["round"]>;
+     abstract isReady(): boolean;
+     abstract getPlayers(): GameInfo<T>["player"][];
+     abstract players: PlayerHandler<GameInfo<T>["player"]>;
+     abstract play(...args: any): void;
+     abstract newRound(): void;
+     abstract addPlayer(player: GameInfo<T>["player"]): void;
+     abstract getState(): GameInfo<T>["state"];
+     // isPlayerTurn(playerId: string): boolean;
 }
 
 export type IGame = CFGame &
-  SimonSaysGame &
-  TicTacToeGame &
-  RockPaperScissorsGame;
+     SimonSaysGame &
+     TicTacToeGame &
+     RockPaperScissorsGame;
 
 export type Igame = IGame;
 
 export type GameNames =
-  | "Simon Says"
-  | "connect Four"
-  | "Rock Paper Scissors"
-  | "Tic Tac Toe";
+     | "Simon Says"
+     | "connect Four"
+     | "Rock Paper Scissors"
+     | "Tic Tac Toe";
 
 export const gameNames: GameNames[] = [
-  "Simon Says",
-  "connect Four",
-  "Rock Paper Scissors",
-  "Tic Tac Toe",
+     "Simon Says",
+     "connect Four",
+     "Rock Paper Scissors",
+     "Tic Tac Toe",
 ];
 // players
 
 // this is just to have interfaces comply with the same structure
 export type Player = {
-  id: string;
+     id: string;
 };
 
 export interface CFplayer extends Player {
-  choice: ConnectChoices;
+     choice: ConnectChoices;
 }
 export interface TTCPlayer extends Player {
-  choice?: TTCOptions;
+     choice?: TTCOptions;
 }
 export interface RPSPlayer extends Player {
-  choice: RPSOptions | null;
+     choice: RPSOptions | null;
 }
 export interface SMSPlayer extends Player {}
 
@@ -67,195 +67,195 @@ export type ConnectChoices = "red" | "blue";
 
 // combination
 export type RPSCombination = {
-  winner: RPSOptions;
-  loser: RPSOptions;
-  tie?: RPSOptions;
+     winner: RPSOptions;
+     loser: RPSOptions;
+     tie?: RPSOptions;
 };
 
 export type TTCCombination = {
-  winner: "tie" | string | null;
-  loser: string | null;
-  isTie: boolean;
-  board: TTCMove[] | null;
+     winner: "tie" | string | null;
+     loser: string | null;
+     isTie: boolean;
+     board: TTCMove[] | null;
 };
 
 export const RPSWinCombination: RPSCombination[] = [
-  { winner: "rock", loser: "scissors" },
-  { winner: "paper", loser: "rock" },
-  { winner: "scissors", loser: "paper" },
+     { winner: "rock", loser: "scissors" },
+     { winner: "paper", loser: "rock" },
+     { winner: "scissors", loser: "paper" },
 ];
 
 // rounds
 export type RoundType<T extends RPSRound | CFRound | SMSRound | TTCRound> = {
-  winner?: {
-    id: string;
-  };
-  isTie: boolean;
-  moves: T;
+     winner?: {
+          id: string;
+     };
+     isTie: boolean;
+     moves: T;
 };
 
 export type TTCRound = {
-  winner: {
-    id: string;
-  };
-  loser: {
-    id: string;
-  };
-  isTie: boolean;
-  moves: TTCMove[];
+     winner: {
+          id: string;
+     };
+     loser: {
+          id: string;
+     };
+     isTie: boolean;
+     moves: TTCMove[];
 };
 export type CFRound = {
-  moves: CFMove[];
+     moves: CFMove[];
 };
 
 export type RPSRound = {
-  winner: RPSPlayer;
-  loser: RPSPlayer;
-  isTie: boolean;
-  moves: MoveChoice<RPSMove>[];
+     winner: RPSPlayer;
+     loser: RPSPlayer;
+     isTie: boolean;
+     moves: MoveChoice<RPSMove>[];
 };
 
 export type SMSRound = {
-  sequence: SMSMove[];
+     sequence: SMSMove[];
 };
 
 export type Rounds = {
-  count: number;
-  rounds: RPSRound[];
-  wins: {
-    [key: string]: number;
-    ties: number;
-  };
+     count: number;
+     rounds: RPSRound[];
+     wins: {
+          [key: string]: number;
+          ties: number;
+     };
 };
 // move
 
 export type CFMove = MoveChoice<{
-  color: ConnectChoices;
-  coords: Coords;
+     color: ConnectChoices;
+     coords: Coords;
 }>;
 export type RPSMove = MoveChoice<{
-  choice: RPSOptions;
+     choice: RPSOptions;
 }>;
 export type TTCMove = MoveChoice<{
-  coords: Coords;
-  choice: TTCOptions;
+     coords: Coords;
+     choice: TTCOptions;
 }>;
 export type SMSMove = MoveChoice<{
-  color: SMSColorType;
+     color: SMSColorType;
 }>;
 export type MoveChoice<T> = { id: string } & T;
 
 //state
 
 export interface SMState {
-  name: GameNames;
-  players: TTCPlayer[];
-  rounds: {
-    count: number;
-    rounds: RoundType<SMSRound>[];
-  };
-  speed: number;
-  sequence: SMSColorType[];
+     name: GameNames;
+     players: TTCPlayer[];
+     rounds: {
+          count: number;
+          rounds: RoundType<SMSRound>[];
+     };
+     speed: number;
+     sequence: SMSColorType[];
 }
 export interface RPSstate {
-  players: RPSPlayer[];
-  moves: RPSMove[];
-  name: GameNames;
-  rounds: {
-    count: number;
-    rounds: RoundType<RPSRound>[];
-  };
+     players: RPSPlayer[];
+     moves: RPSMove[];
+     name: GameNames;
+     rounds: {
+          count: number;
+          rounds: RoundType<RPSRound>[];
+     };
 }
 
 export interface CFState {
-  players: CFplayer[];
-  board: CFMove[][];
-  currentPlayerTurn: CFplayer;
-  moves: CFMove[];
-  name: GameNames;
-  rounds: {
-    count: number;
-    rounds: RoundType<CFRound>[];
-    wins: {
-      [key: string]: number;
-      ties: number;
-    };
-  };
+     players: CFplayer[];
+     board: CFMove[][];
+     currentPlayerTurn: CFplayer;
+     moves: CFMove[];
+     name: GameNames;
+     rounds: {
+          count: number;
+          rounds: RoundType<CFRound>[];
+          wins: {
+               [key: string]: number;
+               ties: number;
+          };
+     };
 }
 
 export interface TTCState {
-  players: TTCPlayer[];
-  board: TTCMove[][];
-  currentPlayerTurn: TTCPlayer;
-  moves: TTCMove[];
-  name: GameNames;
-  rounds: {
-    count: number;
-    rounds: RoundType<TTCRound>[];
-  };
+     players: TTCPlayer[];
+     board: TTCMove[][];
+     currentPlayerTurn: TTCPlayer;
+     moves: TTCMove[];
+     name: GameNames;
+     rounds: {
+          count: number;
+          rounds: RoundType<TTCRound>[];
+     };
 }
 
 export enum SimonGameState {
-  START = "Start",
-  PLAYING = "Playing",
-  END = "End",
-  WAITING = "Waiting",
+     START = "Start",
+     PLAYING = "Playing",
+     END = "End",
+     WAITING = "Waiting",
 }
 
 export interface GameComponentProps {
-  gameId: string;
-  gameName: GameNames;
+     gameId: string;
+     gameName: GameNames;
 }
 
 export enum TicTacToeGameState {
-  START = "Start",
-  PLAYING = "Playing",
-  END = "End",
-  TIE = "TIE",
-  ENEMYTURN = "Enemy Turn",
-  WAITING = "Waiting",
+     START = "Start",
+     PLAYING = "Playing",
+     END = "End",
+     TIE = "TIE",
+     ENEMYTURN = "Enemy Turn",
+     WAITING = "Waiting",
 }
 
 export type GamesInfo = {
-  "Tic Tac Toe": {
-    player: TTCPlayer;
-    board: TTCMove[][];
-    round: TTCRound;
-    state: TTCState;
-    move: TTCMove;
-  };
-  "connect Four": {
-    player: CFplayer;
-    board: CFMove[][];
-    round: CFRound;
-    state: CFState;
-    move: CFMove;
-  };
-  "Rock Paper Scissors": {
-    player: RPSPlayer;
-    board: RPSMove[];
-    round: RPSRound;
-    state: RPSstate;
-    move: RPSMove;
-  };
-  "Simon Says": {
-    player: SMSPlayer;
-    board: SMSMove[][];
-    round: SMSRound;
-    state: SMState;
-    move: SMSMove;
-  };
+     "Tic Tac Toe": {
+          player: TTCPlayer;
+          board: TTCMove[][];
+          round: TTCRound;
+          state: TTCState;
+          move: TTCMove;
+     };
+     "connect Four": {
+          player: CFplayer;
+          board: CFMove[][];
+          round: CFRound;
+          state: CFState;
+          move: CFMove;
+     };
+     "Rock Paper Scissors": {
+          player: RPSPlayer;
+          board: RPSMove[];
+          round: RPSRound;
+          state: RPSstate;
+          move: RPSMove;
+     };
+     "Simon Says": {
+          player: SMSPlayer;
+          board: SMSMove[][];
+          round: SMSRound;
+          state: SMState;
+          move: SMSMove;
+     };
 };
 
 export abstract class Board<T> {
-  abstract generateBoard(): void;
-  abstract board: T[][];
-  abstract moves: T[];
-  abstract addMove(move: T): void;
-  abstract isValid(board: T[][], x: number, y: number): void;
+     abstract generateBoard(): void;
+     abstract board: T[][];
+     abstract moves: T[];
+     abstract addMove(move: T): void;
+     abstract isValid(board: T[][], x: number, y: number): void;
 }
 
 export type GameType = {
-  name: GameNames;
-  id: number;
+     name: GameNames;
+     id: number;
 };

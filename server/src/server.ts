@@ -141,8 +141,10 @@ app.get("/user/:usernameorId", async (req, res) => {
      res.send(uhandler.getUser(uhandler.getUserByUsername(username) as string));
 });
 
-app.get("/:roomId", (req, res) => {
+app.get("/games/:roomId", (req, res) => {
      const room = getRoom(req.params.roomId);
+     console.log("Room:", room);
+
      if (!room) {
           res.send({
                room: {},

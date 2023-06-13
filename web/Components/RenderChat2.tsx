@@ -13,6 +13,7 @@ import {
      ChatMessageType,
      UserState,
 } from "../../shared/src/types/users";
+import { FriendCardOpen } from "./Friends/FriendsComponents";
 import { FriendsTab } from "./tabs/FriendsTab";
 
 var timer: NodeJS.Timeout;
@@ -39,6 +40,7 @@ export const RenderChatMesages = (props: {
                     friend.setFriendId(friendId.id);
                     usersSocket.emit("get_user", friendId.id, (user) => {
                          if (user) {
+                              friend.updateFriend(user);
                               setReceiverState(
                                    user?.status ?? UserState.offline
                               );
@@ -65,6 +67,7 @@ export const RenderChatMesages = (props: {
      const [receiverState, setReceiverState] = useState<UserState>(
           UserState.offline
      );
+
      useEffect(() => {
           if (!user) {
                window.location.href = "/";
@@ -169,11 +172,24 @@ export const RenderChatMesages = (props: {
           }
      }, [friend.friend]);
      return (
-          <div className="flex flex-row w-screen">
+          <div className="flex flex-row gap-2">
                <div className="w-full m-auto  ">
                     <div className="sticky top-2 mt-2 py-1 px-4  bg-gray-500 rounded-md  flex justify-between items-center bg-red-300">
                          <div className="flex gap-2">
-                              <p className="capitalize">{friendUsername}</p>
+                              {friend.friend && (
+                                   <Popover>
+                                        <PopoverTrigger>
+                                             <p className="capitalize">
+                                                  {friendUsername}
+                                             </p>
+                                        </PopoverTrigger>
+                                        <PopoverContent>
+                                             <FriendCardOpen
+                                                  friend={friend.friend}
+                                             />
+                                        </PopoverContent>
+                                   </Popover>
+                              )}
                               {!isFriend && (
                                    <button onClick={handleAddFriend}>
                                         add friend
@@ -221,12 +237,26 @@ export const RenderChatMesages = (props: {
                     </div>
                     <div className="space-y-2 px-6 text-white">
                          {allChat.messages.map((message, i) => {
+                              let canHideUsername = true;
+                              if (i > 0) {
+                                   if (
+                                        allChat.messages[i - 1].userId ===
+                                        message.userId
+                                   ) {
+                                        canHideUsername = false;
+                                   }
+                              }
+
                               if (message.userId === user?.id) {
                                    return (
                                         <div>
                                              <MessageCard
                                                   message={message}
-                                                  username={userUsername}
+                                                  username={
+                                                       canHideUsername
+                                                            ? userUsername
+                                                            : null
+                                                  }
                                              />
                                         </div>
                                    );
@@ -236,7 +266,9 @@ export const RenderChatMesages = (props: {
                                         <MessageCard
                                              message={message}
                                              username={
-                                                  friend.friend?.username ?? ""
+                                                  canHideUsername
+                                                       ? friend.friend?.username
+                                                       : null
                                              }
                                         />
                                    </div>
@@ -267,7 +299,7 @@ export const RenderChatMesages = (props: {
                     </div>
                </div>
                <div>
-                    <div className="sticky top-2">
+                    <div className="">
                          <FriendsTab friends={userFriends} />
                     </div>
                </div>
@@ -280,13 +312,13 @@ const MessageCard = ({
      username,
 }: {
      message: ChatMessageType;
-     username: string;
+     username?: string | null;
 }) => {
      return (
           <div className="flex hover:bg-gray-500/80 transition-all ease-out duration-75 rounded-md px-2 justify-start">
                <div>
-                    <p>{username}</p>
-                    <div className=" bg-blue-700 flex items-center p-1 rounded-full right-0 w-fit space-x-2">
+                    {username && <p className="pt-2">{username}</p>}
+                    <div className="pl-6  bg-blue-700 flex items-center p-1 rounded-full right-0 w-fit space-x-2">
                          <div className="flex text-sm text-gray-400/50">
                               <p>{new Date(message.created).getHours()} : </p>
                               <p>{new Date(message.created).getMinutes()}</p>

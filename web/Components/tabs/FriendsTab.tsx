@@ -16,7 +16,7 @@ export const FriendsTab = (props: { friends: IFriend[] }) => {
      return (
           <>
                {canShow && (
-                    <div className="justify-self-end rounded-md shadow-md mt-2 bg-gray-800/80 p-2 lg:w-64">
+                    <div className=" rounded-md h-fit shadow-md mt-2 bg-gray-800/80 p-2 w-64 ">
                          <div className="shadow-sm border-b-2 justify-self-end pb-2   border-gray-800/40">
                               <AddNewFriend />
                          </div>

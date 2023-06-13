@@ -21,10 +21,19 @@ export const GameInviteComponent = ({
      return (
           <div className="bg-gray-800 rounded-md p-4">
                <div className="text-xl">
-                    <p>{gameInvite.from.username} invited you to a game!</p>
+                    <p>
+                         <span className="font-whitney font-semibold">
+                              {gameInvite.from.username}
+                         </span>{" "}
+                         invited you to{" "}
+                         <span className="font-whitney font-bold">
+                              {gameInvite.gameName}
+                         </span>
+                         !
+                    </p>
                </div>
-               <div>
-                    <p>Game: {gameInvite.gameName}</p>
+               <div className="py-2">
+                    <p className="font-whitney">Game: {gameInvite.gameName}</p>
                </div>
                <div className="bg-red-100 flex flex-row gap-5 justify-between ">
                     <button

@@ -1,3 +1,4 @@
+import { db } from "../db";
 import {
      ChatConversationType,
      ChatMessageType,
@@ -6,7 +7,6 @@ import {
      NewChatChatMessageType,
      UserState,
 } from "../types/users";
-import { db } from "../db";
 import { IMainUser, uhandler } from "./usersHandler";
 
 export class ConversationHandler {
@@ -44,8 +44,7 @@ export class ConversationHandler {
           return this.newMessage(userId, content);
      }
      async addMessage(message: ChatMessageType) {
-          console.log(this.conversation);
-          const d = await db
+          await db
                .from("messages")
                .insert({
                     message: message.message,
@@ -54,7 +53,6 @@ export class ConversationHandler {
                     created: message.created,
                })
                .select();
-          console.log(d);
 
           this.messages.push(message);
      }
@@ -65,12 +63,6 @@ export class ConversationHandler {
                .eq("id", conversationId)
                .single();
           if (!file) return;
-
-          this.conversation = {
-               id: file.id,
-               messages: [],
-               users: [{ id: file.user1 }, { id: file.user2 }],
-          };
 
           this.conversation.users.forEach(
                (user: Partial<IUser> & { id: string }) => {

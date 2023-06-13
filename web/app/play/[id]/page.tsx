@@ -10,7 +10,7 @@ export default async function RenderGame({
      params: { id: string };
 }) {
      // return <TicTacToeGameComponent />
-     const data = await fetch(`${serverURl}/${id}`, {
+     const data = await fetch(`${serverURl}/games/${id}`, {
           cache: "no-store",
      });
      const jsondata = await data.json();

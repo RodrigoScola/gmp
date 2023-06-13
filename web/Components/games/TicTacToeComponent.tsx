@@ -7,6 +7,7 @@ import { useEffectOnce } from "usehooks-ts";
 import { generateBoard, isValid } from "../../../shared/src/game/TicTacToeGame";
 import {
      GameComponentProps,
+     GameNames,
      TTCCombination,
      TTCMove,
      TTCOptions,
@@ -109,17 +110,17 @@ export default function TicTacToeGameComponent(props: GameComponentProps) {
      useEffectOnce(() => {
           setGameState(TicTacToeGameState.PLAYING);
      });
-
+     console.log(props);
      useEffect(() => {
           if (!user) return;
           const socketAuth = newSocketAuth({
                user: user,
-               roomId: props.gameId,
-               gameName: props.gameName,
+               roomId: props.game.id,
+               gameName: props.game.match.game.name as GameNames,
           });
           socket.auth = socketAuth;
           socket.connect();
-          socket.emit("join_room", props.gameId);
+          socket.emit("join_room", props.game.id);
 
           socket.on("get_players", (players: TTCPlayer[]) => {
                const opponent = players.find((player) => player.id != user.id);
@@ -178,7 +179,7 @@ export default function TicTacToeGameComponent(props: GameComponentProps) {
           });
           // socket.emit('set-user', user)
           socket.on("user_disconnected", () => {
-               window.location.href = `${baseUrl}/play/${props.gameId}/result`;
+               window.location.href = `${baseUrl}/play/${props.game.id}/result`;
           });
           socket.on("disconnect", () => {
                console.log("user disconnected");

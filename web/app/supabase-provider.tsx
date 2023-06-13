@@ -1,15 +1,15 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
 import {
      Session,
      createBrowserSupabaseClient,
 } from "@supabase/auth-helpers-nextjs";
 import { useRouter } from "next/navigation";
+import { createContext, useContext, useEffect, useState } from "react";
 
 import type { SupabaseClient } from "@supabase/auth-helpers-nextjs";
-import { Database } from "../../shared/src/types/supabasetypes";
 import { useUpdateEffect } from "usehooks-ts";
+import { Database } from "../../shared/src/types/supabasetypes";
 type MaybeSession = Session | null;
 
 type SupabaseContext = {
@@ -30,7 +30,9 @@ export default function SupabaseProvider({
 
      const h = async () => {
           const data = await supabase.auth.getSession();
-          setSession(data.data.session);
+          if ("session" in data.data) {
+               setSession(data.data.session);
+          }
      };
      useUpdateEffect(() => {
           if (!session) {

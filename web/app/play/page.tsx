@@ -52,13 +52,13 @@ export default function PLAYPAGE() {
      };
      return (
           <div className="flex flex-row">
-               <div className="w-full m-auto text-white">
-                    <div className="w-fit m-auto h-fit">
-                         <div className="w-fit h-fit  m-auto">
-                              <h3 className="text-3xl font-ginto font-bold  py-12">
+               <div className="w-full  m-auto text-white">
+                    <div className="w-fit  m-auto h-fit">
+                         <div className="w-fit  h-fit my-12  rounded-lg  m-auto">
+                              <h3 className="text-3xl font-ginto font-bold  ">
                                    Multiplayer Games
                               </h3>
-                              <div className="w-fit gap-2 m-auto flex flex-row">
+                              <div className="w-fit p-6 bg-gray-500 rounded-md shadow-md mt-6 gap-2 m-auto flex flex-row">
                                    {gameNames.map((gameName) => {
                                         const data = getGameData(gameName);
                                         if (data.isMultiplayer === false)
@@ -92,11 +92,11 @@ export default function PLAYPAGE() {
                                    </button>
                               </div>
                          </div>
-                         <div className="w-full m-auto">
-                              <p className="text-3xl font-ginto font-bold py-12">
+                         <div className="w-full m-auto my-12  ">
+                              <p className="text-3xl font-ginto pb-6 font-bold ">
                                    Single Player Games
                               </p>
-                              <div className=" gap-2   m-auto text-black">
+                              <div className=" gap-2 bg-gray-500 p-6 rounded-md shadow-lg   m-auto text-black">
                                    {gameNames.map((gameName) => {
                                         const data = getGameData(gameName);
                                         if (data.isMultiplayer === true)
@@ -157,7 +157,7 @@ export const GameCard = ({
                          isSelected ? "bg-blue shadow-lg" : "bg-gray-700"
                     } rounded-lg  max-w-[300px] p-2 ${
                          props.className
-                    } border-2 border-white`}
+                    } border-2 border-white bg-gray-600`}
                >
                     <div className=" align-middle items-center gap-1 pb-2">
                          <h3 className="text-white font-whitney font-semibold text-4xl capitalize ">

@@ -1,25 +1,29 @@
-## games
+## add icons
 
--    check that games are working
+# notifications
 
--    Rps
+-    game invite sent
 
--    TTC
+-    friend invite sent
 
--    Simon says
+-    friend invite received
 
--    connect4
+# components
 
-## Chat
+-    search friend add icons
 
--    status are working
+-    footer
 
--    sending and receiving messages
+# games
 
--    inviting to game
+-    tic tac toe
 
--    when messaging from the status bar, its returning the user id not the conversation id
+-    rock paper scissors
 
-## Status bar
+-    simon says
 
--    getting friends
+-    connect four
+
+# pages
+
+-    queue page

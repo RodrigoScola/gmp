@@ -19,7 +19,7 @@ export interface FriendCardProps {
      friend: IFriend;
      isOpen?: boolean;
 }
-const FriendCardOpen = ({
+export const FriendCardOpen = ({
      friend,
      isOpen,
      ...props
@@ -73,7 +73,7 @@ const FriendCardOpen = ({
                     <div className="flex  flex-row items-center gap-4">
                          <FriendAvatar
                               boxSize={`2em`}
-                              badgeProps={{
+                              badgeprops={{
                                    boxSize: `1em`,
                               }}
                               friend={friend}
@@ -96,7 +96,7 @@ const FriendCardOpen = ({
                                    </p>
                               </div>
                          </PopoverTrigger>
-                         <PopoverContent className="capitalize border-none  outline-2  px-1 gap-2 z-50">
+                         <PopoverContent className="capitalize border-none  outline-2  p-2 gap-2 z-50">
                               <div
                                    className="selectable"
                                    onClick={() => {
@@ -136,8 +136,8 @@ const FriendCardOpen = ({
                               className="gap-1 inline-flex w-full"
                               onSubmit={handleNewMessage}
                          >
-                              <div className="flex flex-col">
-                                   <p className="font-whitney font-semibold">
+                              <div className="flex flex-col w-full">
+                                   <p className="font-whitney mb-2 font-semibold">
                                         Message
                                    </p>
                                    <input
