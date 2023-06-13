@@ -62,7 +62,7 @@ export const Nav = () => {
                });
                userSocket.on("game_invite_accepted", (data) => {
                     console.log("game acepted");
-                    window.location.href = `/play/${data.roomId}`;
+                    window.location.href = `/play/${data.roomId}/?gamename=${data.gameName}`;
                });
           }
      );

@@ -181,7 +181,6 @@ export const userHandlerConnection = (
                               getGame(ninvite?.gameName as GameNames)
                          )
                     );
-                    console.log("a");
                     const to = uhandler.getUser(ninvite.to.id);
                     const from = uhandler.getUser(ninvite.from.id);
                     console.log(to, from);

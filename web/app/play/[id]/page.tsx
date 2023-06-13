@@ -6,11 +6,17 @@ import { serverURl } from "@/constants";
 
 export default async function RenderGame({
      params: { id },
+     searchParams: { gamename },
 }: {
      params: { id: string };
+     searchParams: { gamename?: string };
 }) {
+     let url = `${serverURl}/games/${id}`;
+     if (gamename !== "") {
+          url = `${url}?gamename=${gamename}`;
+     }
      // return <TicTacToeGameComponent />
-     const data = await fetch(`${serverURl}/games/${id}`, {
+     const data = await fetch(url, {
           cache: "no-store",
      });
      const jsondata = await data.json();

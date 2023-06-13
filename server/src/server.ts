@@ -16,7 +16,8 @@ import { MyIo, SocketData } from "../../shared/src/types/types";
 const app = express();
 const server = http.createServer(app);
 
-import { getRoom } from "../../shared/src/handlers/room";
+import { getGame } from "../../shared/src/handlers/gameHandlers";
+import { GameRoom, getRoom, roomHandler } from "../../shared/src/handlers/room";
 import { uhandler } from "../../shared/src/handlers/usersHandler";
 import { IUser, SocketUser } from "../../shared/src/types/users";
 import { chatHandlerConnection } from "./connections/chatConnection";
@@ -142,13 +143,17 @@ app.get("/user/:usernameorId", async (req, res) => {
 });
 
 app.get("/games/:roomId", (req, res) => {
-     const room = getRoom(req.params.roomId);
+     let room = getRoom(req.params.roomId);
      console.log("Room:", room);
-
+     const gamename = req.query.gamename ?? "Rock Paper Scissors";
+     console.table(req.query);
      if (!room) {
-          res.send({
-               room: {},
-          });
+          roomHandler.createRoom<GameRoom>(
+               req.params.roomId,
+               new GameRoom(req.params.roomId, getGame(gamename))
+          );
+          room = getRoom(req.params.roomId);
+          res.send(room);
           return;
      }
      res.send(room);

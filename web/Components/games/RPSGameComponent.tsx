@@ -190,7 +190,7 @@ export default function RockPaperScissorGameComponent(
      }, []);
 
      useEffect(() => {
-          if (opponent.id !== "defaultid" && opponent.email != "") {
+          if (opponent.id !== "defaultid" && opponent.email == "") {
                usersSocket.emit("get_user", opponent.id, (data) => {
                     console.log(data);
                     setOpponent((old) => ({ ...old, ...data }));
@@ -200,7 +200,7 @@ export default function RockPaperScissorGameComponent(
      }, [opponent.id]);
 
      useEffect(() => {
-          if (currentPlayer.id !== "defaultid" && currentPlayer.email != "") {
+          if (currentPlayer.id !== "defaultid" && currentPlayer.email == "") {
                usersSocket.emit("get_user", currentPlayer.id, (data) => {
                     console.table(data);
                     setCurrentPlayer((old) => ({ ...old, ...data }));
@@ -267,7 +267,7 @@ export default function RockPaperScissorGameComponent(
                                    ></div>
                               );
                          })}
-                         <div>{opponent.id}</div>
+                         <div>{opponent.username}</div>
                     </div>
                </div>
                {gameState == GamePlayState.selecting && (
