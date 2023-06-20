@@ -1,4 +1,5 @@
 "use client";
+import { FriendRequestNotification } from "@/Components/FriendRequestComponent";
 import { GameInviteSent } from "@/Components/Notifications/GameInviteSent";
 import { userSocket, usersSocket } from "@/lib/socket";
 import { ChildrenType } from "@/types";
@@ -110,7 +111,9 @@ export const useFriend = (id?: string) => {
           sendFriendRequest: (userId: string) => {
                userSocket.emit("add_friend", userId);
                console.log(`Friend request sent to ${userId}`);
-               t.addNotification("Friend request sent");
+               t.addNotification("Friend request sent", {
+                    render: () => <FriendRequestNotification />,
+               });
           },
           sendInvite: (gameName: GameNames) => {
                console.log(friendId);

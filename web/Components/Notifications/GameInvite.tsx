@@ -35,7 +35,7 @@ export const GameInviteComponent = ({
                <div className="py-2">
                     <p className="font-whitney">Game: {gameInvite.gameName}</p>
                </div>
-               <div className="bg-red-100 flex flex-row gap-5 justify-between ">
+               <div className=" flex flex-row gap-5 justify-between ">
                     <button
                          className="button w-full bg-green"
                          onClick={handleAccept}

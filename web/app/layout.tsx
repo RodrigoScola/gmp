@@ -146,7 +146,6 @@ export default function RootLayout({
                                    </div>
                               </Providers>
                          </FriendsProvider>
-                         <div className="fixed h-96 -z-50 w-screen bottom-0 bg-gradient-to-t from-gray-700/10 to-gray-700"></div>
                     </SupabaseProvider>
                </body>
           </html>

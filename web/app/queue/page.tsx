@@ -67,8 +67,8 @@ export default function QueueHoldingPage({
           queueSocket.connect();
 
           queueSocket.emit("join_queue", games);
-          queueSocket.on("game_found", (data: any) => {
-               window.location.href = `/play/${data}`;
+          queueSocket.on("game_found", (data) => {
+               window.location.href = `/play/${data.gameId}/?gamename=${data.gameName}`;
           });
           return () => {
                if (queueSocket.connected) {
@@ -95,6 +95,7 @@ export default function QueueHoldingPage({
                               const gameData = getGameData(GameType.name);
                               return (
                                    <GameCard
+                                        key={GameType.name}
                                         className="w-fit  p-2"
                                         game={gameData}
                                         isSelected={false}

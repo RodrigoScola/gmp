@@ -84,7 +84,6 @@ const handleTTCGame = (
      socket.on("ttc_choice", ({ move }: { move: TTCMove }) => {
           console.log(game.isPlayerTurn(move.id));
           if (game.isPlayerTurn(move.id)) {
-               console.log(move);
                game.play(move);
                io.to(getRoomId(socket)).emit("ttc_choice", {
                     board: game.board.board,
@@ -95,10 +94,13 @@ const handleTTCGame = (
           if (winner.winner) {
                io.to(getRoomId(socket)).emit("ttc_game_winner", winner);
                setTimeout(() => {
-                    io.to(getRoomId(socket)).emit("new_round");
                     game.newRound();
+                    io.to(getRoomId(socket)).emit("new_round");
                }, 1000);
           }
+     });
+     socket.on("get_state", (callback) => {
+          callback(game.getState());
      });
 };
 
@@ -122,10 +124,13 @@ const handleRpsGame = (
 
           const roundWinner = game?.hasRoundWinner();
           if (roundWinner) {
+               console.table(roundWinner);
+
                io.to(getRoomId(socket)).emit("round_winner", roundWinner);
                game?.newRound();
                const gameWinner = game?.hasGameWin();
                if (gameWinner) {
+                    console.table(gameWinner);
                     const winner = uhandler.getUser(gameWinner.id)?.user;
                     if (winner) {
                          io.to(getRoomId(socket)).emit("rps_game_winner", {
@@ -138,7 +143,7 @@ const handleRpsGame = (
                } else {
                     setTimeout(() => {
                          io.to(getRoomId(socket)).emit("new_round");
-                    }, 10);
+                    }, 2000);
                }
           }
           io.to(getRoomId(socket)).emit("rps_choice", {
@@ -215,7 +220,6 @@ export class MatchHandler {
           this.players.getPlayers().forEach((player) => {
                this.changePlayerState(player.id, MatchPlayerState.playing);
           });
-          console.log(this.game.players);
           return this.game;
      }
      newGame(gameName: GameNames) {

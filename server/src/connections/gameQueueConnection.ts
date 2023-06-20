@@ -89,7 +89,10 @@ export const gamequeueHandlerConnection = (
                     if (!roomUser) return;
                     gamequeueHandler
                          .to(roomUser?.socketId)
-                         .emit("game_found", matchId);
+                         .emit("game_found", {
+                              gameId: matchId,
+                              gameName: match.gameName,
+                         });
                     gameQueue.removePlayer(player.id);
                     room.users.deleteUser(user?.id as string);
                });

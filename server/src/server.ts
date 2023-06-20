@@ -19,6 +19,7 @@ const server = http.createServer(app);
 import { getGame } from "../../shared/src/handlers/gameHandlers";
 import { GameRoom, getRoom, roomHandler } from "../../shared/src/handlers/room";
 import { uhandler } from "../../shared/src/handlers/usersHandler";
+import { GameNames } from "../../shared/src/types/game";
 import { IUser, SocketUser } from "../../shared/src/types/users";
 import { chatHandlerConnection } from "./connections/chatConnection";
 import { gameHandlerConnection } from "./connections/gameConnection";
@@ -145,7 +146,7 @@ app.get("/user/:usernameorId", async (req, res) => {
 app.get("/games/:roomId", (req, res) => {
      let room = getRoom(req.params.roomId);
      console.log("Room:", room);
-     const gamename = req.query.gamename ?? "Rock Paper Scissors";
+     const gamename = req.query.gamename ?? ("connect Four" as GameNames);
      console.table(req.query);
      if (!room) {
           roomHandler.createRoom<GameRoom>(

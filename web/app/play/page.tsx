@@ -3,7 +3,7 @@
 import { GameData, getGameData } from "@/../shared/src/game/gameUtils";
 import { FriendsTab } from "@/Components/tabs/FriendsTab";
 import { baseUrl } from "@/constants";
-import { HTMLAttributes, useState } from "react";
+import { ComponentProps, useState } from "react";
 import { useEffectOnce } from "usehooks-ts";
 import { GameNames, gameNames } from "../../../shared/src/types/game";
 import { useUser } from "../../hooks/useUser";
@@ -143,11 +143,12 @@ type gameCardProps = {
      game: GameData;
      isSelected: boolean;
 };
+type GameCardComponentProps = gameCardProps & ComponentProps<"div">;
 export const GameCard = ({
      game,
      isSelected,
      ...props
-}: gameCardProps & HTMLAttributes<HTMLDivElement>) => {
+}: GameCardComponentProps) => {
      return (
           <>
                <div

@@ -1,5 +1,8 @@
 "use client";
+import { useUser } from "@/hooks/useUser";
+import { newSocketAuth, socket } from "@/lib/socket";
 import { LegacyRef, useEffect, useMemo, useRef, useState } from "react";
+import { useUpdateEffect } from "usehooks-ts";
 import {
      GameComponentProps,
      MoveChoice,
@@ -7,10 +10,8 @@ import {
      SMSMove,
      SMState,
      SimonGameState,
+     TTCState,
 } from "../../../shared/src/types/game";
-import { useUpdateEffect } from "usehooks-ts";
-import { newSocketAuth, socket } from "@/lib/socket";
-import { useUser } from "@/hooks/useUser";
 
 type ColorRefs = {
      red: React.RefObject<HTMLButtonElement | null>;
@@ -58,7 +59,6 @@ export const SimonSaysComponent = (props: GameComponentProps) => {
           return false;
      }, [gamePlayState]);
      const gameLost = () => {
-          console.log("you lost");
           setGamePlayState(SimonGameState.END);
      };
 
@@ -128,15 +128,19 @@ export const SimonSaysComponent = (props: GameComponentProps) => {
           socket.connect();
           socket.emit("join_room", props.gameId);
           socket.on("sms_new_round", (state: SMState) => {
-               setGameState(state as SMState);
+               setGameState(state);
+               console.log(state);
                setPlayerSequence([]);
           });
           socket.on("sms_game_lost", () => {
+               socket.emit("get_state", (state: TTCState) => {
+                    console.log(state, "this is the state");
+               });
                gameLost();
           });
           socket.on("start_game", () => {
                socket.emit("get_state", (state: SMState) => {
-                    console.log(state);
+                    console.log(state, "this is the state2");
                     setGameState(state);
                });
           });
@@ -148,22 +152,26 @@ export const SimonSaysComponent = (props: GameComponentProps) => {
      }, []);
 
      return (
-          <div className="w-fit m-auto">
+          <div className="w-fit m-auto mt-12">
                <div className="flex  justify-around pb-10 ">
                     <div>
-                         <p>best score</p>
-                         <p className="text-center">{maxRound ?? 0}</p>
+                         <p className="font-ginto text-xl ">Best Score</p>
+                         <p className="text-center font-ginto font-semibold">
+                              {maxRound ?? 0}
+                         </p>
                     </div>
                     <div>
-                         <p>current score</p>
-                         <p className="text-center">{round ?? 0}</p>
+                         <p className="font-ginto text-xl">Current Score</p>
+                         <p className="text-center font-ginto font-semibold">
+                              {round ?? 0}
+                         </p>
                     </div>
                </div>
                <div className="grid grid-cols-2 gap-4 w-fit m-auto">
                     {colors.map((color) => {
                          return (
                               <button
-                                   disabled={!canPlay}
+                                   // disabled={!canPlay}
                                    key={`button_${color}`}
                                    name={color}
                                    ref={
@@ -174,7 +182,7 @@ export const SimonSaysComponent = (props: GameComponentProps) => {
                                    onClick={() =>
                                         addToSequence(color as SMSColorType)
                                    }
-                                   className={`simon_${color} h-40 w-40`}
+                                   className={`simon_${color} simon_button h-40 w-40`}
                               ></button>
                          );
                     })}
@@ -182,10 +190,16 @@ export const SimonSaysComponent = (props: GameComponentProps) => {
                <div className="flex justify-center pt-12 self-center">
                     {(gamePlayState == SimonGameState.END ||
                          gamePlayState == SimonGameState.PLAYING) && (
-                         <button onClick={() => startGame()}>Restart</button>
+                         <button
+                              className="button bg-red text-2xl"
+                              onClick={() => startGame()}
+                         >
+                              Restart
+                         </button>
                     )}
                     {gamePlayState == SimonGameState.WAITING && (
                          <button
+                              className="button text-2xl px-4 font-whitney font-semibold bg-green"
                               onClick={() => {
                                    startGame();
                               }}

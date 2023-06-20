@@ -1,9 +1,10 @@
 "use client";
-import { baseUrl, baseUser } from "@/constants";
+import { baseUser } from "@/constants";
+import { useBackgroundColor } from "@/hooks/useBackgroundColor";
 import { useUser } from "@/hooks/useUser";
 import { newSocketAuth, socket } from "@/lib/socket";
 import { useEffect, useMemo, useState } from "react";
-import { useEffectOnce } from "usehooks-ts";
+import { useEffectOnce, useUpdateEffect } from "usehooks-ts";
 import { generateBoard, isValid } from "../../../shared/src/game/TicTacToeGame";
 import {
      GameComponentProps,
@@ -12,9 +13,11 @@ import {
      TTCMove,
      TTCOptions,
      TTCPlayer,
+     TTCState,
      TicTacToeGameState,
 } from "../../../shared/src/types/game";
 import { IUser } from "../../../shared/src/types/users";
+import { PointsComponent } from "../PointsComponent";
 
 type TicTacToeState = {
      moves: TTCMove[];
@@ -41,17 +44,21 @@ export default function TicTacToeGameComponent(props: GameComponentProps) {
      const { user } = useUser();
 
      const [player, setPlayer] = useState<
-          | (IUser & { choice: TTCOptions | null })
-          | { id: string; choice: TTCOptions | null }
+          | (IUser & { choice: TTCOptions | null; wins: 0 })
+          | { id: string; choice: TTCOptions | null; wins: number }
      >({
           choice: null,
-          id: "string2",
+          id: user?.id ?? "stin",
+          wins: 0,
      });
 
-     const [_, setOpponent] = useState<
-          (IUser & { choice: TTCOptions | null }) | { id: string }
+     const [opponent, setOpponent] = useState<
+          | (IUser & { choice: TTCOptions | null; wins: number })
+          | { id: string; wins: number; username: string }
      >({
+          username: "Yet to be found",
           id: "string",
+          wins: 0,
      });
      const [board, setBoard] = useState<TTCMove[][]>(generateBoard());
      const [gameState, setGameState] = useState<TicTacToeGameState>(
@@ -84,8 +91,6 @@ export default function TicTacToeGameComponent(props: GameComponentProps) {
      }, [canPlay]);
 
      const addBlock = (x: number, y: number) => {
-          // console.log(isValid(board, x, y));
-          // console.log(player.choice);
           if (
                player.choice == null ||
                canPlay == false ||
@@ -110,7 +115,6 @@ export default function TicTacToeGameComponent(props: GameComponentProps) {
      useEffectOnce(() => {
           setGameState(TicTacToeGameState.PLAYING);
      });
-     console.log(props);
      useEffect(() => {
           if (!user) return;
           const socketAuth = newSocketAuth({
@@ -125,27 +129,29 @@ export default function TicTacToeGameComponent(props: GameComponentProps) {
           socket.on("get_players", (players: TTCPlayer[]) => {
                const opponent = players.find((player) => player.id != user.id);
                if (opponent) {
-                    setOpponent(opponent);
+                    setOpponent({
+                         ...opponent,
+                         wins: 0,
+                    });
                }
                const player = players.find((player) => player.id == user.id);
                if (player) {
                     setPlayer({
                          ...player,
                          choice: player.choice ?? "O",
+                         wins: 0,
                     });
                }
-               socket.on("ttc_choice", (move: any) => {
-                    console.log(move);
-                    setMoves((current) => ({
-                         ...current,
-
-                         moves: [...current.moves, move.move],
-                    }));
-                    console.log(move.board);
-                    setBoard(move.board);
-               });
 
                socket.emit("player_ready");
+          });
+          socket.on("ttc_choice", (move: any) => {
+               setMoves((current) => ({
+                    ...current,
+
+                    moves: [...current.moves, move.move],
+               }));
+               setBoard(move.board);
           });
 
           socket.on("new_round", () => {
@@ -158,11 +164,25 @@ export default function TicTacToeGameComponent(props: GameComponentProps) {
                     },
                     moves: [],
                }));
-          });
-          socket.on("start_game", () => {
-               socket.emit("get_state", (state: any) => {
-                    console.log(user.id);
-                    console.log(state);
+               socket.emit("get_state", (state: TTCState) => {
+                    const opponentWins = state.rounds.rounds.reduce(
+                         (acc, curr) => {
+                              if (!curr.isTie && curr.winner?.id !== user.id)
+                                   acc++;
+                              return acc;
+                         },
+                         0
+                    );
+                    const playerWins = state.rounds.rounds.reduce(
+                         (acc, curr) => {
+                              if (!curr.isTie && curr.winner?.id == user.id)
+                                   acc++;
+                              return acc;
+                         },
+                         0
+                    );
+                    setOpponent((curr) => ({ ...curr, wins: opponentWins }));
+                    setPlayer((curr) => ({ ...curr, wins: playerWins }));
                });
           });
           socket.on("ttc_game_winner", (winner: TTCCombination) => {
@@ -178,8 +198,9 @@ export default function TicTacToeGameComponent(props: GameComponentProps) {
                setGameState(TicTacToeGameState.END);
           });
           // socket.emit('set-user', user)
+
           socket.on("user_disconnected", () => {
-               window.location.href = `${baseUrl}/play/${props.gameId}/result`;
+               // window.location.href = `${baseUrl}/play/${props.gameId}/result`;
           });
           socket.on("disconnect", () => {
                console.log("user disconnected");
@@ -190,15 +211,44 @@ export default function TicTacToeGameComponent(props: GameComponentProps) {
                }
           };
      }, [socket]);
+     const background = useBackgroundColor();
+     useUpdateEffect(() => {
+          if (gameState == TicTacToeGameState.PLAYING) {
+               background.changeBackgroundColor("bg-gray-700");
+          } else if (gameState == TicTacToeGameState.ENEMYTURN) {
+               background.changeBackgroundColor("bg-red-600");
+          } else if (gameState == TicTacToeGameState.END) {
+               background.changeBackgroundColor("bg-gray-700");
+          }
+          return () => {
+               background.changeBackgroundColor("bg-gray-700");
+          };
+     }, [gameState]);
+     console.log(opponent);
+
      return (
           <>
-               <div>
+               <div className="mt-6">
+                    <PointsComponent
+                         player1={{
+                              id: user?.id ?? "",
+                              username: user?.username ?? "",
+                              score: player.wins,
+                         }}
+                         player2={{
+                              id: opponent.id,
+                              username: opponent.username,
+                              score: opponent.wins,
+                         }}
+                    />
+
                     {board.map((row: (TTCMove | null)[], i: number) => {
                          return (
                               <div className="flex m-auto w-fit" key={i}>
                                    {row.map(
                                         (col: TTCMove | null, j: number) => {
                                              let clas = "";
+
                                              if (moves.winner?.board) {
                                                   const found =
                                                        moves.winner.board.find(
@@ -208,19 +258,18 @@ export default function TicTacToeGameComponent(props: GameComponentProps) {
                                                                  b.coords.y == j
                                                        );
                                                   if (found) {
-                                                       clas = "bg-green-500";
+                                                       clas += "bg-green-500";
                                                   }
                                              }
-
                                              return (
                                                   <div
                                                        onClick={() => {
                                                             addBlock(i, j);
                                                        }}
                                                        key={j}
-                                                       className={`${clas} h-24 w-24 border border-white flex align-middle justify-center items-center`}
+                                                       className={`ttc_square_row_${i}_col_${j}  ${clas} ttc_square h-24 w-24 border-white  flex align-middle justify-center items-center`}
                                                   >
-                                                       <div className="relative text-4xl">
+                                                       <div className="relative  font-ginto font-black text-4xl">
                                                             {col?.choice}
                                                        </div>
                                                   </div>
@@ -231,21 +280,34 @@ export default function TicTacToeGameComponent(props: GameComponentProps) {
                          );
                     })}
                </div>
-               <div className="w-fit m-auto">
+               <div className="w-fit m-auto mt-6">
                     {moves.winner && gameState == TicTacToeGameState.END && (
-                         <div>
+                         <div className="">
                               {moves.winner.id == "tie" ? (
-                                   <div>ITS A TIE</div>
+                                   <div>
+                                        <p>
+                                             ITS A{" "}
+                                             <span className="font-ginto font-semibold">
+                                                  TIE
+                                             </span>
+                                        </p>
+                                   </div>
                               ) : (
                                    <div>
-                                        {moves.winner.id == user?.id
-                                             ? "YOU WON"
-                                             : "YOU LOST"}
+                                        <p className="font-ginto font-2xl">
+                                             {moves.winner.id == user?.id
+                                                  ? "YOU WON"
+                                                  : "YOU LOST"}
+                                        </p>
                                    </div>
                               )}
                          </div>
                     )}
-                    <div>{gameState}</div>
+                    <div className="mt-6">
+                         <p className="text-2xl font-ginto font-semibold ">
+                              {gameState}
+                         </p>
+                    </div>
                     {/* <div>restart</div> */}
                </div>
           </>

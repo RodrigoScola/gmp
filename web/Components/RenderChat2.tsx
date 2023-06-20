@@ -249,7 +249,7 @@ export const RenderChatMesages = (props: {
 
                               if (message.userId === user?.id) {
                                    return (
-                                        <div>
+                                        <div key={i}>
                                              <MessageCard
                                                   message={message}
                                                   username={
@@ -262,7 +262,7 @@ export const RenderChatMesages = (props: {
                                    );
                               }
                               return (
-                                   <div>
+                                   <div key={i}>
                                         <MessageCard
                                              message={message}
                                              username={

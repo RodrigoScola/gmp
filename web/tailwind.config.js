@@ -21,10 +21,12 @@ module.exports = {
                },
                red: {
                     DEFAULT: "#ED4245",
+                    ...colors.red,
                },
                green: {
                     400: "#3BA55C",
                     DEFAULT: "#3BA55C",
+                    ...colors.green,
                },
           },
           fontFamily: {
@@ -51,6 +53,8 @@ module.exports = {
                     blue: {
                          900: "#7289DA",
                          1000: "#080c17",
+
+                         ...colors.blue,
                     },
                },
           },

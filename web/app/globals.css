@@ -6,26 +6,75 @@
 
 @import url("https://fonts.googleapis.com/css2?family=Geologica:wght@100&display=swap");
 
+.ttc_square_row_0_col_0 {
+     @apply border-b border-r;
+}
+.ttc_square_row_0_col_1 {
+     @apply border-b border-r;
+}
+.ttc_square_row_0_col_2 {
+     @apply border-b;
+}
+.ttc_square_row_1_col_0 {
+     @apply border-b border-r;
+}
+.ttc_square_row_1_col_1 {
+     @apply border-b border-r;
+}
+.ttc_square_row_1_col_2 {
+     @apply border-b;
+}
+
+.ttc_square_row_2_col_0 {
+     @apply border-r;
+}
+.ttc_square_row_2_col_1 {
+     @apply border-r;
+}
 .simon_red {
-     background-color: red;
+     background-color: #e60000;
+     border-color: #72767d;
+     border-radius: 4px;
+     box-shadow: 0px 8px 0px 0px rgba(170, 0, 0, 1);
+}
+.simon_red:active {
+     background-color: #b30000;
+}
+.simon_button {
+     position: relative;
+}
+.simon_button:active {
+     transition: all;
+     transition-duration: 50ms;
+     margin-top: 3px;
+     box-shadow: 0px 2px 0px 0px rgba(120, 0, 0, 1);
 }
 .simon_red_blink {
-     background-color: darkred;
+     background-color: #b30000;
 }
 .simon_blue {
      background-color: blue;
+     border-color: #6666ff;
+     border-radius: 4px;
+     box-shadow: 0px 8px 0px 0px rgba(0, 0, 170, 1);
 }
 .simon_blue_blink {
      background-color: darkblue;
 }
 .simon_green {
-     background-color: green;
+     background-color: #e6b800;
+     border-color: #997a00;
+     border-radius: 4px;
+     box-shadow: 0px 8px 0px 0px rgba(0, 140, 0, 1);
 }
 .simon_green_blink {
      background-color: darkgreen;
 }
 .simon_yellow {
-     background-color: yellow;
+     background-color: #99ff33;
+     border-color: #73e600;
+     border-radius: 4px;
+     box-shadow: 0px 8px 0px 0px rgb(89, 179, 0);
 }
 .simon_yellow_blink {
      background-color: darkgoldenrod;
@@ -43,7 +92,6 @@
           user-select: none; /* Standard syntax */
      }
 }
-
 @layer components {
      .input {
           border-radius: 4px;

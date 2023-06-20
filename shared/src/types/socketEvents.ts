@@ -155,7 +155,7 @@ export type GameQueueClientEvents = {
      get_state: (callback: (state: GameQueueState) => void) => void;
 };
 export type GameQueueServerEvents = {
-     game_found: (gameid: string) => void;
+     game_found: (data: { gameId: string; gameName: GameNames }) => void;
      state_change: (state: GameQueueState) => void;
 };
 

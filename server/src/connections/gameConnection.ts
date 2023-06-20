@@ -1,19 +1,19 @@
+import { Socket } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
-import { GameNames, IGame } from "../../../shared/src/types/game";
-import {
-     ClientToServerEvents,
-     ServerToClientEvents,
-} from "../../../shared/src/types/socketEvents";
-import { SocketUser, UserGameState } from "../../../shared/src/types/users";
 import {
      MatchPlayerState,
      getGame,
 } from "../../../shared/src/handlers/gameHandlers";
 import { GameRoom, roomHandler } from "../../../shared/src/handlers/room";
 import { uhandler } from "../../../shared/src/handlers/usersHandler";
-import { getRoomId } from "../server";
-import { Socket } from "socket.io";
+import { GameNames, IGame } from "../../../shared/src/types/game";
+import {
+     ClientToServerEvents,
+     ServerToClientEvents,
+} from "../../../shared/src/types/socketEvents";
 import { MyIo, MySocket, SocketData } from "../../../shared/src/types/types";
+import { SocketUser, UserGameState } from "../../../shared/src/types/users";
+import { getRoomId } from "../server";
 
 export const gameHandlerConnection = (
      io: MyIo,
@@ -93,9 +93,8 @@ export const gameHandlerConnection = (
                MatchPlayerState.waiting_rematch
           );
           if (room?.match.canRematch()) {
-               console.log("rematchh");
                const state = room?.match.rematch();
-
+               console.log(state);
                io.to(getRoomId(socket)).emit("rematch_accept", state);
           } else {
                socket.broadcast.to(getRoomId(socket)).emit("rematch");

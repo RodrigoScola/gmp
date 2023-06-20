@@ -5,5 +5,5 @@ import { ChildrenType } from "@/types";
 
 export default function PLAYLAYOUT({ children }: { children: ChildrenType }) {
      useProtectedRoute();
-     return <div>{children}</div>;
+     return <div className="">{children}</div>;
 }

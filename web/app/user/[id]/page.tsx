@@ -3,6 +3,7 @@ import { GameData, getGameData } from "@/../shared/src/game/gameUtils";
 import { LogoutButton } from "@/Components/buttons/LogoutButton";
 import { FriendsTab } from "@/Components/tabs/FriendsTab";
 import { db } from "@/db/supabase";
+import { useBackgroundColor } from "@/hooks/useBackgroundColor";
 import { useUser } from "@/hooks/useUser";
 import { chatSocket } from "@/lib/socket";
 import { Avatar } from "@chakra-ui/react";
@@ -20,6 +21,7 @@ export default function PROFILEPAGE({
      };
 }) {
      const { user: currentUser, getFriends, friends } = useUser();
+     const a = useBackgroundColor("bg-gray-700");
      const [user, setUser] = useState<IUser>({
           created_at: Date.now().toString(),
           email: "defaultemail@gmail.com",

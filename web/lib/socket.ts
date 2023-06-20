@@ -1,19 +1,19 @@
+import { socketUrl } from "@/constants";
 import { io, Socket as SC } from "socket.io-client";
+import { GameNames } from "../../shared/src/types/game";
 import {
-     ServerToClientEvents,
-     ClientToServerEvents,
      ChatClientEvents,
      ChatServerEvents,
+     ClientToServerEvents,
      GameQueueClientEvents,
      GameQueueServerEvents,
-     UserServerEvents,
+     ServerToClientEvents,
      UserClientEvents,
-     UsersServerEvents,
      UsersClientEvents,
+     UserServerEvents,
+     UsersServerEvents,
 } from "../../shared/src/types/socketEvents";
 import { IUser } from "../../shared/src/types/users";
-import { GameNames } from "../../shared/src/types/game";
-import { socketUrl } from "@/constants";
 
 export const socket: SC<ClientToServerEvents, ServerToClientEvents> = io(
      socketUrl,
