@@ -151,7 +151,7 @@ app.get("/games/:roomId", (req, res) => {
      if (!room) {
           roomHandler.createRoom<GameRoom>(
                req.params.roomId,
-               new GameRoom(req.params.roomId, getGame(gamename))
+               new GameRoom(req.params.roomId, getGame(gamename as GameNames))
           );
           room = getRoom(req.params.roomId);
           res.send(room);
