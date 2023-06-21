@@ -34,7 +34,7 @@ export const whitney = localFont({
                style: "normal",
           },
           {
-               path: "../font/WhitneySemibolditalic.otf",
+               path: "../font/WhitneySemiboldItalic.otf",
                weight: "600",
                style: "italic",
           },
