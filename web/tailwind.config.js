@@ -9,6 +9,10 @@ module.exports = {
           // Or if using `src` directory:
           "./src/**/*.{js,ts,jsx,tsx}",
      ],
+     purge: [
+          "./src/**/*.{js,ts,jsx,tsx}",
+          // Add more here
+     ],
      theme: {
           colors: {
                ...colors,
