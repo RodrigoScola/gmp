@@ -1,36 +1,78 @@
 "use client";
+import { AccountProviders, } from "@/Components/accountProviders/AccountProviderButtons";
+import { baseUrl } from "@/constants";
 import { useObject } from "@/hooks/useObject";
+import { useNotification } from "@/hooks/useToast";
 import { useUser } from "@/hooks/useUser";
+import { Button, FormControl, FormLabel, Input } from "@chakra-ui/react";
+import dynamic from "next/dynamic";
+import Link from "next/link";
+import { useSupabase } from "../supabase-provider";
+const ProviderButton = dynamic(() => import("@/Components/accountProviders/AccountProviderButtons").then((r) => r.ProviderButton));
 export default function LOGINPAGE() {
     const [state, setState] = useObject({
         email: "",
         password: "",
     });
-    const user = useUser();
+    const mainUser = useUser();
+    const { supabase } = useSupabase();
+    const { addNotification } = useNotification();
     const handleChange = (e) => {
         setState({
             [e.target.name]: e.target.value,
         });
     };
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        user.logout();
-        user.login(state.email, state.password);
+        await mainUser.logout();
+        const data = await mainUser.login(state.email, state.password);
+        if (data) {
+            window.location.href = process.env.SITE_URL ?? "/";
+        }
+        else {
+            addNotification("invalid credentials", {
+                status: "warning",
+                position: "top",
+            });
+        }
     };
-    console.log(user);
-    return (<>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>
-            email
-            <input onChange={handleChange} name="email" value={state.email} type="email"/>
-          </label>
-          <label>
-            password
-            <input onChange={handleChange} name="password" value={state.password} type="password"/>
-          </label>
-        </div>
-        <button type="submit">login</button>
-      </form>
-    </>);
+    const handleProviderSignIn = async (provider) => {
+        await supabase.auth.signInWithOAuth({
+            provider: provider,
+        });
+    };
+    return (<div className="flex items-center h-[80vh]">
+               <form className="m-auto w-fit" onSubmit={handleSubmit}>
+                    <div>
+                         <FormControl>
+                              <FormLabel>Email</FormLabel>
+                              <Input className="border-2" onChange={handleChange} name="email" value={state.email} type="email"/>
+                         </FormControl>
+                         <FormControl>
+                              <FormLabel className="flex flex-col">
+                                   Password
+                              </FormLabel>
+                              <Input className="border-2" onChange={handleChange} name="password" value={state.password} type="password"/>
+                         </FormControl>
+                    </div>
+                    <div className="py-3 w-full flex">
+                         <Button w={"full"} variant={"outline"} colorScheme="whatsapp" className="py-5" type="submit">
+                              login
+                         </Button>
+                    </div>
+                    <div className="gap-2 pt-3 flex flex-col">
+                         {Object.keys(AccountProviders).map((provider) => {
+            return (<ProviderButton key={provider} provider={provider} handleClick={handleProviderSignIn}/>);
+        })}
+                    </div>
+                    <div className="flex justify-center flex-col pt-2">
+                         <div className="text-center ">
+                              <p>Dont have an account yet? </p>
+                              <Link className="text-center" href={`${baseUrl}/register`}>
+                                   Click here
+                              </Link>
+                         </div>
+                    </div>
+               </form>
+          </div>);
 }

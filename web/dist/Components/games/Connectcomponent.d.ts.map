@@ -1,1 +1,1 @@
-{"version":3,"file":"Connectcomponent.d.ts","sourceRoot":"","sources":["../../../Components/games/Connectcomponent.tsx"],"names":[],"mappings":";AAUA,OAAO,EAKL,kBAAkB,EAEnB,MAAM,gCAAgC,CAAC;AA+IxC,MAAM,CAAC,OAAO,UAAU,eAAe,CAAC,KAAK,EAAE,kBAAkB,eAgMhE"}
+{"version":3,"file":"Connectcomponent.d.ts","sourceRoot":"","sources":["../../../Components/games/Connectcomponent.tsx"],"names":[],"mappings":";AAQA,OAAO,EAKF,kBAAkB,EAEtB,MAAM,gCAAgC,CAAC;AAwJxC,MAAM,CAAC,OAAO,UAAU,eAAe,CAAC,KAAK,EAAE,kBAAkB,eAkPhE"}

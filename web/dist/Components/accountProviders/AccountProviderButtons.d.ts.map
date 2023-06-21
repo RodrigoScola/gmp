@@ -1,0 +1,1 @@
+{"version":3,"file":"AccountProviderButtons.d.ts","sourceRoot":"","sources":["../../../Components/accountProviders/AccountProviderButtons.tsx"],"names":[],"mappings":"AAEA,eAAO,MAAM,gBAAgB;;;;;CAanB,CAAC;AACX,MAAM,MAAM,mBAAmB,GAAG,MAAM,OAAO,gBAAgB,CAAC;AAChE,eAAO,MAAM,cAAc;cAIZ,mBAAmB;4BACL,mBAAmB,KAAK,QAAQ,IAAI,CAAC;iBAWjE,CAAC"}

@@ -1,15 +1,20 @@
-// 'use client'
-import ConnectFourComponent from "@/Components/games/Connectcomponent";
-import RPSComponent from "@/Components/games/RPSGameComponent";
-import { SimonSaysComponent } from "@/Components/games/SimonSaysComponent";
-import TicTacToeGameComponent from "@/Components/games/TicTacToeComponent";
-export default async function RenderGame({ params: { id }, }) {
+import dynamic from "next/dynamic";
+const ConnectFourComponent = dynamic(() => import("@/Components/games/Connectcomponent"));
+const RPSComponent = dynamic(() => import("@/Components/games/RPSGameComponent"));
+const SimonSaysComponent = dynamic(() => import("@/Components/games/SimonSaysComponent").then((r) => r.SimonSaysComponent));
+const TicTacToeComponent = dynamic(() => import("@/Components/games/TicTacToeComponent"));
+import { serverURl } from "@/constants";
+export default async function RenderGame({ params: { id }, searchParams: { gamename }, }) {
+    let url = `${serverURl}/games/${id}`;
+    if (gamename !== "") {
+        url = `${url}?gamename=${gamename}`;
+    }
     // return <TicTacToeGameComponent />
-    const data = await fetch(`http://localhost:3001/${id}`, {
+    const data = await fetch(url, {
         cache: "no-store",
     });
     const jsondata = await data.json();
-    // console.log(data.json());
+    console.log(jsondata);
     try {
         console.log(jsondata.match.game.name);
     }
@@ -19,9 +24,9 @@ export default async function RenderGame({ params: { id }, }) {
     }
     switch (jsondata.match.game.name) {
         case "Rock Paper Scissors":
-            return <RPSComponent gameId={id} gameName={jsondata.match.game.name}/>;
+            return (<RPSComponent gameId={id} gameName={jsondata.match.game.name}/>);
         case "Tic Tac Toe":
-            return (<TicTacToeGameComponent gameId={id} gameName={jsondata.match.game.name}/>);
+            return (<TicTacToeComponent gameId={id} gameName={jsondata.match.game.name}/>);
         case "connect Four":
             return (<ConnectFourComponent gameId={id} gameName={jsondata.match.game.name}/>);
         case "Simon Says":

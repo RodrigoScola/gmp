@@ -29,10 +29,11 @@ const height = rows * w + w;
 let playerPos = 0;
 let prevPlayerPos = 0;
 let win = 0;
-var canStart = false;
+var canStart = true;
 const playerBallColor = [114, 137, 218];
 const opponentBallColor = [185, 28, 28];
 
+console.log(canStart);
 class Ball {
      speed: number = 5;
      startY: number = 2;

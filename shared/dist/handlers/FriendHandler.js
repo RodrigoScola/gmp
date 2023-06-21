@@ -11,6 +11,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FriendHandler = void 0;
 const db_1 = require("../db");
+const users_1 = require("../types/users");
+const usersHandler_1 = require("./usersHandler");
 class FriendHandler {
     constructor(userId) {
         this._friends = new Map();
@@ -34,6 +36,14 @@ class FriendHandler {
                 .in("id", data);
             friendsProfile = friendsProfile;
             friendsProfile === null || friendsProfile === void 0 ? void 0 : friendsProfile.forEach((friend) => {
+                var _a, _b;
+                let f = friend;
+                f.status =
+                    (_b = (_a = usersHandler_1.uhandler.getUser(friend.id)) === null || _a === void 0 ? void 0 : _a.currentState) !== null && _b !== void 0 ? _b : users_1.UserState.offline;
+                if (f.status !== users_1.UserState.offline &&
+                    f.status !== users_1.UserState.online) {
+                    f.status = users_1.UserState.online;
+                }
                 this._friends.set(friend.id, friend);
             });
             return friendsProfile;

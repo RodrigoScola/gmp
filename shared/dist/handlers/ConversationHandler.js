@@ -10,8 +10,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.newMessage = exports.ConversationHandler = void 0;
-const users_1 = require("../types/users");
 const db_1 = require("../db");
+const users_1 = require("../types/users");
 const usersHandler_1 = require("./usersHandler");
 class ConversationHandler {
     constructor(users) {
@@ -46,7 +46,7 @@ class ConversationHandler {
     }
     addMessage(message) {
         return __awaiter(this, void 0, void 0, function* () {
-            const d = yield db_1.db
+            yield db_1.db
                 .from("messages")
                 .insert({
                 message: message.message,
@@ -55,7 +55,6 @@ class ConversationHandler {
                 created: message.created,
             })
                 .select();
-            console.log(d);
             this.messages.push(message);
         });
     }
@@ -68,11 +67,6 @@ class ConversationHandler {
                 .single();
             if (!file)
                 return;
-            this.conversation = {
-                id: file.id,
-                messages: [],
-                users: [{ id: file.user1 }, { id: file.user2 }],
-            };
             this.conversation.users.forEach((user) => {
                 if (this.users.has(user.id)) {
                     this.users.set(user.id, {
@@ -87,6 +81,7 @@ class ConversationHandler {
                     });
                 }
             });
+            return this.conversation;
         });
     }
     getUsers() {

@@ -45,7 +45,7 @@ export type ChatConversationType = {
 export interface IFriend extends IUser {
     badges?: Badges;
     games?: FriendsGamesType;
-    status?: OnlineStatusType;
+    status?: UserState;
     note?: string;
 }
 export interface ExtendedUser extends IUser {

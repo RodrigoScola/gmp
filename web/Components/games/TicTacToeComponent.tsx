@@ -53,7 +53,11 @@ export default function TicTacToeGameComponent(props: GameComponentProps) {
      });
 
      const [opponent, setOpponent] = useState<
-          | (IUser & { choice: TTCOptions | null; wins: number })
+          | (IUser & {
+                 choice: TTCOptions | null;
+                 wins: number;
+                 username: string;
+            })
           | { id: string; wins: number; username: string }
      >({
           username: "Yet to be found",
@@ -129,10 +133,10 @@ export default function TicTacToeGameComponent(props: GameComponentProps) {
           socket.on("get_players", (players: TTCPlayer[]) => {
                const opponent = players.find((player) => player.id != user.id);
                if (opponent) {
-                    setOpponent({
+                    setOpponent((curr) => ({
+                         ...curr,
                          ...opponent,
-                         wins: 0,
-                    });
+                    }));
                }
                const player = players.find((player) => player.id == user.id);
                if (player) {

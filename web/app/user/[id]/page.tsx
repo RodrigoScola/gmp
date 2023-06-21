@@ -21,7 +21,7 @@ export default function PROFILEPAGE({
      };
 }) {
      const { user: currentUser, getFriends, friends } = useUser();
-     const a = useBackgroundColor("bg-gray-700");
+     useBackgroundColor("bg-gray-700");
      const [user, setUser] = useState<IUser>({
           created_at: Date.now().toString(),
           email: "defaultemail@gmail.com",
@@ -70,7 +70,7 @@ export default function PROFILEPAGE({
 
      const [gamesArr, setGamesArr] = useState<IUser[][]>([]);
      useEffect(() => {
-          const arr: IUser[][] = [0, 1, 2, 3].map((_, i) => {
+          const arr: IUser[][] = [0, 1, 2, 3].map((_, __) => {
                const choice = Math.random() < 0.5;
                const user1 = {
                     created_at: Date.now().toString(),

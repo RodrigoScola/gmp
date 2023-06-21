@@ -1,3 +1,3 @@
 /// <reference types="react" />
-export default function Home(): JSX.Element;
+export default function DEFUALHOME(): JSX.Element;
 //# sourceMappingURL=page.d.ts.map

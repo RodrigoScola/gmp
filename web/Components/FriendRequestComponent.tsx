@@ -1,6 +1,10 @@
-import { IUser } from "../../shared/src/types/users";
+import { IFriend } from "../../shared/src/types/users";
 
-export const FriendRequestNotification = ({ friend }: { friend: IUser }) => {
+export const FriendRequestNotification = ({
+     friend,
+}: {
+     friend: IFriend | null;
+}) => {
      return (
           <div className="bg-gray-800 shadow-sm rounded-lg p-2">
                <h5 className="text-lg font-whitney ">

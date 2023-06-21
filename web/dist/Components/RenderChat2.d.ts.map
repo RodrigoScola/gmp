@@ -1,1 +1,1 @@
-{"version":3,"file":"RenderChat2.d.ts","sourceRoot":"","sources":["../../Components/RenderChat2.tsx"],"names":[],"mappings":"AAKA,OAAO,EACL,oBAAoB,EAGrB,MAAM,8BAA8B,CAAC;AAOtC,eAAO,MAAM,iBAAiB,UAAW;IACvC,YAAY,EAAE,oBAAoB,CAAC;IACnC,QAAQ,CAAC,EAAE,OAAO,CAAC;CACpB,gBAoNA,CAAC"}
+{"version":3,"file":"RenderChat2.d.ts","sourceRoot":"","sources":["../../Components/RenderChat2.tsx"],"names":[],"mappings":"AAUA,OAAO,EACF,oBAAoB,EAGxB,MAAM,8BAA8B,CAAC;AAKtC,eAAO,MAAM,iBAAiB,UAAW;IACpC,YAAY,EAAE,oBAAoB,CAAC;IACnC,QAAQ,CAAC,EAAE,OAAO,CAAC;CACvB,gBA6RA,CAAC"}

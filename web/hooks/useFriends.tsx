@@ -92,6 +92,9 @@ export const useFriend = (id?: string) => {
      const [friend, setFriend] = useState<IFriend | null>(null);
      const friendContext = useContext(FriendsContext);
      const t = useNotification();
+     const updateFriend = (user: IFriend) => {
+          friendContext?.updateFriend(user.id, user);
+     };
 
      const go = async () => {
           if (!friendId) return;
@@ -108,11 +111,12 @@ export const useFriend = (id?: string) => {
           setFriendId,
           id: friendId,
           friend: friend,
+          updateFriend,
           sendFriendRequest: (userId: string) => {
                userSocket.emit("add_friend", userId);
                console.log(`Friend request sent to ${userId}`);
                t.addNotification("Friend request sent", {
-                    render: () => <FriendRequestNotification />,
+                    render: () => <FriendRequestNotification friend={friend} />,
                });
           },
           sendInvite: (gameName: GameNames) => {

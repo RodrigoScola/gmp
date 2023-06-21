@@ -1,7 +1,7 @@
 /// <reference types="react" />
 import { ChildrenType } from "@/types";
-import { IFriend as Friend } from "../../shared/src/types/users";
 import { GameNames } from "../../shared/src/types/game";
+import { IFriend as Friend, IFriend } from "../../shared/src/types/users";
 export type FriendsContext = {
     friends: Friend[];
     addFriend: (friend: Friend) => void;
@@ -19,6 +19,7 @@ export declare const useFriend: (id?: string) => {
     setFriendId: import("react").Dispatch<import("react").SetStateAction<string | null | undefined>>;
     id: string | null | undefined;
     friend: Friend | null;
+    updateFriend: (user: IFriend) => void;
     sendFriendRequest: (userId: string) => void;
     sendInvite: (gameName: GameNames) => void;
 };

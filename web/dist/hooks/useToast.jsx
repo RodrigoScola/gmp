@@ -1,6 +1,6 @@
 "use client";
-import { createContext, useContext } from "react";
 import { useToast } from "@chakra-ui/react";
+import { createContext, useContext } from "react";
 export const NotificationContext = createContext(null);
 export const NotificationProvider = ({ children, }) => {
     const toast = useToast();
@@ -14,8 +14,8 @@ export const NotificationProvider = ({ children, }) => {
     return (<NotificationContext.Provider value={{
             addNotification: addNotification,
         }}>
-      {children}
-    </NotificationContext.Provider>);
+               {children}
+          </NotificationContext.Provider>);
 };
 export const useNotification = () => {
     const context = useContext(NotificationContext);

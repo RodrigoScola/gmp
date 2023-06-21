@@ -1,8 +1,16 @@
 "use client";
-import { FriendsTab } from "@/Components/tabs/FriendsTab";
 import { useUser } from "@/hooks/useUser";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+const FriendsTab = dynamic(
+     () => import("@/Components/tabs/FriendsTab").then((r) => r.FriendsTab),
+     {
+          loading: () => (
+               <div className="bg-gray-800 rounded-md p-4">loading...</div>
+          ),
+     }
+);
 
 export default function DEFUALHOME() {
      const { friends, user, getFriends } = useUser();

@@ -32,7 +32,7 @@ export declare class ChatRoom implements IRoom {
     messages: ConversationHandler;
     addUser(user: ChatUser): void;
     constructor(id: string, users?: SocketUser[]);
-    getConversation(): Promise<void>;
+    getConversation(conversationId?: string): Promise<import("../types/users").ChatConversationType | undefined>;
     delete(): void;
 }
 export declare class QueueRoom implements IRoom {

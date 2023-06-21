@@ -21,10 +21,9 @@ export const RenderChatMesages = (props) => {
             const friendId = props.chatMessages.users.find((i) => i.id != user.id);
             if (friendId) {
                 friend.setFriendId(friendId.id);
-                setAllChat(props.chatMessages);
             }
         }
-    }, [user.id]);
+    }, [user]);
     const [currentChat, setCurrentChat] = useState("");
     const documentRef = useRef(null);
     const [allChat, setAllChat] = useState({
@@ -67,6 +66,8 @@ export const RenderChatMesages = (props) => {
     const inputRef = useRef(null);
     const handleNewMessage = (e) => {
         e.preventDefault();
+        if (!user)
+            return;
         const message = newMessage(currentChat, user.id);
         setAllChat((current) => ({
             ...current,
@@ -81,63 +82,73 @@ export const RenderChatMesages = (props) => {
         });
     }, [lastMessage]);
     return (<div>
-      <div className="sticky top-0 flex justify-between bg-red-300">
-        <p>{props.user.username}</p>
-        <Popover>
-          <PopoverTrigger>
-            <div>Invite to game</div>
-          </PopoverTrigger>
-          <PopoverContent className="flex gap-2">
-            <div onClick={() => {
+               <div className="sticky top-0 flex justify-between bg-red-300">
+                    <p>{props.user.username}</p>
+                    <Popover>
+                         <PopoverTrigger>
+                              <div>Invite to game</div>
+                         </PopoverTrigger>
+                         <PopoverContent className="flex gap-2">
+                              <div onClick={() => {
             friend.sendInvite("connect Four");
         }}>
-              connect4
-            </div>
-            <div onClick={() => {
+                                   connect4
+                              </div>
+                              <div onClick={() => {
             friend.sendInvite("Tic Tac Toe");
         }}>
-              tic tac toe
-            </div>
-            <div onClick={() => {
+                                   tic tac toe
+                              </div>
+                              <div onClick={() => {
             friend.sendInvite("Rock Paper Scissors");
         }}>
-              rock paper scissors
-            </div>
-          </PopoverContent>
-        </Popover>
-      </div>
-      <div className="space-y-2 px-6 text-white">
-        {allChat?.messages.map((message, i) => {
+                                   rock paper scissors
+                              </div>
+                         </PopoverContent>
+                    </Popover>
+               </div>
+               <div className="space-y-2 px-6 text-white">
+                    {allChat?.messages.map((message, i) => {
             if (allChat.messages[0].userId !== message.userId) {
                 return (<div key={i + message.created} className="flex justify-end">
-                <div className=" bg-blue-700 flex items-center p-1 rounded-full right-0 w-fit space-x-2">
-                  <div className="flex text-sm text-gray-400/50">
-                    <p>{new Date(message.created).getHours()} : </p>
-                    <p>{new Date(message.created).getMinutes()}</p>
-                  </div>
-                  <p>{message.message}</p>
-                </div>
-              </div>);
+                                        <div className=" bg-blue-700 flex items-center p-1 rounded-full right-0 w-fit space-x-2">
+                                             <div className="flex text-sm text-gray-400/50">
+                                                  <p>
+                                                       {new Date(message.created).getHours()}{" "}
+                                                       :{" "}
+                                                  </p>
+                                                  <p>
+                                                       {new Date(message.created).getMinutes()}
+                                                  </p>
+                                             </div>
+                                             <p>{message.message}</p>
+                                        </div>
+                                   </div>);
             }
             else {
                 return (<div key={i} className="flex justify-start">
-                <div className=" bg-blue-700 flex items-center p-1 rounded-full right-0 w-fit space-x-2">
-                  <div className="flex text-sm text-gray-400/50">
-                    <p>{new Date(message.created).getHours()} : </p>
-                    <p>{new Date(message.created).getMinutes()}</p>
-                  </div>
-                  <p>{message.message}</p>
-                </div>
-              </div>);
+                                        <div className=" bg-blue-700 flex items-center p-1 rounded-full right-0 w-fit space-x-2">
+                                             <div className="flex text-sm text-gray-400/50">
+                                                  <p>
+                                                       {new Date(message.created).getHours()}{" "}
+                                                       :{" "}
+                                                  </p>
+                                                  <p>
+                                                       {new Date(message.created).getMinutes()}
+                                                  </p>
+                                             </div>
+                                             <p>{message.message}</p>
+                                        </div>
+                                   </div>);
             }
         })}
-      </div>
-      <div className="px-6">
-        <form ref={documentRef} onSubmit={handleNewMessage}>
-          <input className="w-full mt-2" value={currentChat} onChange={(e) => {
+               </div>
+               <div className="px-6">
+                    <form ref={documentRef} onSubmit={handleNewMessage}>
+                         <input className="w-full mt-2" value={currentChat} onChange={(e) => {
             setCurrentChat(e.target.value);
         }} ref={inputRef} type="text"/>
-        </form>
-      </div>
-    </div>);
+                    </form>
+               </div>
+          </div>);
 };

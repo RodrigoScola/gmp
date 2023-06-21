@@ -1,0 +1,1 @@
+{"version":3,"file":"FriendAvatar.d.ts","sourceRoot":"","sources":["../../../Components/Friends/FriendAvatar.tsx"],"names":[],"mappings":"AAAA,OAAO,EAAE,OAAO,EAAa,MAAM,6BAA6B,CAAC;AACjE,OAAO,EAGF,gBAAgB,EAChB,WAAW,EACf,MAAM,kBAAkB,CAAC;AAE1B,eAAO,MAAM,YAAY,UACb,WAAW,GAAG;IAAE,MAAM,EAAE,OAAO,CAAC;IAAC,UAAU,CAAC,EAAE,gBAAgB,CAAA;CAAE,gBAe3E,CAAC"}

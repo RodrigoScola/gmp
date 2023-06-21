@@ -8,7 +8,7 @@ export declare class ConversationHandler {
     addUser(user: MessageUser): void;
     newMessage(userId: string, content: string): NewChatChatMessageType;
     addMessage(message: ChatMessageType): Promise<void>;
-    getConversation(conversationId: string): Promise<void>;
+    getConversation(conversationId: string): Promise<ChatConversationType | undefined>;
     getUsers(): IMainUser[];
 }
 export declare const newMessage: (userId: string, content: string) => ChatMessageType;

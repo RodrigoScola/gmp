@@ -1,0 +1,1 @@
+{"version":3,"file":"PointsComponent.d.ts","sourceRoot":"","sources":["../../Components/PointsComponent.tsx"],"names":[],"mappings":"AAAA,OAAO,EAAE,KAAK,EAAE,MAAM,8BAA8B,CAAC;AAErD,KAAK,MAAM,GAAG,IAAI,CAAC,KAAK,EAAE,YAAY,GAAG,OAAO,CAAC,GAAG;IAAE,KAAK,EAAE,MAAM,CAAA;CAAE,CAAC;AACtE,eAAO,MAAM,eAAe;aAId,MAAM;aACN,MAAM;iBA6BnB,CAAC"}

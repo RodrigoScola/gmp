@@ -7,6 +7,6 @@ export declare class RoundHandler<T extends RPSRound | TTCRound | SMSRound | CFR
     addRound(round: RoundType<T>): void;
     countWins(playerId: string): number;
     isWinner(playerId: string): boolean;
-    hasGameWinner(): number | false;
-    getWinner(): [string, any] | null;
+    hasGameWinner(): string | null;
+    getWinner(): string | null;
 }

@@ -1,6 +1,6 @@
-import { PlayerHandler } from "../handlers/usersHandler";
-import { RPSPlayer, RPSRound, Game, RPSOptions, GameNames, RPSMove, RPSstate } from "../types/game";
 import { RoundHandler } from "../handlers/RoundHandler";
+import { PlayerHandler } from "../handlers/usersHandler";
+import { Game, GameNames, RPSMove, RPSOptions, RPSPlayer, RPSRound, RPSstate } from "../types/game";
 export declare const RockPaperScissorsMaxWins = 5;
 export declare class RockPaperScissorsGame extends Game<"Rock Paper Scissors"> {
     name: GameNames;

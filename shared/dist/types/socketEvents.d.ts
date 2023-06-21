@@ -1,7 +1,14 @@
 import { CFBoard } from "../game/c4Game";
 import { CFMove, CFRound, CFState, GameNames, GameType, RPSMove, RPSRound, RPSstate, RoundType, SMSMove, SMState, TTCCombination, TTCMove, TTCState } from "./game";
 import { Coords } from "./types";
-import { ChatMessageType, ChatUser, GameInvite, GameInviteOptions, IUser, NewChatChatMessageType, SocketUser } from "./users";
+import { ChatConversationType, ChatMessageType, ChatUser, GameInvite, GameInviteOptions, IFriend, IUser, NewChatChatMessageType, SocketUser } from "./users";
+export type ChatRoomState = {
+    id: string;
+    users: ChatUser[];
+};
+export type GameQueueState = {
+    length: number;
+};
 export interface ServerToClientEvents {
     join_room: (roomId: string) => void;
     rps_choice: (player: RPSMove) => void;
@@ -59,10 +66,11 @@ export interface ChatServerEvents {
     }) => void;
     receive_message: (message: ChatMessageType, callback?: (err: Error | null, data: any) => void) => void;
     user_joined: (user: SocketUser[]) => void;
-    state_change: (state: ChatUser) => void;
+    state_change: (state: ChatRoomState) => void;
 }
 export interface ChatClientEvents {
     join_room: (roomId: string) => void;
+    find_conversation: (user1: string, user2: string, callback: (conversation: ChatConversationType) => void) => void;
     send_message: (message: NewChatChatMessageType, callback?: (params: {
         received: boolean;
     }) => void) => void;
@@ -70,36 +78,45 @@ export interface ChatClientEvents {
 }
 export type UserServerEvents = {
     friend_request: (friendid: string, callback: (...args: any) => void) => void;
+    update_user: (user: SocketUser) => void;
     add_friend: (friendid: string, callback?: (...args: any) => void) => void;
     game_invite_response: (action: GameInviteOptions, invite: GameInvite, callback: (invite: GameInvite) => void) => void;
     game_invite_accepted: (invite: GameInvite) => void;
-    game_invite: (gameInvite: GameInvite) => void;
-    notification_message: (params: {
-        user: SocketUser;
-    }) => void;
     get_friends: (userId: string, callback: (friends: IUser[]) => void) => void;
+    game_invite: (gameName: GameNames, userId: string) => void;
     add_friend_response: (friend: IUser) => void;
     add_friend_answer: (from: IUser, response: "accepted" | "declined") => void;
 };
 export type UserClientEvents = {
     game_invite_accepted: (invite: GameInvite) => void;
+    notification_message: (params: {
+        user: SocketUser;
+    }) => void;
     get_friends: (userId: string, callback: (friends: IUser[]) => void) => void;
+    game_invite: (gameInvite: GameInvite) => void;
     add_friend_answer: (user: IUser, response: "accepted" | "declined") => void;
     game_invite_response: (action: GameInviteOptions, invite: GameInvite, callback: (invite: GameInvite) => void) => void;
     add_friend_response: (user: IUser) => void;
-    game_invite: (gameName: GameNames, userId: string) => void;
     add_friend: (friendid: string, callback?: (...args: any) => void) => void;
 };
 export type GameQueueClientEvents = {
     join_queue: (gameName: GameType | GameType[]) => void;
+    get_state: (callback: (state: GameQueueState) => void) => void;
 };
 export type GameQueueServerEvents = {
-    game_found: (gameid: string) => void;
+    game_found: (data: {
+        gameId: string;
+        gameName: GameNames;
+    }) => void;
+    state_change: (state: GameQueueState) => void;
 };
 export type UsersServerEvents = {
-    get_user: (userId: string, callback?: (user: IUser | null, ...args: any) => void) => void;
+    get_user: (userId: string, callback?: (user: IFriend | null, ...args: any) => void) => void;
+    get_friends: (userId: string, callback?: (friends: IFriend[]) => void) => void;
     search_users: (username: string, callback?: (...args: any) => void) => void;
 };
 export type UsersClientEvents = {
+    get_user: (userId: string, callback?: (user: IFriend | null, ...args: any) => void) => void;
+    get_friends: (userId: string, callback?: (friends: IFriend[]) => void) => void;
     search_users: (username: string, callback?: (...args: any) => void) => void;
 };

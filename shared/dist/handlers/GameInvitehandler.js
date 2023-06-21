@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GameInviteHandler = void 0;
+const crypto_1 = require("crypto");
 class GameInviteHandler {
     // private toInvites: Map<string, string>;
     // private frominvites: Map<string, string>;
@@ -8,12 +9,12 @@ class GameInviteHandler {
         this.invites = new Map();
     }
     addInvite(from, to, gameName) {
-        const inviteId = Date.now().toString();
+        const inviteId = (0, crypto_1.randomUUID)();
         const gameInvite = {
             gameName: gameName,
-            roomId: "a0s9df0a9sdjf",
+            roomId: (0, crypto_1.randomUUID)(),
             from: from,
-            inviteId,
+            inviteId: inviteId,
             to: to,
             state: "pending",
         };

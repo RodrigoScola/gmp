@@ -1,12 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getGame = exports.MatchHandler = exports.MatchPlayerState = exports.getRoomId = void 0;
-const rockpaperScissors_1 = require("../game/rockpaperScissors");
 const TicTacToeGame_1 = require("../game/TicTacToeGame");
-const room_1 = require("./room");
 const c4Game_1 = require("../game/c4Game");
-const usersHandler_1 = require("./usersHandler");
+const rockpaperScissors_1 = require("../game/rockpaperScissors");
 const simonSays_1 = require("../game/simonSays");
+const room_1 = require("./room");
+const usersHandler_1 = require("./usersHandler");
 const getRoomId = (socket) => socket.handshake.auth["roomId"];
 exports.getRoomId = getRoomId;
 const handleSimonSaysGame = (_, socket, game
@@ -55,7 +55,6 @@ const handleTTCGame = (io, socket, game
     socket.on("ttc_choice", ({ move }) => {
         console.log(game.isPlayerTurn(move.id));
         if (game.isPlayerTurn(move.id)) {
-            console.log(move);
             game.play(move);
             io.to((0, exports.getRoomId)(socket)).emit("ttc_choice", {
                 board: game.board.board,
@@ -66,10 +65,13 @@ const handleTTCGame = (io, socket, game
         if (winner.winner) {
             io.to((0, exports.getRoomId)(socket)).emit("ttc_game_winner", winner);
             setTimeout(() => {
-                io.to((0, exports.getRoomId)(socket)).emit("new_round");
                 game.newRound();
+                io.to((0, exports.getRoomId)(socket)).emit("new_round");
             }, 1000);
         }
+    });
+    socket.on("get_state", (callback) => {
+        callback(game.getState());
     });
 };
 const handleRpsGame = (io, socket, game
@@ -85,10 +87,12 @@ const handleRpsGame = (io, socket, game
         }, player.choice);
         const roundWinner = game === null || game === void 0 ? void 0 : game.hasRoundWinner();
         if (roundWinner) {
+            console.table(roundWinner);
             io.to((0, exports.getRoomId)(socket)).emit("round_winner", roundWinner);
             game === null || game === void 0 ? void 0 : game.newRound();
             const gameWinner = game === null || game === void 0 ? void 0 : game.hasGameWin();
             if (gameWinner) {
+                console.table(gameWinner);
                 const winner = (_a = usersHandler_1.uhandler.getUser(gameWinner.id)) === null || _a === void 0 ? void 0 : _a.user;
                 if (winner) {
                     io.to((0, exports.getRoomId)(socket)).emit("rps_game_winner", {
@@ -102,7 +106,7 @@ const handleRpsGame = (io, socket, game
             else {
                 setTimeout(() => {
                     io.to((0, exports.getRoomId)(socket)).emit("new_round");
-                }, 10);
+                }, 2000);
             }
         }
         io.to((0, exports.getRoomId)(socket)).emit("rps_choice", {
@@ -168,7 +172,6 @@ class MatchHandler {
         this.players.getPlayers().forEach((player) => {
             this.changePlayerState(player.id, MatchPlayerState.playing);
         });
-        console.log(this.game.players);
         return this.game;
     }
     newGame(gameName) {
@@ -189,9 +192,7 @@ class MatchHandler {
     }
 }
 exports.MatchHandler = MatchHandler;
-const saveGame = (_) => {
-    console.log("game saved");
-};
+const saveGame = (_) => { };
 const getGame = (gameName) => {
     switch (gameName) {
         case "Tic Tac Toe":

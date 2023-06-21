@@ -29,9 +29,10 @@ declare class MainUserHandler {
     invites: GameInviteHandler;
     userNames: Map<string, string>;
     constructor();
-    addUser(user: SocketUser): MainUser;
+    addUser(user: SocketUser): MainUser | undefined;
     updateUser(userId: string, info: Partial<IMainUser>): IMainUser | undefined;
     getUsers(): MainUser[];
+    hasUser(userid: string): boolean;
     getUser(id: string): MainUser | undefined;
     getUserByUsername(username: string): string | undefined;
     deleteUser(id: string): void;
@@ -51,6 +52,7 @@ export declare class UsersHandlers<T = {
     addUser(user: T & {
         id: string;
     }): void;
+    hasUser(userid: string): boolean;
     updateUser(userId: string, info: Partial<T>): void;
     getUsers(): (T & {
         id: string;
@@ -64,6 +66,8 @@ export declare class PlayerHandler<T extends Player> {
     players: Record<string, T & {
         id: string;
     }>;
+    length: number;
+    constructor();
     addPlayer(player: T & {
         id: string;
     }): void;

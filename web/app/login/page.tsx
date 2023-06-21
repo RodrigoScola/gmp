@@ -1,16 +1,21 @@
 "use client";
-import { Button, FormControl, FormLabel, Input } from "@chakra-ui/react";
-import Link from "next/link";
-import { useObject } from "@/hooks/useObject";
-import { useUser } from "@/hooks/useUser";
-import { useSupabase } from "../supabase-provider";
 import {
      AccountProviderType,
      AccountProviders,
-     ProviderButton,
 } from "@/Components/accountProviders/AccountProviderButtons";
 import { baseUrl } from "@/constants";
+import { useObject } from "@/hooks/useObject";
 import { useNotification } from "@/hooks/useToast";
+import { useUser } from "@/hooks/useUser";
+import { Button, FormControl, FormLabel, Input } from "@chakra-ui/react";
+import dynamic from "next/dynamic";
+import Link from "next/link";
+import { useSupabase } from "../supabase-provider";
+const ProviderButton = dynamic(() =>
+     import("@/Components/accountProviders/AccountProviderButtons").then(
+          (r) => r.ProviderButton
+     )
+);
 
 export default function LOGINPAGE() {
      const [state, setState] = useObject({

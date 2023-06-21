@@ -1,7 +1,7 @@
 "use client";
-import { createContext, useContext, useEffect, useState } from "react";
 import { createBrowserSupabaseClient, } from "@supabase/auth-helpers-nextjs";
 import { useRouter } from "next/navigation";
+import { createContext, useContext, useEffect, useState } from "react";
 import { useUpdateEffect } from "usehooks-ts";
 const Context = createContext(undefined);
 export default function SupabaseProvider({ children, }) {
@@ -10,7 +10,9 @@ export default function SupabaseProvider({ children, }) {
     const [session, setSession] = useState(null);
     const h = async () => {
         const data = await supabase.auth.getSession();
-        setSession(data.data.session);
+        if ("session" in data.data) {
+            setSession(data.data.session);
+        }
     };
     useUpdateEffect(() => {
         if (!session) {
@@ -18,7 +20,15 @@ export default function SupabaseProvider({ children, }) {
         }
     }, [supabase]);
     useEffect(() => {
-        const { data: { subscription }, } = supabase.auth.onAuthStateChange(() => {
+        const { data: { subscription }, } = supabase.auth.onAuthStateChange((eventType, session) => {
+            console.log(eventType);
+            console.log(session);
+            if (eventType == "SIGNED_OUT") {
+                setSession(null);
+            }
+            else {
+                setSession(session);
+            }
             router.refresh();
         });
         return () => {
@@ -26,8 +36,8 @@ export default function SupabaseProvider({ children, }) {
         };
     }, [router, supabase]);
     return (<Context.Provider value={{ supabase, session }}>
-      <>{children}</>
-    </Context.Provider>);
+               {children}
+          </Context.Provider>);
 }
 export const useSupabase = () => {
     const context = useContext(Context);

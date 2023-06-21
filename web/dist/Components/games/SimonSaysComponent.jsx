@@ -1,9 +1,9 @@
 "use client";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { SimonGameState, } from "../../../shared/src/types/game";
-import { useUpdateEffect } from "usehooks-ts";
-import { newSocketAuth, socket } from "@/lib/socket";
 import { useUser } from "@/hooks/useUser";
+import { newSocketAuth, socket } from "@/lib/socket";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useUpdateEffect } from "usehooks-ts";
+import { SimonGameState, } from "../../../shared/src/types/game";
 export const gameId = "a0s9df0a9sdjf";
 export const SimonSaysComponent = (props) => {
     const [colors, _] = useState(["blue", "green", "yellow", "red"]);
@@ -34,7 +34,6 @@ export const SimonSaysComponent = (props) => {
         return false;
     }, [gamePlayState]);
     const gameLost = () => {
-        console.log("you lost");
         setGamePlayState(SimonGameState.END);
     };
     const setMaxScore = (score) => {
@@ -42,7 +41,7 @@ export const SimonSaysComponent = (props) => {
         localStorage.setItem("simon_max_score", score.toString());
     };
     const addToSequence = (color) => {
-        if (!canPlay)
+        if (!canPlay || !user)
             return;
         socket.emit("sms_move", {
             id: user.id,
@@ -89,6 +88,8 @@ export const SimonSaysComponent = (props) => {
     };
     const { user } = useUser();
     useEffect(() => {
+        if (!user)
+            return;
         socket.auth = newSocketAuth({
             gameName: props.gameName,
             roomId: props.gameId,
@@ -98,14 +99,18 @@ export const SimonSaysComponent = (props) => {
         socket.emit("join_room", props.gameId);
         socket.on("sms_new_round", (state) => {
             setGameState(state);
+            console.log(state);
             setPlayerSequence([]);
         });
         socket.on("sms_game_lost", () => {
+            socket.emit("get_state", (state) => {
+                console.log(state, "this is the state");
+            });
             gameLost();
         });
         socket.on("start_game", () => {
             socket.emit("get_state", (state) => {
-                console.log(state);
+                console.log(state, "this is the state2");
                 setGameState(state);
             });
         });
@@ -115,30 +120,38 @@ export const SimonSaysComponent = (props) => {
             }
         };
     }, []);
-    return (<div className="w-fit m-auto">
-      <div className="flex  justify-around pb-10 ">
-        <div>
-          <p>best score</p>
-          <p className="text-center">{maxRound ?? 0}</p>
-        </div>
-        <div>
-          <p>current score</p>
-          <p className="text-center">{round ?? 0}</p>
-        </div>
-      </div>
-      <div className="grid grid-cols-2 gap-4 w-fit m-auto">
-        {colors.map((color) => {
-            return (<button disabled={!canPlay} key={`button_${color}`} name={color} ref={refs[color]} onClick={() => addToSequence(color)} className={`simon_${color} h-40 w-40`}></button>);
+    return (<div className="w-fit m-auto mt-12">
+               <div className="flex  justify-around pb-10 ">
+                    <div>
+                         <p className="font-ginto text-xl ">Best Score</p>
+                         <p className="text-center font-ginto font-semibold">
+                              {maxRound ?? 0}
+                         </p>
+                    </div>
+                    <div>
+                         <p className="font-ginto text-xl">Current Score</p>
+                         <p className="text-center font-ginto font-semibold">
+                              {round ?? 0}
+                         </p>
+                    </div>
+               </div>
+               <div className="grid grid-cols-2 gap-4 w-fit m-auto">
+                    {colors.map((color) => {
+            return (<button 
+            // disabled={!canPlay}
+            key={`button_${color}`} name={color} ref={refs[color]} onClick={() => addToSequence(color)} className={`simon_${color} simon_button h-40 w-40`}></button>);
         })}
-      </div>
-      <div className="flex justify-center pt-12 self-center">
-        {(gamePlayState == SimonGameState.END ||
-            gamePlayState == SimonGameState.PLAYING) && (<button onClick={() => startGame()}>Restart</button>)}
-        {gamePlayState == SimonGameState.WAITING && (<button onClick={() => {
+               </div>
+               <div className="flex justify-center pt-12 self-center">
+                    {(gamePlayState == SimonGameState.END ||
+            gamePlayState == SimonGameState.PLAYING) && (<button className="button bg-red text-2xl" onClick={() => startGame()}>
+                              Restart
+                         </button>)}
+                    {gamePlayState == SimonGameState.WAITING && (<button className="button text-2xl px-4 font-whitney font-semibold bg-green" onClick={() => {
                 startGame();
             }}>
-            Start
-          </button>)}
-      </div>
-    </div>);
+                              Start
+                         </button>)}
+               </div>
+          </div>);
 };

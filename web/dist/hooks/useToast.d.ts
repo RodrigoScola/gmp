@@ -1,6 +1,5 @@
 /// <reference types="react" />
-import { ChildrenType } from "@/types";
-import { newToastType } from "@/types";
+import { ChildrenType, newToastType } from "@/types";
 type NotificationContextType = {
     addNotification: (message: string, options?: newToastType) => void;
 };

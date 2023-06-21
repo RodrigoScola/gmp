@@ -20,7 +20,7 @@ class RoundHandler {
     hasGameWinner() {
         let players = {};
         if (this.rounds.length == 0)
-            return 0;
+            return null;
         for (let i = 0; i < this.rounds.length; i++) {
             const round = this.rounds[i];
             if (!round)
@@ -38,15 +38,18 @@ class RoundHandler {
             }
         }
         if (Object.keys(players).length == 0)
-            return false;
-        const winner = Object.values(players).filter((i) => i >= this.maxWins)[0];
-        return winner;
+            return null;
+        const winner = Object.entries(players).find((a) => a[1] >= this.maxWins);
+        if (winner) {
+            return winner[0];
+        }
+        return null;
     }
     getWinner() {
         const winner = this.hasGameWinner();
         if (!winner)
             return null;
-        return Object.entries((s) => s[1] == winner)[0];
+        return winner;
     }
 }
 exports.RoundHandler = RoundHandler;

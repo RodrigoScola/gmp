@@ -1,4 +1,4 @@
-import { IFriend as IFriend } from "../types/users";
+import { IFriend } from "../types/users";
 export type FriendRequestStatus = "pending" | "accepted" | "rejected";
 export type FriendRequest = {
     status: FriendRequestStatus;

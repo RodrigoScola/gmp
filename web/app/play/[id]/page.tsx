@@ -1,7 +1,20 @@
-import ConnectFourComponent from "@/Components/games/Connectcomponent";
-import RPSComponent from "@/Components/games/RPSGameComponent";
-import { SimonSaysComponent } from "@/Components/games/SimonSaysComponent";
-import TicTacToeGameComponent from "@/Components/games/TicTacToeComponent";
+import dynamic from "next/dynamic";
+
+const ConnectFourComponent = dynamic(
+     () => import("@/Components/games/Connectcomponent")
+);
+const RPSComponent = dynamic(
+     () => import("@/Components/games/RPSGameComponent")
+);
+const SimonSaysComponent = dynamic(() =>
+     import("@/Components/games/SimonSaysComponent").then(
+          (r) => r.SimonSaysComponent
+     )
+);
+const TicTacToeComponent = dynamic(
+     () => import("@/Components/games/TicTacToeComponent")
+);
+
 import { serverURl } from "@/constants";
 
 export default async function RenderGame({
@@ -38,7 +51,7 @@ export default async function RenderGame({
                );
           case "Tic Tac Toe":
                return (
-                    <TicTacToeGameComponent
+                    <TicTacToeComponent
                          gameId={id}
                          gameName={jsondata.match.game.name}
                     />

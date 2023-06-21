@@ -1,5 +1,9 @@
 /// <reference types="react" />
 export type ChildrenType = React.ReactNode | React.ReactNode[] | JSX.Element | JSX.Element[];
+export type PageParams<T extends object, K extends object = {}> = {
+    params: T;
+    searchParams: K;
+};
 import { UseToastOptions } from "@chakra-ui/react";
 export type ToastPositions = "top-center" | "top-left" | "top-right" | "bottom-center" | "bottom-left" | "bottom-right";
 export type ToastThemeType = {

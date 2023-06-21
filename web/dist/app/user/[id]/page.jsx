@@ -1,24 +1,43 @@
 "use client";
-import Profile from "@/images/profile.webp";
-import Image from "next/image";
-import Link from "next/link";
-import { useEffectOnce } from "usehooks-ts";
-import { useState } from "react";
+import { getGameData } from "@/../shared/src/game/gameUtils";
+import { LogoutButton } from "@/Components/buttons/LogoutButton";
+import { FriendsTab } from "@/Components/tabs/FriendsTab";
 import { db } from "@/db/supabase";
+import { useBackgroundColor } from "@/hooks/useBackgroundColor";
 import { useUser } from "@/hooks/useUser";
-import { FriendsList } from "@/Components/Friends/FriendsComponents";
-import { Card, CardBody, CardHeader } from "@chakra-ui/react";
+import { chatSocket } from "@/lib/socket";
+import { Avatar } from "@chakra-ui/react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useEffectOnce } from "usehooks-ts";
+import { gameNames } from "../../../../shared/src/types/game";
 export default function PROFILEPAGE({ params, }) {
-    const { user: currentUser, getFriends } = useUser();
+    const { user: currentUser, getFriends, friends } = useUser();
+    useBackgroundColor("bg-gray-700");
     const [user, setUser] = useState({
         created_at: Date.now().toString(),
         email: "defaultemail@gmail.com",
         id: "defaultid",
-        username: "defaultusername",
+        username: params.id,
     });
-    const [userFriends, setUserfriends] = useState([]);
+    useEffect(() => {
+        if (!chatSocket.connected) {
+            chatSocket.auth = {
+                user: currentUser,
+            };
+            chatSocket.connect();
+        }
+        return () => {
+            if (chatSocket.connected)
+                chatSocket.disconnect();
+        };
+    }, []);
     const [conversationId, setConversationId] = useState(null);
     const getInformation = async () => {
+        if (!currentUser)
+            return;
+        if (!params.id)
+            return;
         const user = await db
             .from("profiles")
             .select("*")
@@ -27,109 +46,114 @@ export default function PROFILEPAGE({ params, }) {
         if (!user.data)
             return;
         setUser(user.data);
-        let d = await db
-            .rpc("find_conversation", {
-            user1_id: currentUser.id,
-            user2_id: user.data.id,
-        })
-            .single();
-        let nconversationId = d.data?.id;
-        if (!nconversationId) {
-            const { data: nconv } = await db
-                .from("conversations")
-                .insert({
-                user1: currentUser.id,
-                user2: user.data.id,
-            })
-                .select("*")
-                .single();
-            nconversationId = nconv?.id;
-        }
-        const f = await getFriends();
-        if (f?.length) {
-            setUserfriends(f);
-        }
-        setConversationId(nconversationId?.toString() ?? "");
+        chatSocket.emit("find_conversation", currentUser.id, user.data.id, (data) => {
+            console.log(data);
+            setConversationId(data.id);
+        });
     };
     useEffectOnce(() => {
         getInformation();
     });
-    console.log(userFriends);
-    return (<div className="grid grid-cols-7">
-      <div className="col-span-6">
-        <div className="m-auto w-fit">
-          <div className="flex">
-            {user?.id && (<Image src={Profile.src} width={150} height={150} alt={`profile image for ${user.id}`}/>)}
-            <div className="">
-              <h1 className="text-4xl">{user.username}</h1>
-              {user.id !== currentUser.id && (<Link href={`user/${conversationId}/chat`}>Start a Chat</Link>)}
-              <ul className="flex gap-2">
-                {/* {user.badges?.badges?.map((badge, i) => {
-          return (
-            <li key={`badge_${i}`} id={`badge${i}`} className="">
-              <Tooltip text={badge.description}>{badge.name}</Tooltip>
-            </li>
-          );
-        })} */}
-              </ul>
-            </div>
-          </div>
-          <div className="inline-flex gap-3">
-            <div>23 friends</div>
-            <div>2 Badges</div>
-          </div>
-        </div>
-        <div className="flex justify-center gap-4">
-          <GameStatCard game="Tic Tac Toe" kd={0.3}/>
-          <GameStatCard game="connect Four" kd={0.4}/>
-          <GameStatCard game="Rock Paper Scissors" kd={20}/>
-          <GameStatCard game="Simon Says" kd={0.3}/>
-        </div>
-        <div className="w-fit m-auto">
-          <h3 className="text-3xl text-center">Matches</h3>
-          <ul className="space-y-2">
-            {new Array(4).fill(0).map((_, i) => {
+    useEffect(() => {
+        getFriends();
+    }, [user.id]);
+    const [gamesArr, setGamesArr] = useState([]);
+    useEffect(() => {
+        const arr = [0, 1, 2, 3].map((_, __) => {
+            const choice = Math.random() < 0.5;
+            const user1 = {
+                created_at: Date.now().toString(),
+                email: "handomizando@gmail.com",
+                id: "asdfp9asd",
+                username: user.username,
+            };
+            const user2 = {
+                created_at: Date.now().toString(),
+                email: "opponent@gmail.com",
+                id: "thisopponentid",
+                username: "oppponent",
+            };
+            return choice ? [user1, user2] : [user2, user1];
+        });
+        setGamesArr(arr);
+    }, []);
+    return (<div className="flex flex-row gap-2">
+               <div className="w-fit m-auto mt-2 rounded-md lg:px-24 px-12   bg-gradient-to-b from-gray-800 to-90% to-gray-900/40 py-2 ">
+                    <div className="m-auto w-full  ">
+                         <div className="w-full flex  justify-start gap-3 items-center">
+                              <div>
+                                   {user?.id && (<Avatar name={user.username
+                .split("")
+                .join(" ")} size={"2xl"}/>)}
+                              </div>
+                              <div className="flex flex-col gap-2">
+                                   <h1 className="text-4xl font-ginto font-normal capitalize text-white ">
+                                        {user.username}
+                                   </h1>
+                                   <div className="inline-flex gap-3 mb-2">
+                                        <div>23 friends</div>
+                                        <div>2 Badges</div>
+                                   </div>
+                                   <div>
+                                        {user.id !== currentUser?.id ? (<Link className="button bg-white  text-gray-900" href={`user/${conversationId}/chat`}>
+                                                  Start a Chat
+                                             </Link>) : (<div>
+                                                  <LogoutButton />
+                                             </div>)}
+                                   </div>
+                              </div>
+                         </div>
+                    </div>
+                    <div className="">
+                         <p className="text-2xl py-4  font-whitney font-semibold shadow-sm ">
+                              Game Stats
+                         </p>
+                         <div className="flex gap-2 justify-evenly">
+                              <GameStatCard game="Tic Tac Toe" kd={0.3}/>
+                              <GameStatCard game="connect Four" kd={0.4}/>
+                              <GameStatCard game="Rock Paper Scissors" kd={20}/>
+                              <GameStatCard game="Simon Says" kd={0.3}/>
+                         </div>
+                    </div>
+                    <div className="">
+                         <h3 className="text-2xl font-whitney py-4 font-semibold shadow-sm ">
+                              Matches
+                         </h3>
+                         <ul className="space-y-8 pb-6">
+                              {gamesArr.map(([user1, user2], i) => {
             return (<li key={i}>
-                  <GameMatchCard user1={{
-                    created_at: Date.now().toString(),
-                    email: "handomizando@gmail.com",
-                    id: "asdfp9asd",
-                    username: "snuffy",
-                }} user2={{
-                    created_at: Date.now().toString(),
-                    email: "opponent@gmail.com",
-                    id: "thisopponentid",
-                    username: "oppponent",
-                }} image={Profile.src}/>
-                </li>);
+                                             <GameMatchCard user1={user1} user2={user2}/>
+                                        </li>);
         })}
-          </ul>
-          <div>Loading Icon</div>
-        </div>
-      </div>
-      <div>
-        <FriendsList friends={userFriends}/>
-      </div>
-    </div>);
+                         </ul>
+                    </div>
+               </div>
+               <FriendsTab friends={friends}/>
+          </div>);
 }
 const GameMatchCard = (props) => {
-    return (<div className="flex flex-row">
-      <Image src={props.image} width={75} height={50} alt={`profile image for ${props.user1.id}`}/>
-      <div className="">
-        <p>25 min ago</p>
-        <p className="text-4xl">
-          {props.user1.username} vs {props.user2.username}
-        </p>
-      </div>
-    </div>);
+    const [randomGame, _] = useState(getGameData(gameNames[Math.floor(Math.random() * gameNames.length)]));
+    return (<div className="flex flex-row    rounded-md ">
+               <div className="text-center">
+                    <p className="font-whitney text-left pt-2 text-md  text-gray-300/60">
+                         25 min ago *{" "}
+                         <span className="capitalize">{randomGame.name}</span>
+                    </p>
+                    <p className="text-3xl  font-ginto font-bold capitalize ">
+                         {props.user1.username} vs {props.user2.username}
+                    </p>
+               </div>
+          </div>);
 };
 const GameStatCard = (props) => {
-    return (<Card>
-      <CardHeader>
-        <p className="text-3xl">{props.kd} kd</p>
-      </CardHeader>
-      <CardBody>
-        <p className="text-xl">{props.game}</p>
-      </CardBody>
-    </Card>);
+    return (<div className="bg-gray-600  shadow-lg border rounded-lg p-2  border-gray-600">
+               <div>
+                    <p className=" text-center font-ginto shadow-sm font-bold text-3xl">
+                         {props.kd} KD
+                    </p>
+               </div>
+               <div>
+                    <p className="text-xl font-whitney ">{props.game}</p>
+               </div>
+          </div>);
 };

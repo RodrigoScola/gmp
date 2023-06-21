@@ -1,7 +1,16 @@
 "use client";
 
 import { GameQueueState } from "@/../shared/src/types/socketEvents";
-import { FriendsTab } from "@/Components/tabs/FriendsTab";
+import dynamic from "next/dynamic";
+const FriendsTab = dynamic(
+     () => import("@/Components/tabs/FriendsTab").then((r) => r.FriendsTab),
+     {
+          loading: () => (
+               <div className="bg-gray-800 rounded-md p-4">loading...</div>
+          ),
+     }
+);
+
 import { useProtectedRoute } from "@/hooks/useProtectedRoute";
 import { useUser } from "@/hooks/useUser";
 import { queueSocket } from "@/lib/socket";
@@ -10,8 +19,8 @@ import { useEffect, useState } from "react";
 import { useEffectOnce, useInterval } from "usehooks-ts";
 import { getGameData } from "../../../shared/src/game/gameUtils";
 import { GameType } from "../../../shared/src/types/game";
-import { GameCard } from "../play/page";
 
+import GameCard from "@/Components/GameCard";
 export default function QueueHoldingPage({
      searchParams,
 }: {

@@ -1,7 +1,5 @@
 import { ExtendedUser } from "../shared/src/types/users";
 
-import localFont from "@next/font/dist/local";
-
 export const baseUrl =
      process.env.NODE_ENV == "development"
           ? "http://localhost:3000"

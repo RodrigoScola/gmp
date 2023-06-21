@@ -1,16 +1,17 @@
 /// <reference types="react" />
 import { ChildrenType } from "@/types";
 import { Socket } from "socket.io-client";
-import { IUser, IFriend } from "../../shared/src/types/users";
 import { ChatClientEvents, ChatServerEvents } from "../../shared/src/types/socketEvents";
+import { IFriend, IUser } from "../../shared/src/types/users";
 interface UserContext {
-    user: IUser;
-    setCurrentUser: (user: IUser) => void;
+    user: IUser | null;
     getFriends: () => Promise<IFriend[] | undefined>;
     login: (email: string, password: string) => Promise<any>;
-    logout: () => void;
+    logout: () => Promise<void>;
+    updateUser: (user: IUser) => void;
     socket: Socket<ChatClientEvents, ChatServerEvents>;
     friends: IFriend[];
+    isLoggedIn: boolean | null;
 }
 export declare const UserContext: import("react").Context<UserContext | null>;
 export declare const UserProvider: ({ children }: {

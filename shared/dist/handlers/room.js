@@ -97,10 +97,10 @@ class ChatRoom {
             });
         }
     }
-    getConversation() {
+    getConversation(conversationId) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.messages.getConversation(this.id);
-            console.log(this.messages.conversation);
+            const s = yield this.messages.getConversation(conversationId ? conversationId : this.id);
+            return s;
         });
     }
     delete() { }

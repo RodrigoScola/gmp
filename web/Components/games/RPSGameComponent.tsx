@@ -1,7 +1,5 @@
 "use client";
-import { RockPaperScissorsGame } from "@/../shared/src/game/rockpaperScissors";
 import { useBackgroundColor } from "@/hooks/useBackgroundColor";
-import { useNotifications } from "@/hooks/useToast";
 import { useUser } from "@/hooks/useUser";
 import { socket, usersSocket } from "@/lib/socket";
 import Image from "next/image";
@@ -21,7 +19,6 @@ import RockImage from "../../images/rock.png";
 import ScissorsImage from "../../images/scissors.png";
 import { PointsComponent } from "../PointsComponent";
 const maxWins = 5;
-const { getWinner } = new RockPaperScissorsGame();
 
 const getImage = (choice: RPSOptions) => {
      switch (choice) {
@@ -54,7 +51,6 @@ export default function RockPaperScissorGameComponent(
 
      const { user } = useUser();
 
-     const notifications = useNotifications();
      const [currentPlayer, setCurrentPlayer] = useState<
           IUser & { choice: RPSOptions | null }
      >({
@@ -137,7 +133,7 @@ export default function RockPaperScissorGameComponent(
           });
           // socket.emit('set-user', user)
           socket.on("rps_choice", (choice: any) => {
-               // console.log(choice);
+               console.log(choice);
           });
           socket.on("round_winner", (round: RPSRound | null) => {
                if (!round) return;
@@ -391,23 +387,6 @@ const ChoiceCard = ({
                <p className="font-ginto font-semibold text-lg text-center capitalize">
                     {choice}
                </p>
-          </div>
-     );
-};
-
-const Points = ({ amount }: { amount: number }) => {
-     return (
-          <div className="flex gap-1">
-               {[0, 1, 2, 3, 4].map((_, i) => {
-                    return (
-                         <div
-                              className={`w-6 h-6 outline outline-2 gap-2 rounded-full ${
-                                   i < amount ? "bg-gray-50" : null
-                              } `}
-                              key={i}
-                         ></div>
-                    );
-               })}
           </div>
      );
 };

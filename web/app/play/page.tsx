@@ -1,12 +1,21 @@
 "use client";
 
 import { GameData, getGameData } from "@/../shared/src/game/gameUtils";
-import { FriendsTab } from "@/Components/tabs/FriendsTab";
 import { baseUrl } from "@/constants";
-import { ComponentProps, useState } from "react";
+import dynamic from "next/dynamic";
+import { useState } from "react";
 import { useEffectOnce } from "usehooks-ts";
 import { GameNames, gameNames } from "../../../shared/src/types/game";
 import { useUser } from "../../hooks/useUser";
+const FriendsTab = dynamic(
+     () => import("@/Components/tabs/FriendsTab").then((r) => r.FriendsTab),
+     {
+          loading: () => (
+               <div className="bg-gray-800 rounded-md p-4">loading...</div>
+          ),
+     }
+);
+const GameCard = dynamic(() => import("@/Components/GameCard"));
 
 export default function PLAYPAGE() {
      const [multiplayerGames, setMultiplayergames] = useState<GameData[]>([]);
@@ -64,18 +73,21 @@ export default function PLAYPAGE() {
                                         if (data.isMultiplayer === false)
                                              return null;
                                         return (
-                                             <GameCard
+                                             <div
                                                   key={gameName}
-                                                  game={data}
                                                   onClick={() =>
                                                        toggleMultiplayerGame(
                                                             gameName
                                                        )
                                                   }
-                                                  isSelected={multiplayerGames.includes(
-                                                       data
-                                                  )}
-                                             />
+                                             >
+                                                  <GameCard
+                                                       game={data}
+                                                       isSelected={multiplayerGames.includes(
+                                                            data
+                                                       )}
+                                                  />
+                                             </div>
                                         );
                                    })}
                               </div>
@@ -102,18 +114,21 @@ export default function PLAYPAGE() {
                                         if (data.isMultiplayer === true)
                                              return null;
                                         return (
-                                             <GameCard
+                                             <div
                                                   key={gameName}
-                                                  isSelected={singlePlayerGames.includes(
-                                                       data
-                                                  )}
-                                                  game={data}
                                                   onClick={() =>
                                                        toggleSinglePlayerGame(
                                                             gameName
                                                        )
                                                   }
-                                             />
+                                             >
+                                                  <GameCard
+                                                       isSelected={singlePlayerGames.includes(
+                                                            data
+                                                       )}
+                                                       game={data}
+                                                  />
+                                             </div>
                                         );
                                    })}
                               </div>
@@ -138,37 +153,3 @@ export default function PLAYPAGE() {
           </div>
      );
 }
-
-type gameCardProps = {
-     game: GameData;
-     isSelected: boolean;
-};
-type GameCardComponentProps = gameCardProps & ComponentProps<"div">;
-export const GameCard = ({
-     game,
-     isSelected,
-     ...props
-}: GameCardComponentProps) => {
-     return (
-          <>
-               <div
-                    {...props}
-                    key={game.name}
-                    className={`${
-                         isSelected ? "bg-blue shadow-lg" : "bg-gray-700"
-                    } rounded-lg  max-w-[300px] p-2 ${
-                         props.className
-                    } border-2 border-white bg-gray-600`}
-               >
-                    <div className=" align-middle items-center gap-1 pb-2">
-                         <h3 className="text-white font-whitney font-semibold text-4xl capitalize ">
-                              {game.name}
-                         </h3>
-                         <div className="font-thin text-white font-whitney text-left">
-                              {game.description}
-                         </div>
-                    </div>
-               </div>
-          </>
-     );
-};

@@ -1,10 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.gameQueue = exports.MatchQueue = void 0;
-const game_1 = require("../types/game");
+const crypto_1 = require("crypto");
 const gameUtils_1 = require("../game/gameUtils");
-const usersHandler_1 = require("./usersHandler");
+const game_1 = require("../types/game");
 const GamesQueue_1 = require("./GamesQueue");
+const usersHandler_1 = require("./usersHandler");
 class MatchQueue {
     constructor() {
         this.players = new usersHandler_1.PlayerHandler();
@@ -17,8 +18,9 @@ class MatchQueue {
     }
     addPlayer(player) {
         this.players.addPlayer(player);
-        console.log(player);
-        player.games = Array.isArray(player.games) ? player.games : [player.games];
+        player.games = Array.isArray(player.games)
+            ? player.games
+            : [player.games];
         player.games.forEach((game) => {
             const gameId = (0, gameUtils_1.getGameData)(game.name).id;
             this.gamesQueue[gameId].add(player.id, player);
@@ -27,8 +29,9 @@ class MatchQueue {
     }
     removePlayer(player) {
         const queues = Object.values(this.gamesQueue);
+        this.players.removePlayer(player);
         queues.forEach((queue) => {
-            queue.remove(player.id);
+            queue.remove(player);
         });
     }
     findMatch(userId) {
@@ -43,12 +46,20 @@ class MatchQueue {
         });
         return queues[Math.floor(Math.random() * queues.length)];
     }
+    newMatch(game, players) {
+        return {
+            id: (0, crypto_1.randomUUID)(),
+            game: game,
+            players: players,
+        };
+    }
     matchPlayer(queue) {
         const data = (0, gameUtils_1.getGameData)(queue.gameName);
-        console.log(queue.length, data.playerCount);
         if (queue.length == data.playerCount) {
             const players = queue.players.slice(0, data.playerCount);
-            console.log(players);
+            players.forEach((player) => {
+                this.removePlayer(player.id);
+            });
             return players;
         }
         return;

@@ -24,6 +24,8 @@ class MainUserHandler {
         this.invites = new GameInvitehandler_1.GameInviteHandler();
     }
     addUser(user) {
+        if (!user.id)
+            return;
         user.id = user.id.toString();
         const mainUser = new MainUser({
             currentState: users_1.UserState.online,
@@ -45,13 +47,16 @@ class MainUserHandler {
         const user = this.users.get(userId);
         if (!user)
             return;
-        const nuser = Object.assign(Object.assign(Object.assign({}, user), info), { socketId: user.socketId });
+        const nuser = Object.assign(Object.assign({}, user), info);
         this.users.set(userId, new MainUser(nuser));
         return this.getUser(userId);
     }
     getUsers() {
         const users = Array.from(this.users.values());
         return users.map((user) => user);
+    }
+    hasUser(userid) {
+        return this.users.has(userid);
     }
     getUser(id) {
         // console.log(this.users.get(id));
@@ -79,6 +84,9 @@ class UsersHandlers {
         // if (!user.id) return;
         this.users.set(user.id, user);
     }
+    hasUser(userid) {
+        return this.users.has(userid);
+    }
     updateUser(userId, info) {
         const user = this.users.get(userId);
         if (!user)
@@ -101,11 +109,13 @@ exports.UsersHandlers = UsersHandlers;
 class PlayerHandler {
     constructor() {
         this.players = {};
+        this.length = 0;
     }
     addPlayer(player) {
         if (this.players[player.id])
             return;
         this.players[player.id] = player;
+        this.length++;
     }
     getPlayers() {
         return Object.values(this.players);
@@ -114,7 +124,10 @@ class PlayerHandler {
         return this.players[playerId];
     }
     removePlayer(playerId) {
-        delete this.players[playerId];
+        if (this.players[playerId]) {
+            delete this.players[playerId];
+            this.length--;
+        }
     }
     hasPlayer(playerId) {
         return !!this.players[playerId];

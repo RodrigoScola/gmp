@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RockPaperScissorsGame = exports.RockPaperScissorsMaxWins = void 0;
+const RoundHandler_1 = require("../handlers/RoundHandler");
 const usersHandler_1 = require("../handlers/usersHandler");
 const game_1 = require("../types/game");
-const RoundHandler_1 = require("../handlers/RoundHandler");
 exports.RockPaperScissorsMaxWins = 5;
 class RockPaperScissorsGame extends game_1.Game {
     constructor() {
@@ -63,7 +63,8 @@ class RockPaperScissorsGame extends game_1.Game {
     play(player, choice) {
         if (this.rounds.hasGameWinner())
             return;
-        if (this.currentChoice[player.id] || !this.players.hasPlayer(player.id))
+        if (this.currentChoice[player.id] ||
+            !this.players.hasPlayer(player.id))
             return;
         this.currentChoice[player.id] = {
             id: player.id,

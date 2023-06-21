@@ -3,8 +3,8 @@ var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TicTacToeGame = exports.checkLine = exports.checkBoard = exports.newBlock = exports.isValid = exports.generateBoard = exports.TicTacToeBoard = void 0;
 const RoundHandler_1 = require("../handlers/RoundHandler");
-const game_1 = require("../types/game");
 const usersHandler_1 = require("../handlers/usersHandler");
+const game_1 = require("../types/game");
 class TicTacToeBoard extends game_1.Board {
     constructor() {
         super();
@@ -61,6 +61,7 @@ class TicTacToeBoard extends game_1.Board {
             };
         };
         this.checkBoard = (board) => {
+            var _a;
             let winner = {
                 winner: null,
                 board: null,
@@ -70,13 +71,17 @@ class TicTacToeBoard extends game_1.Board {
             if (!board)
                 return winner;
             for (let i = 0; i < board.length; i++) {
-                if (this.checkLine(board[i])) {
+                const line = this.checkLine(board[i]);
+                // console.log(line);
+                if (line) {
                     if (board[i][0].id)
                         winner.winner = board[i][0].id;
                     winner.board = board[i];
                 }
-                let col = board.map((row) => row[i]).filter((i) => i);
-                if (this.checkLine(col)) {
+                let col = board.map((row) => row[i]);
+                const initialChoice = (_a = col[0]) === null || _a === void 0 ? void 0 : _a.choice;
+                if (initialChoice &&
+                    col.every((item) => item.choice == initialChoice)) {
                     winner.winner = col[0].id;
                     winner.board = col;
                 }
@@ -133,7 +138,9 @@ class TicTacToeGame extends game_1.Game {
     }
     isPlayerTurn(playerId) {
         if (this.board.moves.length == 0) {
-            const player = this.players.getPlayers().filter((i) => i.choice == "X");
+            const player = this.players
+                .getPlayers()
+                .filter((i) => i.choice == "X");
             if (player.length == 0 || !player[0])
                 return false;
             return player[0].id == playerId;
@@ -189,7 +196,6 @@ class TicTacToeGame extends game_1.Game {
             player.choice = player.choice == "X" ? "O" : "X";
         });
         this.board.moves = [];
-        console.log(this.rounds.rounds);
     }
     getPlayers() {
         return this.players.getPlayers();
@@ -200,6 +206,9 @@ class TicTacToeGame extends game_1.Game {
     }
     hasWinner() {
         return this.board.isValid;
+    }
+    hasGameWinner() {
+        return this.rounds.hasGameWinner();
     }
     getState() {
         return {

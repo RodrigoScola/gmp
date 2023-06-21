@@ -1,10 +1,10 @@
-import { RoundHandler } from "../handlers/RoundHandler";
-import { Coords } from "./types";
-import { PlayerHandler } from "../handlers/usersHandler";
-import { CFGame } from "../game/c4Game";
-import { SimonSaysGame } from "../game/simonSays";
 import { TicTacToeGame } from "../game/TicTacToeGame";
+import { CFGame } from "../game/c4Game";
 import { RockPaperScissorsGame } from "../game/rockpaperScissors";
+import { SimonSaysGame } from "../game/simonSays";
+import { RoundHandler } from "../handlers/RoundHandler";
+import { PlayerHandler } from "../handlers/usersHandler";
+import { Coords } from "./types";
 export type GameInfo<T extends GameNames> = GamesInfo[T];
 export declare abstract class Game<T extends GameNames> {
     abstract name: GameNames;

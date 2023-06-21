@@ -1,41 +1,113 @@
-import { BsGoogle, BsGithub, BsDiscord } from "react-icons/bs";
-const ButtonProps = "rounded-md flex py-2 justify-center";
+"use client";
+import { AccountProviders, ProviderButton, } from "@/Components/accountProviders/AccountProviderButtons";
+import { baseUrl } from "@/constants";
+import { useNotification } from "@/hooks/useToast";
+import { Button, FormControl, FormLabel, Input } from "@chakra-ui/react";
+import { useState } from "react";
+import { useSupabase } from "../supabase-provider";
 export default function REGISTERPAGE() {
-    return (<div className="w-fit bg-slate-200 p-3 rounded-lg">
-			<form className="flex flex-col">
-				<label>
-					<p>Email</p>
-					<input type="email"/>
-				</label>
-				<label>
-					<p>Username</p>
-					<input type="email"/>
-				</label>
-				<label>
-					<p>Password</p>
-					<input type="password"/>
-				</label>
-				<label>
-					<p>Confirm Password</p>
-					<input type="password"/>
-				</label>
-			</form>
-			<div className="gap-2 pt-3 flex flex-col">
-				<div className={`bg-red-500 ${ButtonProps}`}>
-					<button>
-						<BsGoogle color="white"/>
-					</button>
-				</div>
-				<div className={`bg-slate-500 ${ButtonProps}`}>
-					<button>
-						<BsGithub color="white"/>
-					</button>
-				</div>
-				<div className={`bg-blue-500 ${ButtonProps}`}>
-					<button className="">
-						<BsDiscord color="white"/>
-					</button>
-				</div>
-			</div>
-		</div>);
+    const { supabase } = useSupabase();
+    const [data, setData] = useState({
+        email: "",
+        password: "",
+        username: "",
+    });
+    const { addNotification } = useNotification();
+    const handleSignUpProvider = async (provider) => {
+        await supabase.auth.signInWithOAuth({
+            provider: provider,
+            options: {
+                redirectTo: `${baseUrl}/login`,
+            },
+        });
+    };
+    const handleChange = (e) => {
+        setData((current) => ({
+            ...current,
+            [e.target.name]: e.target.value,
+        }));
+    };
+    const handleSignUp = async (e) => {
+        e.preventDefault();
+        if (data.email === "" ||
+            data.password === "" ||
+            data.username === "") {
+            return;
+        }
+        if (data.password.length < 8) {
+            addNotification("password must be at least 8 characters");
+            return;
+        }
+        const { error, data: usernameTaken } = await supabase
+            .from("profiles")
+            .select("username")
+            .eq("username", data.username)
+            .maybeSingle();
+        if (error) {
+            console.log(error);
+            addNotification(error.message, {
+                position: "top",
+                status: "error",
+            });
+        }
+        if (usernameTaken) {
+            addNotification("username is unavailable", {
+                position: "top",
+                status: "warning",
+            });
+            return;
+        }
+        const { data: signupdata } = await supabase.auth.signUp({
+            email: data.email,
+            password: data.password,
+        });
+        if (signupdata.user) {
+            await supabase.from("profiles").insert({
+                email: data.email,
+                id: signupdata.user.id,
+                username: data.username,
+            });
+            addNotification("Account Created!");
+            const a = await supabase.auth.signInWithPassword({
+                email: data.email,
+                password: data.password,
+            });
+            console.log(a);
+            setTimeout(() => {
+                window.location.href = `/`;
+            });
+        }
+    };
+    return (<div className="h-[80vh]  flex">
+               <div className="w-fit m-auto  p-3 rounded-lg">
+                    <form onSubmit={handleSignUp} className="flex flex-col">
+                         <FormControl>
+                              <FormLabel>
+                                   <p>Email</p>
+                              </FormLabel>
+                              <Input name="email" value={data.email} onChange={handleChange} required type="email"/>
+                         </FormControl>
+                         <FormControl>
+                              <FormLabel>
+                                   <p>Password</p>
+                              </FormLabel>
+                              <Input name="password" value={data.password} onChange={handleChange} required type="password"/>
+                         </FormControl>
+                         <FormControl>
+                              <FormLabel>
+                                   <p>Username</p>
+                              </FormLabel>
+                              <Input name="username" value={data.username} onChange={handleChange} required type="text"/>
+                         </FormControl>
+                         <div className="m-auto pt-2">
+                              <Button variant={"outline"} colorScheme="whatsapp" type="submit">
+                                   Register
+                              </Button>
+                         </div>
+                    </form>
+                    <div className="gap-2 flex flex-col pt-5">
+                         {Object.keys(AccountProviders).map((provider) => (<ProviderButton key={provider} handleClick={handleSignUpProvider} provider={provider}/>))}
+                    </div>
+               </div>
+          </div>);
 }

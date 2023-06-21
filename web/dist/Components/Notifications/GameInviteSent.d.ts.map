@@ -1,0 +1,1 @@
+{"version":3,"file":"GameInviteSent.d.ts","sourceRoot":"","sources":["../../../Components/Notifications/GameInviteSent.tsx"],"names":[],"mappings":"AAAA,OAAO,EAAE,OAAO,EAAE,KAAK,EAAE,MAAM,6BAA6B,CAAC;AAE7D,MAAM,MAAM,cAAc,GAAG;IACxB,IAAI,EAAE,KAAK,CAAC;CAChB,CAAC;AACF,eAAO,MAAM,cAAc;UAAsB,OAAO,GAAG,IAAI;iBAS9D,CAAC"}

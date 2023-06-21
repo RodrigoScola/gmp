@@ -1,24 +1,27 @@
 "use client";
+import { useBackgroundColor } from "@/hooks/useBackgroundColor";
 import { useUser } from "@/hooks/useUser";
-import { newSocketAuth, socket } from "@/lib/socket";
-import { useNotification } from "../../hooks/useToast";
+import { newSocketAuth, socket, usersSocket } from "@/lib/socket";
 import dynamic from "next/dynamic";
-const Sketch = dynamic(() => import("react-p5"), { ssr: false });
 import { useEffect, useRef, useState } from "react";
 import { useUpdateEffect } from "usehooks-ts";
 import { GamePlayState } from "../../../shared/src/types/users";
+import { useNotification } from "../../hooks/useToast";
+import { PointsComponent } from "../PointsComponent";
+const Sketch = dynamic(() => import("react-p5"), { ssr: false });
 let p5;
 const cols = 7;
 const rows = 6;
-const w = 100;
-const dw = 80;
+const w = 75;
+const dw = 60;
 const width = cols * w;
 const height = rows * w + w;
 let playerPos = 0;
 let prevPlayerPos = 0;
 let win = 0;
-const opponentName = "Opponent";
-var canStart = false;
+var canStart = true;
+const playerBallColor = [114, 137, 218];
+const opponentBallColor = [185, 28, 28];
 console.log(canStart);
 class Ball {
     constructor(x, y, color = [255, 255, 255], playerId) {
@@ -33,7 +36,7 @@ class Ball {
     }
     move() {
         if (this.y < this.endY) {
-            this.y += 10;
+            this.y += 8;
         }
     }
     show() {
@@ -43,7 +46,7 @@ class Ball {
     }
 }
 class PlayerBall {
-    constructor(x, y, color = [255, 255, 255]) {
+    constructor(x, y, color = playerBallColor) {
         this.x = x;
         this.y = y;
         this.color = color;
@@ -83,7 +86,9 @@ class GameState {
     addPiece(x, player) {
         for (let i = rows - 1; i >= 0; i--) {
             if (this.board[i][x] == null) {
-                this.board[i][x] = new Ball(x, i, player.choice == "red" ? [255, 0, 0] : [0, 0, 255], player.id);
+                this.board[i][x] = new Ball(x, i, player.choice == "red"
+                    ? opponentBallColor
+                    : playerBallColor, player.id);
                 this.moves.push({
                     id: player.id,
                     color: player.choice,
@@ -105,8 +110,6 @@ class GameState {
     handleWin(winner) {
         if (winner.winner) {
             const colorWon = winner.winner.id;
-            // console.log(this.players);
-            // console.log(winner);
             const name = this.players.find((player) => player.id == colorWon)?.name;
             this.game_winner = name || "";
         }
@@ -129,6 +132,7 @@ class GameState {
             p5.text("It is a tie.", width / 2, w / 2);
         }
         else {
+            p5.fill(255);
             p5.text(`${this.game_winner} won!`, width / 2, w / 2);
         }
         p5.noLoop();
@@ -136,25 +140,27 @@ class GameState {
 }
 const g = new GameState();
 export default function CONNECTFOURPAGE(props) {
-    const [_, setGameplaystate] = useState(GamePlayState.waiting);
+    const [gameplayState, setGameplaystate] = useState(GamePlayState.waiting);
+    const background = useBackgroundColor();
     const ref = useRef(null);
     const toast = useNotification();
-    const handleRematch = () => {
-        socket.emit("rematch", () => { });
-    };
     const [gameState, setGameState] = useState();
     const { user } = useUser();
     const [player, setPlayer] = useState({
         choice: "blue",
+        wins: 0,
         id: "string2",
         name: "this currentusername",
     });
     const [opponent, setOpponent] = useState({
         choice: "red",
         id: "string",
-        name: opponentName,
+        wins: 0,
+        name: "opponent",
     });
     useEffect(() => {
+        if (!user)
+            return;
         const socketAuth = newSocketAuth({
             user: user,
             roomId: props.gameId,
@@ -166,19 +172,27 @@ export default function CONNECTFOURPAGE(props) {
         socket.on("get_players", (players) => {
             const opponent = players.find((player) => player.id != user.id);
             if (opponent) {
-                setOpponent({
-                    choice: opponent.choice,
-                    id: opponent.id,
-                    name: opponentName,
+                if (!usersSocket.connected) {
+                    usersSocket.auth = { user: user };
+                    usersSocket.connect();
+                }
+                usersSocket.emit("get_user", opponent.id, (op) => {
+                    setOpponent((curr) => ({
+                        ...curr,
+                        choice: opponent.choice,
+                        id: opponent.id,
+                        name: op?.username,
+                    }));
                 });
             }
             const player = players.find((player) => player.id == user.id);
             if (player) {
-                setPlayer({
+                setPlayer((curr) => ({
+                    ...curr,
                     choice: player.choice,
                     id: player.id,
                     name: user.username,
-                });
+                }));
             }
         });
         socket.emit("player_ready");
@@ -194,16 +208,12 @@ export default function CONNECTFOURPAGE(props) {
             setGameState(state);
             g.reset();
         });
-        // socket.on('cf_choice', (gameState) => {})
-        // socket.on('cf_game_winner')
         socket.on("start_game", () => {
-            // console.log(canStart);
             canStart = true;
             socket.emit("get_state", (state) => {
                 setGameState(state);
                 const firstPlayer = state.currentPlayerTurn.id;
                 g.firstPlayerId = firstPlayer;
-                // console.log("state", state);
                 const pl = state.players.find((player) => player.id == user.id);
                 g.firstPlayerId = state.currentPlayerTurn.id;
                 if (pl) {
@@ -216,30 +226,31 @@ export default function CONNECTFOURPAGE(props) {
                 if (spl) {
                     g.addPlayer({
                         ...spl,
-                        name: opponentName,
+                        name: opponent.name,
                     });
                 }
-                // console.log("state", state.players);
             });
         });
         socket.on("new_round", () => {
             g.reset();
-            // console.log("new wrou");
-            // g.addPlayer(player);
-            // g.addPlayer(opponent);
-            // console.log(g.currentPlayer());
             setGameplaystate(GamePlayState.playing);
             socket.emit("get_state", (state) => {
                 setGameState(state);
             });
         });
         socket.on("user_disconnected", () => {
-            window.location.reload();
+            // window.location.href = `${baseUrl}/play/${props.gameId}/result`;
         });
         socket.on("disconnect", () => {
             console.log("user disconnected");
         });
         socket.on("connect_choice", ({ move }) => {
+            if (move.id !== user.id) {
+                setGameplaystate(GamePlayState.playing);
+            }
+            else {
+                setGameplaystate(GamePlayState.waiting);
+            }
             g.addPiece(move.coords.x, {
                 choice: move.id == user.id ? "blue" : "red",
                 id: move.id,
@@ -258,6 +269,8 @@ export default function CONNECTFOURPAGE(props) {
         // console.log(ref);
     }, [ref]);
     const sendMouse = (playerPos) => {
+        if (!user)
+            return;
         socket.emit("connect_choice", {
             id: user.id,
             color: player.choice,
@@ -266,6 +279,7 @@ export default function CONNECTFOURPAGE(props) {
                 y: 0,
             },
         });
+        setGameplaystate(GamePlayState.waiting);
     };
     const setup = (p, canvasRef) => {
         if (!canvasRef)
@@ -274,7 +288,10 @@ export default function CONNECTFOURPAGE(props) {
         p5 = p;
         p.rectMode("center");
         canvas.mouseMoved(() => {
-            if (playerPos != prevPlayerPos && g.currentPlayer()?.id == user.id) {
+            if (!user)
+                return;
+            if (playerPos != prevPlayerPos &&
+                g.currentPlayer()?.id == user.id) {
                 socket.emit("c_player_move", { x: playerPos, y: 0 });
                 prevPlayerPos = playerPos;
             }
@@ -285,7 +302,7 @@ export default function CONNECTFOURPAGE(props) {
     };
     function draw(p) {
         p5 = p;
-        p.background(225, 225, 255);
+        p.background(41, 43, 47);
         for (let i = 0; i < cols; i++) {
             for (let j = 0; j < rows; j++) {
                 p.fill(0, 0, 0);
@@ -294,9 +311,14 @@ export default function CONNECTFOURPAGE(props) {
             }
         }
         const cplayer = g.currentPlayer();
-        if (cplayer) {
-            playerPos = cplayer.id == user.id ? Math.floor(p.mouseX / w) : playerPos;
-            const playerBall = new PlayerBall(playerPos, 0, cplayer?.choice == player.choice ? [0, 0, 255] : [255, 0, 0]);
+        if (cplayer && user) {
+            playerPos =
+                cplayer.id == user.id
+                    ? Math.floor(p.mouseX / w)
+                    : playerPos;
+            const playerBall = new PlayerBall(playerPos, 0, cplayer?.choice == player.choice
+                ? playerBallColor
+                : opponentBallColor);
             playerBall.show();
         }
         if (g.game_winner) {
@@ -304,12 +326,31 @@ export default function CONNECTFOURPAGE(props) {
             setGameplaystate(GamePlayState.end);
         }
     }
-    return (<div className="m-auto  w-fit">
-      <Sketch setup={setup} draw={draw}/>
-      <div className="text-6xl">
-        <button onClick={handleRematch}>rematch</button>
-      </div>
-      <div>your wins: {gameState?.rounds?.wins[user?.id]}</div>
-      <div>your opponent wins: {gameState?.rounds?.wins[opponent?.id]}</div>
-    </div>);
+    useEffect(() => {
+        if (gameplayState == GamePlayState.waiting) {
+            background.changeBackgroundColor("bg-red-500");
+        }
+        else if (gameplayState == GamePlayState.playing) {
+            background.changeBackgroundColor("bg-gray-700");
+        }
+        else {
+            background.changeBackgroundColor("bg-gray-700");
+        }
+    }, [gameplayState]);
+    return (<div className="">
+               <PointsComponent player2={{
+            id: opponent?.id,
+            score: gameState?.rounds?.wins[opponent?.id] ?? 0,
+            username: opponent.name,
+        }} player1={{
+            id: user?.id ?? player.id,
+            score: gameState?.rounds?.wins[user?.id ?? player.id] ??
+                0,
+            username: player.name,
+        }}/>
+
+               <div className="w-fit m-auto">
+                    <Sketch setup={setup} draw={draw}/>
+               </div>
+          </div>);
 }
