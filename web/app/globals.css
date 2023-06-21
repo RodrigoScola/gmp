@@ -1,10 +1,6 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins&display=swap");
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url("https://fonts.googleapis.com/css2?family=Geologica:wght@100&display=swap");
 
 .ttc_square_row_0_col_0 {
      @apply border-b border-r;
