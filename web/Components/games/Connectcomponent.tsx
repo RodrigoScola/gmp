@@ -385,7 +385,7 @@ export default function CONNECTFOURPAGE(props: GameComponentProps) {
                if (gameplayState == GamePlayState.waiting) {
                     background.changeBackgroundColor("bg-red-500");
                } else if (gameplayState == GamePlayState.playing) {
-                    background.changeBackgroundColor("bg-gray-700");
+                    background.changeBackgroundColor("bg-blue");
                } else {
                     background.changeBackgroundColor("bg-gray-700");
                }

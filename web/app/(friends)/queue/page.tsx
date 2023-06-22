@@ -1,15 +1,6 @@
 "use client";
 
 import { GameQueueState } from "@/../shared/src/types/socketEvents";
-import dynamic from "next/dynamic";
-const FriendsTab = dynamic(
-     () => import("@/Components/tabs/FriendsTab").then((r) => r.FriendsTab),
-     {
-          loading: () => (
-               <div className="bg-gray-800 rounded-md p-4">loading...</div>
-          ),
-     }
-);
 
 import { useProtectedRoute } from "@/hooks/useProtectedRoute";
 import { useUser } from "@/hooks/useUser";
