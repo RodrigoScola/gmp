@@ -1,7 +1,16 @@
 import { userSocket } from "@/lib/socket";
+import { NotificationProps } from "@/types";
 import { IUser } from "../../../shared/src/types/users";
 
-export const AddFiendComponent = ({ friend, ...props }: { friend: IUser }) => {
+export const AddFiendComponent = ({
+     friend,
+     ...props
+}: NotificationProps & { friend: IUser }) => {
+     const handleDeny = () => {
+          if (typeof props.onClose !== "undefined") {
+               props.onClose();
+          }
+     };
      const handleAccept = () => {
           if (userSocket.connected) {
                userSocket.emit("add_friend_answer", friend, "accepted");
@@ -27,7 +36,12 @@ export const AddFiendComponent = ({ friend, ...props }: { friend: IUser }) => {
                     >
                          Accept
                     </button>
-                    <button className="button bg-red w-full">Decline</button>
+                    <button
+                         onClick={handleDeny}
+                         className="button bg-red w-full"
+                    >
+                         Decline
+                    </button>
                </div>
           </div>
      );

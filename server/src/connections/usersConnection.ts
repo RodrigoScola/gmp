@@ -55,7 +55,6 @@ export const usersHandlerConnection = (
                .select("*")
                .ilike("username", `%${username}%`);
 
-          console.log(users);
           if (callback) {
                callback(users.data);
           }

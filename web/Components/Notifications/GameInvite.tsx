@@ -1,11 +1,19 @@
 "use client";
 import { userSocket } from "@/lib/socket";
 import { GameInvite } from "../../../shared/src/types/users";
+import { NotificationProps } from "../../types";
 export const GameInviteComponent = ({
      gameInvite,
-}: {
+     onClose,
+}: NotificationProps & {
      gameInvite: GameInvite;
 }) => {
+     const handleDeny = () => {
+          if (typeof onClose !== "undefined") {
+               onClose();
+          }
+     };
+
      const handleAccept = () => {
           if (userSocket.connected) {
                userSocket.emit(
@@ -16,6 +24,9 @@ export const GameInviteComponent = ({
                          console.log(data);
                     }
                );
+          }
+          if (typeof onClose !== "undefined") {
+               onClose();
           }
      };
      return (
@@ -42,7 +53,12 @@ export const GameInviteComponent = ({
                     >
                          Accept
                     </button>
-                    <button className="button w-full bg-red">Decline</button>
+                    <button
+                         onClick={handleDeny}
+                         className="button w-full bg-red"
+                    >
+                         Decline
+                    </button>
                </div>
           </div>
      );

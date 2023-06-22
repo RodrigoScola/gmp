@@ -94,7 +94,6 @@ export const gameHandlerConnection = (
           );
           if (room?.match.canRematch()) {
                const state = room?.match.rematch();
-               console.log(state);
                io.to(getRoomId(socket)).emit("rematch_accept", state);
           } else {
                socket.broadcast.to(getRoomId(socket)).emit("rematch");

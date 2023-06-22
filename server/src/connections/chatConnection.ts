@@ -37,7 +37,6 @@ export const chatHandlerConnection = (
      var room: ChatRoom;
 
      socket.on("join_room", async (roomId) => {
-          console.log(roomHandler);
           const connInfo = {
                roomId:
                     (socket.handshake.auth["roomId"] as string) ??
@@ -54,24 +53,31 @@ export const chatHandlerConnection = (
                     socketId: connInfo.user.socketId,
                });
                room = roomHandler.getRoom<ChatRoom>(roomId) as ChatRoom;
+               room.addUser({
+                    id: connInfo.user.id,
+                    socketId: socket.id,
+                    state: UserState.online,
+               });
+               console.log(room);
+               console.log("0000");
           } catch (e) {
                room = roomHandler.createRoom<ChatRoom>(
                     connInfo.roomId,
                     new ChatRoom(roomId)
                );
-               console.log(roomHandler);
                await room.getConversation(roomId);
                roomHandler.addUserToRoom<ChatUser>(roomId, {
                     id: connInfo.user.id,
                     state: UserState.online,
                     socketId: connInfo.user.socketId,
                });
-
+               room.addUser({
+                    id: connInfo.user.id,
+                    socketId: socket.id,
+                    state: UserState.online,
+               });
                socket.data.roomId = roomId;
-
-               room = roomHandler.getRoom<ChatRoom>(
-                    getRoomId(socket)
-               ) as ChatRoom;
+               console.log(room);
           }
           if (room) {
                chatHandler

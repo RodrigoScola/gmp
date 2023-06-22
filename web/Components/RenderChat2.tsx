@@ -14,7 +14,6 @@ import {
      UserState,
 } from "../../shared/src/types/users";
 import { FriendCardOpen } from "./Friends/FriendsComponents";
-import { FriendsTab } from "./tabs/FriendsTab";
 
 var timer: NodeJS.Timeout;
 export const RenderChatMesages = (props: {
@@ -296,11 +295,6 @@ export const RenderChatMesages = (props: {
                                    </button>
                               </div>
                          </form>
-                    </div>
-               </div>
-               <div>
-                    <div className="">
-                         <FriendsTab friends={userFriends} />
                     </div>
                </div>
           </div>

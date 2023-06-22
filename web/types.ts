@@ -19,6 +19,10 @@ export type ToastPositions =
      | "bottom-left"
      | "bottom-right";
 
+export type NotificationProps = {
+     onClose?: () => void;
+};
+
 export type ToastThemeType = {
      primary: string;
      secondary: string;

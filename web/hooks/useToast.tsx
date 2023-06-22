@@ -4,6 +4,7 @@ import { UseToastOptions, useToast } from "@chakra-ui/react";
 import { createContext, useContext } from "react";
 type NotificationContextType = {
      addNotification: (message: string, options?: newToastType) => void;
+     removeNotification: (message: string) => void;
 };
 
 export const NotificationContext =
@@ -19,20 +20,20 @@ export const NotificationProvider = ({
           const options = Object.assign<
                UseToastOptions,
                newToastType | undefined
-          >(
-               {
-                    duration: 3000,
-                    title: message,
-               },
-               newOptions ?? {}
-          );
-          toast(options);
+          >({ id: message, duration: 3000, title: message }, newOptions ?? {});
+          if (!toast.isActive(message)) {
+               toast(options);
+          }
+     };
+     const removeNotification = (message: string) => {
+          toast.close(message);
      };
 
      return (
           <NotificationContext.Provider
                value={{
                     addNotification: addNotification,
+                    removeNotification,
                }}
           >
                {children}

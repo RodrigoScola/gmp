@@ -16,16 +16,16 @@ export const PointsComponent = ({
                <div className="mb-2 flex justify-center">
                     <div className="text-5xl flex flex-row ">
                          <span className="p-4 shadow-md -skew-x-12 bg-blue ">
-                              <p className="skew-x-12 font-whitney font-semibold drop-shadow-md">
-                                   {player1?.score}
+                              <p className="skew-x-12 font-whitney text-white font-semibold drop-shadow-md">
+                                   {player1?.score ?? 0}
                               </p>
                          </span>
                          <div className="h-fit pt-8 -skew-x-12 text-transparent bg-white w-1">
                               a
                          </div>
                          <span className="p-4  shadow-md -skew-x-12  bg-red-500">
-                              <p className="skew-x-12 font-whitney drop-shadow-md  font-semibold ">
-                                   {player2?.score}
+                              <p className="skew-x-12 font-whitney text-white drop-shadow-md  font-semibold ">
+                                   {player2?.score ?? 0}
                               </p>
                          </span>
                     </div>

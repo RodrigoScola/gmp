@@ -62,7 +62,10 @@ export class ConversationHandler {
                .select("*")
                .eq("id", conversationId)
                .single();
+
           if (!file) return;
+
+          this.conversation.users = [{ id: file!.user1 }, { id: file!.user2 }];
 
           this.conversation.users.forEach(
                (user: Partial<IUser> & { id: string }) => {

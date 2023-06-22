@@ -1,10 +1,10 @@
-import { MatchHandler } from "./gameHandlers";
 import { RockPaperScissorsGame } from "../game/rockpaperScissors";
-import { UsersHandlers } from "./usersHandler";
-import { ConversationHandler } from "./ConversationHandler";
-import { MatchQueue, gameQueue } from "./matchQueue";
-import { ChatUser, QueueRoomuser, SocketUser, UserState } from "../types/users";
 import { IGame } from "../types/game";
+import { ChatUser, QueueRoomuser, SocketUser, UserState } from "../types/users";
+import { ConversationHandler } from "./ConversationHandler";
+import { MatchHandler } from "./gameHandlers";
+import { MatchQueue, gameQueue } from "./matchQueue";
+import { UsersHandlers } from "./usersHandler";
 export class RoomHandler {
      rooms: Map<string, IRoom>;
 
@@ -77,7 +77,6 @@ export class ChatRoom implements IRoom {
 
      addUser(user: ChatUser): void {
           if (
-               this.messages.conversation?.users.length &&
                this.messages.conversation.users.find(
                     (u: any) => u.id === user.id
                )

@@ -37,7 +37,7 @@ export default function LOGINPAGE() {
 
           const data = await mainUser.login(state.email, state.password);
           if (data) {
-               window.location.href = process.env.SITE_URL ?? "/";
+               window.location.href = baseUrl ?? "/";
           } else {
                addNotification("invalid credentials", {
                     status: "warning",

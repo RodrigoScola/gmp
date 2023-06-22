@@ -28,7 +28,7 @@ export const Nav = () => {
                setColorMode("dark");
           }
      });
-     const { addNotification } = useNotification();
+     const { addNotification, removeNotification } = useNotification();
      useSocket<{ user: IUser | null }>(
           userSocket,
           {
@@ -51,12 +51,17 @@ export const Nav = () => {
                     addNotification(`${data.user.username} sent you a message`);
                });
                userSocket.on("game_invite", (data: GameInvite) => {
-                    console.log(data);
-                    addNotification("Game Request", {
+                    addNotification(`Game Request from ${data.inviteId}`, {
                          duration: 15000,
-
                          render: () => (
-                              <GameInviteComponent gameInvite={data} />
+                              <GameInviteComponent
+                                   onClose={() => {
+                                        removeNotification(
+                                             `Game Request from ${data.inviteId}`
+                                        );
+                                   }}
+                                   gameInvite={data}
+                              />
                          ),
                     });
                });
