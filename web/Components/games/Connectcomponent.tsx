@@ -233,7 +233,6 @@ export default function CONNECTFOURPAGE(props: GameComponentProps) {
           });
           socket.emit("player_ready");
           socket.on("c_player_move", (coords: Coords) => {
-               // console.log(coords);
                playerPos = coords.x;
           });
 
@@ -257,6 +256,11 @@ export default function CONNECTFOURPAGE(props: GameComponentProps) {
                     );
                     g.firstPlayerId = state.currentPlayerTurn.id;
                     if (pl) {
+                         if (pl.choice == "blue") {
+                              setGameplaystate(GamePlayState.waiting);
+                         } else {
+                              setGameplaystate(GamePlayState.playing);
+                         }
                          g.addPlayer({
                               ...pl,
                               name: user.username as string,
@@ -377,12 +381,14 @@ export default function CONNECTFOURPAGE(props: GameComponentProps) {
           }
      }
      useEffect(() => {
-          if (gameplayState == GamePlayState.waiting) {
-               background.changeBackgroundColor("bg-red-500");
-          } else if (gameplayState == GamePlayState.playing) {
-               background.changeBackgroundColor("bg-gray-700");
-          } else {
-               background.changeBackgroundColor("bg-gray-700");
+          if (typeof document !== "undefined") {
+               if (gameplayState == GamePlayState.waiting) {
+                    background.changeBackgroundColor("bg-red-500");
+               } else if (gameplayState == GamePlayState.playing) {
+                    background.changeBackgroundColor("bg-gray-700");
+               } else {
+                    background.changeBackgroundColor("bg-gray-700");
+               }
           }
      }, [gameplayState]);
      return (

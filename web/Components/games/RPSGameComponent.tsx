@@ -1,4 +1,5 @@
 "use client";
+import { baseUrl } from "@/constants";
 import { useBackgroundColor } from "@/hooks/useBackgroundColor";
 import { useUser } from "@/hooks/useUser";
 import { socket, usersSocket } from "@/lib/socket";
@@ -179,9 +180,7 @@ export default function RockPaperScissorGameComponent(
                handleNewRound();
           });
           socket.on("user_disconnected", () => {
-               console.log("a");
-
-               // window.location.href = `${baseUrl}/play/${props.gameId}/result`;
+               window.location.href = `${baseUrl}/play/${props.gameId}/result`;
           });
           socket.on("disconnect", () => {
                console.log("user disconnected");
@@ -246,10 +245,12 @@ export default function RockPaperScissorGameComponent(
           }));
      };
      useUpdateEffect(() => {
-          if (gameState == GamePlayState.selecting) {
-               background.changeBackgroundColor("bg-blue-500");
-          } else if (gameState == GamePlayState.waiting) {
-               background.changeBackgroundColor("bg-orange-500");
+          if (typeof window !== "undefined") {
+               if (gameState == GamePlayState.selecting) {
+                    background.changeBackgroundColor("bg-blue-500");
+               } else if (gameState == GamePlayState.waiting) {
+                    background.changeBackgroundColor("bg-red-500");
+               }
           }
      }, [gameState]);
 
@@ -368,6 +369,16 @@ export default function RockPaperScissorGameComponent(
      );
 }
 
+const getBackground = (choice: RPSOptions) => {
+     switch (choice) {
+          case "paper":
+               return "bg-gray-300";
+          case "rock":
+               return "bg-green-300";
+          case "scissors":
+               return "bg-red-300";
+     }
+};
 const ChoiceCard = ({
      choice,
      ...props
@@ -375,7 +386,9 @@ const ChoiceCard = ({
      return (
           <div
                {...props}
-               className="selectable flex flex-col p-2 content-between justify-between   rounded-2xl shadow-lg"
+               className={`selectable flex flex-col p-2 content-between justify-between ${getBackground(
+                    choice
+               )}   rounded-2xl shadow-lg`}
           >
                <Image
                     className="object-cover"
@@ -384,7 +397,7 @@ const ChoiceCard = ({
                     height={100}
                     width={100}
                />
-               <p className="font-ginto font-semibold text-lg text-center capitalize">
+               <p className="font-ginto text-black drop-shadow-sm font-semibold text-lg text-center capitalize">
                     {choice}
                </p>
           </div>

@@ -1,5 +1,5 @@
 "use client";
-import { baseUser } from "@/constants";
+import { baseUrl, baseUser } from "@/constants";
 import { useBackgroundColor } from "@/hooks/useBackgroundColor";
 import { useUser } from "@/hooks/useUser";
 import { newSocketAuth, socket } from "@/lib/socket";
@@ -204,7 +204,7 @@ export default function TicTacToeGameComponent(props: GameComponentProps) {
           // socket.emit('set-user', user)
 
           socket.on("user_disconnected", () => {
-               // window.location.href = `${baseUrl}/play/${props.gameId}/result`;
+               window.location.href = `${baseUrl}/play/${props.gameId}/result`;
           });
           socket.on("disconnect", () => {
                console.log("user disconnected");
@@ -217,18 +217,19 @@ export default function TicTacToeGameComponent(props: GameComponentProps) {
      }, [socket]);
      const background = useBackgroundColor();
      useUpdateEffect(() => {
-          if (gameState == TicTacToeGameState.PLAYING) {
-               background.changeBackgroundColor("bg-gray-700");
-          } else if (gameState == TicTacToeGameState.ENEMYTURN) {
-               background.changeBackgroundColor("bg-red-600");
-          } else if (gameState == TicTacToeGameState.END) {
-               background.changeBackgroundColor("bg-gray-700");
+          if (typeof document !== "undefined") {
+               if (gameState == TicTacToeGameState.PLAYING) {
+                    background.changeBackgroundColor("bg-gray-700");
+               } else if (gameState == TicTacToeGameState.ENEMYTURN) {
+                    background.changeBackgroundColor("bg-red-600");
+               } else if (gameState == TicTacToeGameState.END) {
+                    background.changeBackgroundColor("bg-gray-700");
+               }
           }
           return () => {
                background.changeBackgroundColor("bg-gray-700");
           };
      }, [gameState]);
-     console.log(opponent);
 
      return (
           <>
