@@ -1,11 +1,11 @@
-"use client";
-import { baseUrl } from "@/constants";
-import { useBackgroundColor } from "@/hooks/useBackgroundColor";
-import { useUser } from "@/hooks/useUser";
-import { socket, usersSocket } from "@/lib/socket";
-import Image from "next/image";
-import { ComponentProps, useEffect, useMemo, useState } from "react";
-import { useUpdateEffect } from "usehooks-ts";
+"use client"
+import { baseUrl } from "@/constants"
+import { useBackgroundColor } from "@/hooks/useBackgroundColor"
+import { useUser } from "@/hooks/useUser"
+import { socket, usersSocket } from "@/lib/socket"
+import Image from "next/image"
+import { ComponentProps, useEffect, useMemo, useState } from "react"
+import { useUpdateEffect } from "usehooks-ts"
 import {
      GameComponentProps,
      RPSOptions,
@@ -13,24 +13,24 @@ import {
      RPSPlayer,
      RPSRound,
      Rounds,
-} from "../../../shared/src/types/game";
-import { GamePlayState, IUser } from "../../../shared/src/types/users";
-import PaperImage from "../../images/paper.png";
-import RockImage from "../../images/rock.png";
-import ScissorsImage from "../../images/scissors.png";
-import { PointsComponent } from "../PointsComponent";
-const maxWins = 5;
+} from "../../../shared/src/types/game"
+import { GamePlayState, IUser } from "../../../shared/src/types/users"
+import PaperImage from "../../images/paper.png"
+import RockImage from "../../images/rock.png"
+import ScissorsImage from "../../images/scissors.png"
+import { PointsComponent } from "../PointsComponent"
+const maxWins = 5
 
 const getImage = (choice: RPSOptions) => {
      switch (choice) {
           case "paper":
-               return PaperImage;
+               return PaperImage
           case "rock":
-               return RockImage;
+               return RockImage
           case "scissors":
-               return ScissorsImage;
+               return ScissorsImage
      }
-};
+}
 
 export default function RockPaperScissorGameComponent(
      props: GameComponentProps
@@ -43,14 +43,14 @@ export default function RockPaperScissorGameComponent(
           username: "",
           created_at: Date.now().toString(),
           email: "",
-     });
-     const [currentWinner, setCurrentWinner] = useState<RPSRound | null>(null);
-     const background = useBackgroundColor();
+     })
+     const [currentWinner, setCurrentWinner] = useState<RPSRound | null>(null)
+     const background = useBackgroundColor()
      const [gameState, setGameState] = useState<GamePlayState>(
           GamePlayState.selecting
-     );
+     )
 
-     const { user } = useUser();
+     const { user } = useUser()
 
      const [currentPlayer, setCurrentPlayer] = useState<
           IUser & { choice: RPSOptions | null }
@@ -60,7 +60,7 @@ export default function RockPaperScissorGameComponent(
           created_at: Date.now().toString(),
           email: "",
           username: "",
-     });
+     })
 
      const [rounds, setRounds] = useState<Rounds>({
           count: 0,
@@ -68,47 +68,59 @@ export default function RockPaperScissorGameComponent(
           wins: {
                ties: 0,
           },
-     });
+     })
+     const canPLay = useMemo(() => {
+          if (!opponent) {
+               return false
+          }
+          if (!currentPlayer) {
+               return false
+          }
+          if (gameState !== GamePlayState.selecting) {
+               return false
+          }
+          return true
+     }, [opponent])
      const matchEnd = useMemo(() => {
           if (
                (rounds.wins[currentPlayer.id] == maxWins ||
                     rounds.wins[opponent.id] == maxWins) &&
                gameState == GamePlayState.end
           ) {
-               console.log("match end");
-               return true;
+               console.log("match end")
+               return true
           }
-          return false;
-     }, [rounds.wins[currentPlayer.id], gameState, rounds.wins[opponent.id]]);
+          return false
+     }, [rounds.wins[currentPlayer.id], gameState, rounds.wins[opponent.id]])
 
      useEffect(() => {
-          if (!user) return;
+          if (!user) return
           socket.auth = {
                user,
                roomId: props.gameId,
                gameName: props.gameName,
-          };
+          }
           if (!usersSocket.connected) {
                usersSocket.auth = {
                     user: user,
-               };
-               usersSocket.connect();
+               }
+               usersSocket.connect()
           }
-          socket.connect();
-          socket.emit("join_room", props.gameId);
+          socket.connect()
+          socket.emit("join_room", props.gameId)
           socket.on("get_players", (players: RPSPlayer[]) => {
-               const opponent = players.find((player) => player.id != user.id);
+               const opponent = players.find((player) => player.id != user.id)
 
                if (opponent) {
                     setOpponent((curr) => ({
                          ...curr,
                          id: opponent.id,
                          choice: opponent.choice,
-                    }));
+                    }))
                }
                const currentPlayer = players.find(
                     (player) => player.id == user.id
-               );
+               )
                if (currentPlayer && currentPlayer.choice !== null) {
                     usersSocket.emit("get_user", currentPlayer.id, (data) => {
                          setCurrentPlayer((curr) => ({
@@ -116,8 +128,8 @@ export default function RockPaperScissorGameComponent(
                               ...data,
                               id: currentPlayer.id,
                               choice: currentPlayer.choice,
-                         }));
-                    });
+                         }))
+                    })
                }
                if (currentPlayer && opponent) {
                     setRounds({
@@ -128,27 +140,27 @@ export default function RockPaperScissorGameComponent(
                               [currentPlayer.id]: 0,
                               [opponent.id]: 0,
                          },
-                    });
+                    })
                }
-               socket.emit("player_ready");
-          });
+               socket.emit("player_ready")
+          })
           // socket.emit('set-user', user)
           socket.on("rps_choice", (choice: any) => {
-               console.log(choice);
-          });
+               console.log(choice)
+          })
           socket.on("round_winner", (round: RPSRound | null) => {
-               if (!round) return;
-               setGameState(GamePlayState.results);
-               setCurrentWinner(round);
+               if (!round) return
+               setGameState(GamePlayState.results)
+               setCurrentWinner(round)
                const opponentChoice =
                     round.winner.id !== user.id
                          ? round.winner.choice
-                         : round.loser.choice;
+                         : round.loser.choice
 
-               setOpponent((curr) => ({ ...curr, choice: opponentChoice }));
+               setOpponent((curr) => ({ ...curr, choice: opponentChoice }))
 
                if (!round.isTie) {
-                    console.log(round.winner.id == currentPlayer.id);
+                    console.log(round.winner.id == currentPlayer.id)
                     setRounds((current) => ({
                          ...current,
                          count: current.count + 1,
@@ -158,7 +170,7 @@ export default function RockPaperScissorGameComponent(
                               [round.winner.id]:
                                    current.wins[round.winner.id] + 1,
                          },
-                    }));
+                    }))
                } else {
                     setRounds((current) => ({
                          ...current,
@@ -168,92 +180,108 @@ export default function RockPaperScissorGameComponent(
                               ...current.wins,
                               ties: current.wins.ties + 1,
                          },
-                    }));
+                    }))
                }
-          });
+          })
           socket.on("rps_game_winner", (winner: Partial<IUser>) => {
                if (winner) {
-                    setGameState(GamePlayState.end);
+                    setGameState(GamePlayState.end)
                }
-          });
+          })
           socket.on("new_round", () => {
-               handleNewRound();
-          });
+               handleNewRound()
+          })
           socket.on("user_disconnected", () => {
-               window.location.href = `${baseUrl}/play/${props.gameId}/result`;
-          });
+               window.location.href = `${baseUrl}/play/${props.gameId}/result`
+          })
           socket.on("disconnect", () => {
-               console.log("user disconnected");
-          });
+               console.log("user disconnected")
+          })
           return () => {
                if (socket) {
-                    socket.disconnect();
+                    socket.disconnect()
                }
-          };
-     }, [socket]);
+          }
+     }, [socket])
      useEffect(() => {
           if (!usersSocket.connected) {
                usersSocket.auth = {
                     user: user,
-               };
-               usersSocket.connect();
-               console.log("con");
+               }
+               usersSocket.connect()
+               console.log("con")
           }
-     }, []);
+     }, [])
 
      useEffect(() => {
           if (opponent.id !== "defaultid" && opponent.email == "") {
                usersSocket.emit("get_user", opponent.id, (data) => {
                     // console.log(data);
-                    setOpponent((old) => ({ ...old, ...data }));
-               });
+                    setOpponent((old) => ({ ...old, ...data }))
+               })
           }
-          return () => {};
-     }, [opponent.id]);
+          return () => {}
+     }, [opponent.id])
 
      useEffect(() => {
           if (currentPlayer.id !== "defaultid" && currentPlayer.email == "") {
                usersSocket.emit("get_user", currentPlayer.id, (data) => {
-                    console.table(data);
-                    setCurrentPlayer((old) => ({ ...old, ...data }));
-               });
+                    console.table(data)
+                    setCurrentPlayer((old) => ({ ...old, ...data }))
+               })
           }
-          return () => {};
-     }, [currentPlayer.id]);
+          return () => {}
+     }, [currentPlayer.id])
      const handleChoice = (choice: RPSOptions) => {
-          if (!user) return;
+          if (!user) return
           socket.emit("rps_choice", {
                id: user.id,
                choice,
-          });
+          })
           setCurrentPlayer((current) => ({
                ...current,
                choice: choice,
-          }));
-          setGameState(GamePlayState.waiting);
-     };
+          }))
+          setGameState(GamePlayState.waiting)
+     }
 
      const handleNewRound = () => {
-          setGameState(GamePlayState.selecting);
+          setGameState(GamePlayState.selecting)
           setOpponent((current) => ({
                ...current,
                choice: null,
-          }));
+          }))
           setCurrentPlayer((current) => ({
                ...current,
                choice: null,
-          }));
-     };
+          }))
+     }
      useUpdateEffect(() => {
           if (typeof window !== "undefined") {
                if (gameState == GamePlayState.selecting) {
-                    background.changeBackgroundColor("bg-blue-500");
+                    background.changeBackgroundColor("bg-blue-500")
                } else if (gameState == GamePlayState.waiting) {
-                    background.changeBackgroundColor("bg-red-500");
+                    background.changeBackgroundColor("bg-red-500")
                }
           }
-     }, [gameState]);
+     }, [gameState])
 
+     const gameWinner = useMemo(() => {
+          if (!Object.values(rounds.wins).some((item) => item >= maxWins)) {
+               return null
+          }
+          const winnerId = Object.entries(rounds.wins).reduce((acc, item) => {
+               if (item[1] >= maxWins) {
+                    acc = item
+               }
+               return acc
+          }, Object.entries(rounds.wins)[0])
+          if (opponent.id == winnerId[0]) {
+               return opponent
+          }
+          return currentPlayer
+     }, [rounds.wins, opponent, currentPlayer])
+     console.log(gameWinner)
      return (
           <div className="pt-2">
                <PointsComponent
@@ -272,7 +300,9 @@ export default function RockPaperScissorGameComponent(
                               <ChoiceCard
                                    key={option}
                                    onClick={() => {
-                                        handleChoice(option);
+                                        if (canPLay) {
+                                             handleChoice(option)
+                                        }
                                    }}
                                    choice={option}
                               />
@@ -350,35 +380,33 @@ export default function RockPaperScissorGameComponent(
                                    </div>
                               </div>
                          )}
-                    {matchEnd && (
+                    {matchEnd && gameWinner && (
                          <div>
+                              <p className="font-ginto text-center font-bold text-4xl">
+                                   The winner is
+                              </p>
                               <div>
-                                   <h3>The Winner is</h3>
+                                   <span className="capitalize text-center font-whitney text-xl font-semibold">
+                                        {gameWinner.username}
+                                   </span>
                               </div>
-                              {Object.values(rounds.wins).some(
-                                   (item) => item >= maxWins
-                              ) ? (
-                                   <div>{currentPlayer.username}</div>
-                              ) : (
-                                   <div>{opponent.username}</div>
-                              )}
                          </div>
                     )}
                </div>
           </div>
-     );
+     )
 }
 
 const getBackground = (choice: RPSOptions) => {
      switch (choice) {
           case "paper":
-               return "bg-gray-300";
+               return "bg-gray-300"
           case "rock":
-               return "bg-green-300";
+               return "bg-green-300"
           case "scissors":
-               return "bg-red-300";
+               return "bg-red-300"
      }
-};
+}
 const ChoiceCard = ({
      choice,
      ...props
@@ -401,5 +429,5 @@ const ChoiceCard = ({
                     {choice}
                </p>
           </div>
-     );
-};
+     )
+}

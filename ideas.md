@@ -8,10 +8,6 @@
 
 -    accept friend invite needs to close button and refresh list
 
--    rps wrong winner on losers screen
-
--    rps winner text should be bigger
-
 -    connect four background wrong color in the beginning
 
 -    connect 4 algo is wrong
@@ -24,4 +20,4 @@
 
 -    notification component for message received
 
--    chat page fix aligment
+-    chat page fix aligmennt
