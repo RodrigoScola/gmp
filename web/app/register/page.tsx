@@ -1,23 +1,23 @@
-"use client";
+"use client"
 import {
      AccountProviderType,
      AccountProviders,
      ProviderButton,
-} from "@/Components/accountProviders/AccountProviderButtons";
-import { baseUrl } from "@/constants";
-import { useNotification } from "@/hooks/useToast";
-import { Button, FormControl, FormLabel, Input } from "@chakra-ui/react";
-import { FormEvent, useState } from "react";
-import { useSupabase } from "../supabase-provider";
+} from "@/Components/accountProviders/AccountProviderButtons"
+import { baseUrl } from "@/constants"
+import { useNotification } from "@/hooks/useToast"
+import { Button, FormControl, FormLabel, Input } from "@chakra-ui/react"
+import { FormEvent, useState } from "react"
+import { useSupabase } from "../supabase-provider"
 
 export default function REGISTERPAGE() {
-     const { supabase } = useSupabase();
+     const { supabase } = useSupabase()
      const [data, setData] = useState({
           email: "",
           password: "",
           username: "",
-     });
-     const { addNotification } = useNotification();
+     })
+     const { addNotification } = useNotification()
      const handleSignUpProvider = async (
           provider: AccountProviderType
      ): Promise<void> => {
@@ -26,69 +26,69 @@ export default function REGISTERPAGE() {
                options: {
                     redirectTo: `${baseUrl}/login`,
                },
-          });
-     };
+          })
+     }
      const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
           setData((current) => ({
                ...current,
                [e.target.name]: e.target.value,
-          }));
-     };
+          }))
+     }
      const handleSignUp = async (e: FormEvent<HTMLFormElement>) => {
-          e.preventDefault();
+          e.preventDefault()
           if (
                data.email === "" ||
                data.password === "" ||
                data.username === ""
           ) {
-               return;
+               return
           }
           if (data.password.length < 8) {
-               addNotification("password must be at least 8 characters");
+               addNotification("password must be at least 8 characters")
 
-               return;
+               return
           }
           const { error, data: usernameTaken } = await supabase
                .from("profiles")
                .select("username")
                .eq("username", data.username)
-               .maybeSingle();
+               .maybeSingle()
           if (error) {
-               console.log(error);
+               console.log(error)
                addNotification(error.message, {
                     position: "top",
                     status: "error",
-               });
+               })
           }
           if (usernameTaken) {
                addNotification("username is unavailable", {
                     position: "top",
                     status: "warning",
-               });
-               return;
+               })
+               return
           }
           const { data: signupdata } = await supabase.auth.signUp({
                email: data.email,
                password: data.password,
-          });
+          })
           if (signupdata.user) {
                await supabase.from("profiles").insert({
                     email: data.email,
                     id: signupdata.user.id,
                     username: data.username,
-               });
+               })
 
-               addNotification("Account Created!");
+               addNotification("Account Created!")
                const a = await supabase.auth.signInWithPassword({
                     email: data.email,
                     password: data.password,
-               });
-               console.log(a);
+               })
+               console.log(a)
                setTimeout(() => {
-                    window.location.href = `/`;
-               });
+                    window.location.href = `/`
+               })
           }
-     };
+     }
      return (
           <div className="h-[80vh]  flex">
                <div className="w-fit m-auto  p-3 rounded-lg">
@@ -150,5 +150,5 @@ export default function REGISTERPAGE() {
                     </div>
                </div>
           </div>
-     );
+     )
 }

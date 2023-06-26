@@ -67,68 +67,60 @@ export class CFBoard extends Board<CFMove> {
                     }
                     pos[move.coords.x] = nmove
                     this.moves.push(nmove)
-                    // console.log(this.board);
                     break
                }
           }
-
-          // console.log(this.board);
      }
 
      private walkBoard(
           board: CFMove[][],
           currentPiece: CFMove,
-          visited: boolean[][],
+          dir: number[],
           len: number,
           target: CFMove
      ): boolean {
-          if (currentPiece.id == "" || !board) return false
-          if (
-               currentPiece.coords.y > board.length ||
-               currentPiece.coords.y < 0 ||
-               currentPiece.coords.x < 0 ||
-               currentPiece.coords.x > board[0].length
-          ) {
-               return false
-          }
-          if (currentPiece.id !== target.id) {
-               return false
-          }
-          if (visited[currentPiece.coords.y][currentPiece.coords.x] == true) {
-               return false
-          }
-          visited[currentPiece.coords.y][currentPiece.coords.x] = true
-          if (len == 4) return true
-          for (let i = 0; i < dir.length; i++) {
-               const [x, y] = dir[i]
-               if (!board[currentPiece.coords.y + y]) continue
+          if (!board) return false
+          if (!currentPiece) return false
+          let nx = currentPiece.coords.x + dir[0]
+          let ny = currentPiece.coords.y + dir[1]
 
-               let newPiece =
-                    board[currentPiece.coords.y + y][currentPiece.coords.x + x]
-               if (!newPiece) continue
-               if (this.walkBoard(board, newPiece, visited, len + 1, target)) {
+          if (ny > board.length || ny < 0 || nx > board[0].length || nx < 0) {
+               return false
+          }
+          if (len == 4) {
+               return true
+          }
+          try {
+               const npos = board[ny][nx]
+               if (npos.id !== target.id) {
+                    return false
+               }
+               const c = this.walkBoard(board, npos, dir, len + 1, target)
+               if (c) {
+                    return true
+               }
+          } catch (error) {}
+          return false
+     }
+     checkBoard(): boolean {
+          const lastMove = this.moves[this.moves.length - 1]
+
+          if (!lastMove) return false
+
+          for (let i = 0; i < dir.length; i++) {
+               const b = this.walkBoard(
+                    this.board,
+                    lastMove,
+                    dir[i],
+                    1,
+                    lastMove
+               )
+               if (b) {
                     return true
                }
           }
 
           return false
-     }
-     checkBoard(): boolean {
-          if (this.moves.length < 7) return false
-          const lastMove = this.moves[this.moves.length - 1]
-
-          let seen = []
-          for (let i = 0; i < this.board.length; i++) {
-               seen[i] = new Array(this.board[0].length).fill(false)
-          }
-
-          if (!lastMove) return false
-
-          const b = this.walkBoard(this.board, lastMove, seen, 0, lastMove)
-
-          console.log(b)
-
-          return true
      }
 
      isTie() {
@@ -144,7 +136,6 @@ export class CFBoard extends Board<CFMove> {
           if (x < 0 || x > board[0].length || y < 0 || y > board.length) {
                return false
           }
-          console.log(board.length, board[0].length, x)
           const pos = board[y][x]
           if (!pos) return false
 
@@ -250,7 +241,6 @@ export class CFGame extends Game<"connect Four"> {
           }
      }
      play(move: MoveChoice<CFMove>): void {
-          // console.log(this.moves);
           this.board.addMove(move)
           this.moves.push(move)
      }

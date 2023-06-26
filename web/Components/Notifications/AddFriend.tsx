@@ -1,6 +1,6 @@
-import { userSocket } from "@/lib/socket";
-import { NotificationProps } from "@/types";
-import { IUser } from "../../../shared/src/types/users";
+import { userSocket } from "@/lib/socket"
+import { NotificationProps } from "@/types"
+import { IUser } from "../../../shared/src/types/users"
 
 export const AddFiendComponent = ({
      friend,
@@ -8,14 +8,18 @@ export const AddFiendComponent = ({
 }: NotificationProps & { friend: IUser }) => {
      const handleDeny = () => {
           if (typeof props.onClose !== "undefined") {
-               props.onClose();
+               props.onClose()
           }
-     };
+     }
      const handleAccept = () => {
           if (userSocket.connected) {
-               userSocket.emit("add_friend_answer", friend, "accepted");
+               userSocket.emit("add_friend_answer", friend, "accepted")
+
+               if (typeof props.onClose !== "undefined") {
+                    props.onClose()
+               }
           }
-     };
+     }
 
      return (
           <div {...props} className="bg-gray-800 rounded-md p-4">
@@ -44,5 +48,5 @@ export const AddFiendComponent = ({
                     </button>
                </div>
           </div>
-     );
-};
+     )
+}

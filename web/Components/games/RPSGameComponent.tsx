@@ -416,7 +416,7 @@ const ChoiceCard = ({
                {...props}
                className={`selectable flex flex-col p-2 content-between justify-between ${getBackground(
                     choice
-               )}   rounded-2xl shadow-lg`}
+               )}   rounded-2xl shadow-lg ${props.className}`}
           >
                <Image
                     className="object-cover"

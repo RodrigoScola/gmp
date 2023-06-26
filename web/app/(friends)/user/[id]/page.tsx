@@ -1,89 +1,90 @@
-"use client";
-import { GameData, getGameData } from "@/../shared/src/game/gameUtils";
-import { LogoutButton } from "@/Components/buttons/LogoutButton";
-import { db } from "@/db/supabase";
-import { useBackgroundColor } from "@/hooks/useBackgroundColor";
-import { useUser } from "@/hooks/useUser";
-import { chatSocket } from "@/lib/socket";
-import { Avatar } from "@chakra-ui/react";
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import { useEffectOnce } from "usehooks-ts";
-import { GameNames, gameNames } from "../../../../../shared/src/types/game";
-import { IUser } from "../../../../../shared/src/types/users";
+"use client"
+import { GameData, getGameData } from "@/../shared/src/game/gameUtils"
+import { LogoutButton } from "@/Components/buttons/LogoutButton"
+import { baseUrl } from "@/constants"
+import { db } from "@/db/supabase"
+import { useBackgroundColor } from "@/hooks/useBackgroundColor"
+import { useUser } from "@/hooks/useUser"
+import { chatSocket } from "@/lib/socket"
+import { Avatar } from "@chakra-ui/react"
+import Link from "next/link"
+import { useEffect, useState } from "react"
+import { useEffectOnce } from "usehooks-ts"
+import { GameNames, gameNames } from "../../../../../shared/src/types/game"
+import { IUser } from "../../../../../shared/src/types/users"
 
 export default function PROFILEPAGE({
      params,
 }: {
      params: {
-          id: string;
-     };
+          id: string
+     }
 }) {
-     const { user: currentUser } = useUser();
-     useBackgroundColor("bg-gray-700");
+     const { user: currentUser } = useUser()
+     useBackgroundColor("bg-gray-700")
      const [user, setUser] = useState<IUser>({
           created_at: Date.now().toString(),
           email: "defaultemail@gmail.com",
           id: "defaultid",
           username: params.id,
-     });
+     })
      useEffect(() => {
           if (!chatSocket.connected) {
                chatSocket.auth = {
                     user: currentUser,
-               };
-               chatSocket.connect();
+               }
+               chatSocket.connect()
           }
           return () => {
-               if (chatSocket.connected) chatSocket.disconnect();
-          };
-     }, []);
+               if (chatSocket.connected) chatSocket.disconnect()
+          }
+     }, [])
 
-     const [conversationId, setConversationId] = useState<string | null>(null);
+     const [conversationId, setConversationId] = useState<string | null>(null)
      const getInformation = async () => {
-          if (!currentUser) return;
-          if (!params.id) return;
+          if (!currentUser) return
+          if (!params.id) return
           const user = await db
                .from("profiles")
                .select("*")
                .eq("username", params.id)
-               .single();
-          if (!user.data) return;
-          setUser(user.data);
+               .single()
+          if (!user.data) return
+          setUser(user.data)
           chatSocket.emit(
                "find_conversation",
                currentUser.id,
                user.data.id,
                (data) => {
-                    console.log(data);
-                    setConversationId(data.id as string);
+                    console.log(data)
+                    setConversationId(data.id as string)
                }
-          );
-     };
+          )
+     }
      useEffectOnce(() => {
-          getInformation();
-     });
+          getInformation()
+     })
 
-     const [gamesArr, setGamesArr] = useState<IUser[][]>([]);
+     const [gamesArr, setGamesArr] = useState<IUser[][]>([])
      useEffect(() => {
           const arr: IUser[][] = [0, 1, 2, 3].map((_, __) => {
-               const choice = Math.random() < 0.5;
+               const choice = Math.random() < 0.5
                const user1 = {
                     created_at: Date.now().toString(),
                     email: "handomizando@gmail.com",
                     id: "asdfp9asd",
                     username: user.username,
-               };
+               }
                const user2 = {
                     created_at: Date.now().toString(),
                     email: "opponent@gmail.com",
                     id: "thisopponentid",
                     username: "oppponent",
-               };
-               return choice ? [user1, user2] : [user2, user1];
-          });
-          setGamesArr(arr);
-     }, []);
+               }
+               return choice ? [user1, user2] : [user2, user1]
+          })
+          setGamesArr(arr)
+     }, [])
      return (
           <div className="w-fit m-auto mt-2 rounded-md lg:px-24 px-12   bg-gradient-to-b from-gray-800 to-90% to-gray-900/40 py-2 ">
                <div className="m-auto w-full  ">
@@ -108,7 +109,7 @@ export default function PROFILEPAGE({
                                    {user.id !== currentUser?.id ? (
                                         <Link
                                              className="button bg-white  text-gray-900"
-                                             href={`user/${conversationId}/chat`}
+                                             href={`${baseUrl}/user/${conversationId}/chat`}
                                         >
                                              Start a Chat
                                         </Link>
@@ -145,22 +146,22 @@ export default function PROFILEPAGE({
                                              user2={user2}
                                         />
                                    </li>
-                              );
+                              )
                          })}
                     </ul>
                </div>
           </div>
-     );
+     )
 }
 
 type GameMatchCardProps = {
-     user2: IUser;
-     user1: IUser;
-};
+     user2: IUser
+     user1: IUser
+}
 const GameMatchCard = (props: GameMatchCardProps) => {
      const [randomGame, _] = useState<GameData>(
           getGameData(gameNames[Math.floor(Math.random() * gameNames.length)])
-     );
+     )
 
      return (
           <div className="flex flex-row    rounded-md ">
@@ -174,13 +175,13 @@ const GameMatchCard = (props: GameMatchCardProps) => {
                     </p>
                </div>
           </div>
-     );
-};
+     )
+}
 
 type GameStatCardProps = {
-     kd: number;
-     game: GameNames;
-};
+     kd: number
+     game: GameNames
+}
 
 const GameStatCard = (props: GameStatCardProps) => {
      return (
@@ -196,5 +197,5 @@ const GameStatCard = (props: GameStatCardProps) => {
                     </p>
                </div>
           </div>
-     );
-};
+     )
+}

@@ -1,55 +1,55 @@
-"use client";
+"use client"
 import {
      AccountProviderType,
      AccountProviders,
-} from "@/Components/accountProviders/AccountProviderButtons";
-import { baseUrl } from "@/constants";
-import { useObject } from "@/hooks/useObject";
-import { useNotification } from "@/hooks/useToast";
-import { useUser } from "@/hooks/useUser";
-import { Button, FormControl, FormLabel, Input } from "@chakra-ui/react";
-import dynamic from "next/dynamic";
-import Link from "next/link";
-import { useSupabase } from "../supabase-provider";
+} from "@/Components/accountProviders/AccountProviderButtons"
+import { baseUrl } from "@/constants"
+import { useObject } from "@/hooks/useObject"
+import { useNotification } from "@/hooks/useToast"
+import { useUser } from "@/hooks/useUser"
+import { Button, FormControl, FormLabel, Input } from "@chakra-ui/react"
+import dynamic from "next/dynamic"
+import Link from "next/link"
+import { useSupabase } from "../supabase-provider"
 const ProviderButton = dynamic(() =>
      import("@/Components/accountProviders/AccountProviderButtons").then(
           (r) => r.ProviderButton
      )
-);
+)
 
 export default function LOGINPAGE() {
      const [state, setState] = useObject({
           email: "",
           password: "",
-     });
+     })
 
-     const mainUser = useUser();
-     const { supabase } = useSupabase();
-     const { addNotification } = useNotification();
+     const mainUser = useUser()
+     const { supabase } = useSupabase()
+     const { addNotification } = useNotification()
      const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
           setState({
                [e.target.name]: e.target.value,
-          });
-     };
+          })
+     }
      const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-          e.preventDefault();
-          await mainUser.logout();
+          e.preventDefault()
+          await mainUser.logout()
 
-          const data = await mainUser.login(state.email, state.password);
+          const data = await mainUser.login(state.email, state.password)
           if (data) {
-               window.location.href = baseUrl ?? "/";
+               window.location.href = baseUrl ?? "/"
           } else {
                addNotification("invalid credentials", {
                     status: "warning",
                     position: "top",
-               });
+               })
           }
-     };
+     }
      const handleProviderSignIn = async (provider: AccountProviderType) => {
           await supabase.auth.signInWithOAuth({
                provider: provider,
-          });
-     };
+          })
+     }
 
      return (
           <div className="flex items-center h-[80vh]">
@@ -99,7 +99,7 @@ export default function LOGINPAGE() {
                                         }
                                         handleClick={handleProviderSignIn}
                                    />
-                              );
+                              )
                          })}
                     </div>
                     <div className="flex justify-center flex-col pt-2">
@@ -115,5 +115,5 @@ export default function LOGINPAGE() {
                     </div>
                </form>
           </div>
-     );
+     )
 }
